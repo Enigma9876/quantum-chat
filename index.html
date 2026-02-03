@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WebSocket Relay</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 16px; }
+    #log { height: 300px; overflow: auto; border: 1px solid #ccc; padding: 8px; margin-bottom: 8px; }
+    #controls { display:flex; gap:8px; }
+    input[type="text"] { flex: 1; padding: 6px; }
+  </style>
+</head>
+<body>
+  <h3>WebSocket Relay</h3>
+  <div id="log"></div>
+  <div id="controls">
+    <input id="msg" type="text" placeholder="Type a message" />
+    <button id="send">Send</button>
+  </div>
+
+  <script>
+    // Build WS URL from page origin to avoid mixed-content and host mismatches
+    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const SERVER_URL = proto + '//' + location.host;
+
+    // Get client_id from URL `?client_id=client1` or prompt if missing
+    const params = new URLSearchParams(location.search);
+    let clientId = params.get('client_id');
+    if (!clientId) {
+      clientId = prompt("Enter client id (client1 or client2)", "client1") || "client1";
+    }
+
+    const socket = new WebSocket(`${SERVER_URL}/ws?client_id=${encodeURIComponent(clientId)}`);
+
+    const log = document.getElementById('log');
+    function append(text) {
+      const el = document.createElement('div');
+      el.textContent = text;
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    socket.addEventListener('open', () => append('Connected as ' + clientId));
+    socket.addEventListener('message', (ev) => append('Peer: ' + ev.data));
+    socket.addEventListener('close', (ev) => append(`Disconnected (code=${ev.code} reason=${ev.reason})`));
+    socket.addEventListener('error', (e) => { append('Error: see console'); console.error('WebSocket error', e); });
+
+    document.getElementById('send').addEventListener('click', () => {
+      const input = document.getElementById('msg');
+      if (!input.value) return;
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(input.value);
+        append('You: ' + input.value);
+        input.value = '';
+      } else {
+        append('Not connected — message not sent');
+      }
+    });
+
+    document.getElementById('msg').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('send').click();
+    });
+
+    // Show a short shareable link for the other client id (useful when opening on another device)
+    const shareDiv = document.createElement('div');
+    shareDiv.style.marginTop = '8px';
+    const otherClient = clientId === 'client1' ? 'client2' : 'client1';
+    const shareUrl = `${location.origin}${location.pathname}?client_id=${encodeURIComponent(otherClient)}`;
+    shareDiv.innerHTML = `Open on another device: <a href="${shareUrl}" target="_blank">${shareUrl}</a> `;
+    const copyBtn = document.createElement('button');
+    copyBtn.textContent = 'Copy link';
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(shareUrl).then(() => append('Share link copied')); 
+    });
+    shareDiv.appendChild(copyBtn);
+    document.body.appendChild(shareDiv);
+  </script>
+</body>
+</html>
