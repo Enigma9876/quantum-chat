@@ -6,6 +6,11 @@
   <title>WebSocket Relay</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 16px; }
+    #shareBox { background: #e8f5e9; border: 2px solid #4caf50; padding: 12px; margin-bottom: 12px; border-radius: 4px; }
+    #shareBox h4 { margin-top: 0; color: #2e7d32; }
+    #shareBox input { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; font-size: 14px; }
+    #shareBox button { padding: 6px 12px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer; }
+    #shareBox button:hover { background: #45a049; }
     #log { height: 300px; overflow: auto; border: 1px solid #ccc; padding: 8px; margin-bottom: 8px; }
     #controls { display:flex; gap:8px; }
     input[type="text"] { flex: 1; padding: 6px; }
@@ -13,6 +18,11 @@
 </head>
 <body>
   <h3>WebSocket Relay</h3>
+  <div id="shareBox">
+    <h4>📱 Share with a friend on another device:</h4>
+    <input id="shareLink" type="text" readonly />
+    <button id="copyLinkBtn">Copy Link</button>
+  </div>
   <div id="log"></div>
   <div id="controls">
     <input id="msg" type="text" placeholder="Type a message" />
@@ -20,7 +30,7 @@
   </div>
 
   <script>
-    // Build WS URL from page origin to avoid mixed-content and host mismatches
+    // Build WS URL from page origin
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
     const SERVER_URL = proto + '//' + location.host;
 
@@ -29,6 +39,8 @@
     let clientId = params.get('client_id');
     if (!clientId) {
       clientId = prompt("Enter client id (client1 or client2)", "client1") || "client1";
+      // Redirect with the client_id in URL so the share link works
+      window.location.search = '?client_id=' + encodeURIComponent(clientId);
     }
 
     const socket = new WebSocket(`${SERVER_URL}/ws?client_id=${encodeURIComponent(clientId)}`);
@@ -41,10 +53,10 @@
       log.scrollTop = log.scrollHeight;
     }
 
-    socket.addEventListener('open', () => append('Connected as ' + clientId));
-    socket.addEventListener('message', (ev) => append('Peer: ' + ev.data));
-    socket.addEventListener('close', (ev) => append(`Disconnected (code=${ev.code} reason=${ev.reason})`));
-    socket.addEventListener('error', (e) => { append('Error: see console'); console.error('WebSocket error', e); });
+    socket.addEventListener('open', () => append('✅ Connected as ' + clientId));
+    socket.addEventListener('message', (ev) => append('📨 Peer: ' + ev.data));
+    socket.addEventListener('close', (ev) => append(`❌ Disconnected (code=${ev.code})`));
+    socket.addEventListener('error', (e) => { append('⚠️ Error: see console'); console.error('WebSocket error', e); });
 
     document.getElementById('send').addEventListener('click', () => {
       const input = document.getElementById('msg');
@@ -62,19 +74,17 @@
       if (e.key === 'Enter') document.getElementById('send').click();
     });
 
-    // Show a short shareable link for the other client id (useful when opening on another device)
-    const shareDiv = document.createElement('div');
-    shareDiv.style.marginTop = '8px';
+    // Generate share link for the other client
     const otherClient = clientId === 'client1' ? 'client2' : 'client1';
-    const shareUrl = `${location.origin}${location.pathname}?client_id=${encodeURIComponent(otherClient)}`;
-    shareDiv.innerHTML = `Open on another device: <a href="${shareUrl}" target="_blank">${shareUrl}</a> `;
-    const copyBtn = document.createElement('button');
-    copyBtn.textContent = 'Copy link';
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(shareUrl).then(() => append('Share link copied')); 
+    const shareUrl = `${location.protocol}//${location.host}${location.pathname}?client_id=${encodeURIComponent(otherClient)}`;
+    document.getElementById('shareLink').value = shareUrl;
+    document.getElementById('copyLinkBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        append('✅ Share link copied to clipboard');
+      }).catch(() => {
+        append('Could not copy to clipboard');
+      });
     });
-    shareDiv.appendChild(copyBtn);
-    document.body.appendChild(shareDiv);
   </script>
 </body>
 </html>

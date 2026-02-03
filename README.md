@@ -4,12 +4,14 @@ Run the simple WebSocket relay (requires Python 3.10+):
 
 ```bash
 # create a venv
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+python -m venv .venv # first
+source .venv/bin/activate # second
+pip install -r requirements.txt # third
 
 # start the server (listen on all interfaces so other devices can connect)
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload --host 0.0.0.0 --port 8000 # fourth -> open pop up
+
+pkill -f uvicorn # to shut down server
 ```
 
 Open the app in a browser on two devices and use these example URLs:
