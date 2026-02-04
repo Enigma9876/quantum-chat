@@ -9,7 +9,7 @@ def log(message):
 
 def receive_messages(client_socket):
     """Receive messages from server in a separate thread."""
-    while True:
+    while True: 
         try:
             message = client_socket.recv(1024).decode('utf-8')
             if not message:

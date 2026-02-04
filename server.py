@@ -13,7 +13,7 @@ def log(message):
 
 def broadcast(message, sender_socket=None):
     """Send a message to all connected clients except the sender."""
-    with clients_lock:
+    with clients_lock: 
         for client_socket in list(clients.keys()):
             if client_socket != sender_socket:
                 try:
