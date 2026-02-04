@@ -1,10 +1,20 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import os
 
 #run with "uvicorn main:app --reload --host 0.0.0.0 --port 8000" in console
 app = FastAPI()
+
+# Enable CORS for all origins (needed for dev/testing across different hosts)
+app.add_middleware(
+	CORSMiddleware,
+	allow_origins=["*"],
+	allow_credentials=True,
+	allow_methods=["*"],
+	allow_headers=["*"],
+)
 
 # Simple allow list: update as needed
 ALLOWED_CLIENTS = {"client1", "client2"}
