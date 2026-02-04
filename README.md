@@ -27,6 +27,8 @@ Expected output:
 ```
 
 ### Terminal 2 - Run First Client
+
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```bash
 python client.py
 ```
