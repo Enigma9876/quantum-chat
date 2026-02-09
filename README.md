@@ -3,31 +3,7 @@
 A Python TCP client-server chat application that demonstrates real-time messaging between multiple devices.
 w
 ## Setup
-
-```bash
-# Create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies (if any)
-pip install -r requirements.txt
-```
-
-## Running the Chat App
-
-### Terminal 1 - Start the Server
-```bash
-python server.py
-```
-Expected output:
-```
-[HH:MM:SS] 🚀 Chat Server Started
-[HH:MM:SS] 📍 Listening on 0.0.0.0:8080
-[HH:MM:SS] ⏳ Waiting for clients to connect...
-```
-
-### Terminal 2 - Run First Client
-
+# Type in after making port 8000 public:
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```bash
 python client.py
