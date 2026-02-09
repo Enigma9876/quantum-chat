@@ -1,13 +1,15 @@
+from typing import Dict, Any
+
 class CryptoManager :
     def __init__(self):
-        self.Modules: Dict[str, Any] = {}
+        self._modules: Dict[str, Any] = {}
 
 
 
     def register(self, module):
         if getattr(module, "id", None) is None:
             raise ValueError("Module must have an 'id' attribute")
-        self.Modules[module.id] = module
+        self._modules[module.id] = module
 
 
 
