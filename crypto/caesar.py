@@ -30,3 +30,29 @@ class CaesarCipher:
     #it wanted me to write a decrypt function but the logic is the same as encrypt just with a negative shift so here we are
     def decrypt(self, ciphertext: bytes, key: int, meta: dict = None) -> bytes:
         return self.encrypt(ciphertext, -key)
+    
+
+
+#the following is like just to test that this works
+
+if __name__ == "__main__":
+    cipher = CaesarCipher()
+    
+
+    msg = input("Enter a message to encrypt: ")
+    if not msg: msg = "Hello, World!"
+
+    shift = int(input("Enter the shift value (key): "))
+    if not shift: shift = 3
+
+    encrypted_bytes = cipher.encrypt(msg.encode('utf-8'), shift)
+    encrypted_text = encrypted_bytes.decode('utf-8')
+
+
+    print(f"Encrypted message: {encrypted_text}")
+    
+    decrypted_bytes = cipher.decrypt(encrypted_bytes, shift)
+    decrypted_text = decrypted_bytes.decode('utf-8')
+
+    print(f"Decrypted message: {decrypted_text}")
+    
