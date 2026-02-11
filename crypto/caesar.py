@@ -35,7 +35,7 @@ class CaesarCipher:
 
 #the following is like just to test that this works
 
-if __name__ == "__main__":
+if __name__ == "__main__": #this is kinda cool it makes it so that this code only runs if we run this file directly and not if we import it as a module in another file. tmyk
     cipher = CaesarCipher()
     
 
