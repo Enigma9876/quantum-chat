@@ -9,7 +9,7 @@ import os
 import time
 
 # Initialize Flask and SocketIO
-app = Flask(__name__) #creating instance of flask app
+app = Flask(__name__) #creating instance of flask app, must use directory "__name__" to find static files and templates
 app.config['SECRET_KEY'] = 'insightful_secret_key'
 socketio = SocketIO(app)
 

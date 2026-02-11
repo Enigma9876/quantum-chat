@@ -1,3 +1,9 @@
 # 💬 TCP Chat Messaging App for GitHub Codespaces
 
-# Updates to README coming soon!
+# In the event of a merge conflit do the following:
+git fetch origin
+ 
+git log --oneline --decorate --graph HEAD..origin/main
+ 
+git pull --rebase origin main
+ 
