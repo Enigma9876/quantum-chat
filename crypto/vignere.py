@@ -55,10 +55,10 @@ if __name__ == "__main__":
     cipher = VigenereCipher()
     
     msg = input("Enter a message to encrypt: ")
-    if not msg: msg = "Hello, World!"
+    if not msg: msg = "Hello World!"
 
     # Note: Vigenere needs a string for a key, not an integer!
-    shift_key = input("Enter the key (word/string, e.g., 'SECRET'): ")
+    shift_key = input("Enter the key (no special chars): ")
     if not shift_key: shift_key = "SECRET"
 
     encrypted_bytes = cipher.encrypt(msg.encode('utf-8'), shift_key)
