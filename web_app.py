@@ -9,10 +9,9 @@ import os
 import time
 
 # Initialize Flask and SocketIO
-app = Flask(__name__) #creating instance of flask app, must use directory "__name__" to find static files and templates
-app.config['SECRET_KEY'] = 'insightful_secret_key'
-socketio = SocketIO(app)
-
+app = Flask(__name__) # Creating instance of flask app, must use directory "__name__" to find static files and templates
+app.config['SECRET_KEY'] = 'insightful_secret_key' # In production, use a secure random key and keep it secret. This is just for demo purposes. CHANGE THIS BEFORE DEPLOYMENT!
+socketio = SocketIO(app) # Allows to recieve real time messages from clients and send messages back without refreshing the page. Uses WebSockets under the hood for efficient communication.
 # Store active rooms and chat history in memory
 # Structure: { 'CODE': {'users': [], 'messages': []} }
 active_rooms = {}
@@ -24,12 +23,6 @@ def generate_room_code():
         code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
         if code not in active_rooms:
             return code
-def set_port_visibility(port, visible):
-    code_space = os.getenv("CODE_SPACE_NAME")
-    if not code_space:
-        return # Not running in CodeSpaces, skip
-    command = ["gh", "codespace", "ports", "visibility", f"{port}:{visible}", "--codespace", code_space]
-    subprocess.run(command, check=True)
 
 
 # --- UI TEMPLATE FOR WEB APP ---
@@ -239,20 +232,26 @@ HTML_TEMPLATE = """
                 <h2 style="color:white;">Local Connection</h2>
                 <p style="color:#8f98a0;">Host a secure room or join an existing one.</p>
             </div>
-            
-            <form action="/host" method="post">
-                <button type="submit" class="btn btn-host">HOST NEW SERVER</button>
-            </form>
 
-            <div style="text-align: center; color: #8f98a0; margin: 20px 0;">— OR JOIN EXISTING —</div>
+            <form method="post">
+                
+                <div style="margin-bottom: 25px; text-align: center;">
+                    <input type="text" name="room_username" class="input-code" placeholder="ENTER USERNAME" maxlength="12" required style="width: 100%; text-align: center;">
+                </div>
 
-            <form action="/join" method="post" class="join-row">
-                <input type="text" name="room_code" class="input-code" placeholder="ENTER CODE" maxlength="4" required>
-                <button type="submit" class="btn btn-join">JOIN</button>
+                <button type="submit" formaction="/host" class="btn btn-host" style="width: 100%;">HOST NEW SERVER</button>
+
+                <div style="text-align: center; color: #8f98a0; margin: 20px 0;">— OR JOIN EXISTING —</div>
+
+                <div class="join-row">
+                    <input type="text" name="room_code" id="room_code" class="code_input" placeholder="ENTER CODE" maxlength="4">
+                    <button type="submit" formaction="/join" class="btn btn-join">JOIN</button>
+                </div>
+
             </form>
 
             <a href="/" style="color:#66c0f4; text-decoration:none; display:block; text-align:center; margin-top:30px;">Back to Menu</a>
-
+ 
         {% elif page == 'chat' %}
             <div class="chat-header">
                 <h2 style="margin:0; color:#fff;">ROOM: <span style="color:var(--steam-green-top); font-family:monospace;">{{ room_code }}</span></h2>
@@ -307,7 +306,7 @@ HTML_TEMPLATE = """
 
 # --- FLASK ROUTES ---
 
-@app.route('/')
+@app.route('/') #check the url routing and load a certain part of "HTML_TEMPLATE" based on the value give as page=
 def home():
     return render_template_string(HTML_TEMPLATE, page='home')
 
@@ -322,6 +321,7 @@ def lab():
 @app.route('/local')
 def local():
     return render_template_string(HTML_TEMPLATE, page='local')
+
 
 @app.route('/host', methods=['POST'])
 def host_server():
@@ -350,6 +350,7 @@ def leave_server():
 @socketio.on('join')
 def on_join(data):
     room = data['room']
+    #username = data['username'] 
     join_room(room)
     send({'msg': f'[SYSTEM] A new user has joined Room {room}.', 'type': 'msg-system'}, to=room)
 
@@ -367,5 +368,5 @@ def on_disconnect():
 # --- RUNNER ---
 if __name__ == '__main__':
     # Auto-open browser the first time the server starts
-    threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:5000")).start() # change to only do this once in future
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:5001")).start() #Open with delay to ensure the server is fully up (will run again if changes are made to code)
+    socketio.run(app, host='0.0.0.0', port=5001, debug=True, allow_unsafe_werkzeug=True)
