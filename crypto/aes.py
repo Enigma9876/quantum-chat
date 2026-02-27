@@ -258,7 +258,7 @@ if __name__ == "__main__":
     key = b"ThatsMyKungFuKey" 
     plaintext = b"SecretMessage123" 
 
-    print("--- 🔐 AES Quick Test 🔐 ---")
+
     print(f"Original text: {plaintext}")
     print(f"Key used:      {key}\n")
 
@@ -272,8 +272,8 @@ if __name__ == "__main__":
 
     # The moment of truth
     if plaintext == decrypted:
-        print("\n✅ SUCCESS! The math checked out. We did it!")
+        print("\n The math checked out. I did it!")
     else:
-        print("\n❌ UH OH! Something got lost in the mix columns.")
+        print("\n something went wrong")
     
 
