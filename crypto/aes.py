@@ -192,7 +192,7 @@ class AESCipher:
         new_state = [[0] * 4 for _ in range(4)]
 
         for col in range(4):
-            a0, a1, a2, a3 = [state[row][col] for row in range(4)]
+            a0, a1, a2, a3 = [state[row][col] for row in range(4)] #someething to mention is that these number (0x0b, 0x0d, 0x0e, 0x09, ect) are not random they are specific values that are used in the inverse mix columns step to reverse the mixing process and they are derived from the properties of the finite field and the original mix columns transformation. They are chosen to ensure that when we apply the inverse mix columns step, we can recover the original state before the mix columns was applied, which is super important if we want da decryption to work correctly
             new_state[0][col] = self._gf_multiply(0x0e, a0) ^ self._gf_multiply(0x0b, a1) ^ self._gf_multiply(0x0d, a2) ^ self._gf_multiply(0x09, a3)
             new_state[1][col] = self._gf_multiply(0x09, a0) ^ self._gf_multiply(0x0e, a1) ^ self._gf_multiply(0x0b, a2) ^ self._gf_multiply(0x0d, a3)
             new_state[2][col] = self._gf_multiply(0x0d, a0) ^ self._gf_multiply(0x09, a1) ^ self._gf_multiply(0x0e, a2) ^ self._gf_multiply(0x0b, a3)
