@@ -9,9 +9,10 @@ import os
 import time
 
 # Initialize Flask and SocketIO
-app = Flask(__name__) # Creating instance of flask app, must use directory "__name__" to find static files and templates
-app.config['SECRET_KEY'] = 'insightful_secret_key' # In production, use a secure random key and keep it secret. This is just for demo purposes. CHANGE THIS BEFORE DEPLOYMENT!
-socketio = SocketIO(app) # Allows to recieve real time messages from clients and send messages back without refreshing the page. Uses WebSockets under the hood for efficient communication.
+app = Flask(__name__) 
+app.config['SECRET_KEY'] = 'insightful_secret_key' # CHANGE THIS BEFORE DEPLOYMENT!
+socketio = SocketIO(app) 
+
 # Store active rooms and chat history in memory
 # Structure: { 'CODE': {'users': [], 'messages': []} }
 active_rooms = {}
@@ -133,7 +134,7 @@ HTML_TEMPLATE = """
             justify-content: center;
             font-size: 24px;
             font-weight: bold;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
         }
         .btn-host:hover {
@@ -141,16 +142,37 @@ HTML_TEMPLATE = """
             transform: scale(1.02);
         }
 
-        /* JOIN SECTION LAYOUT */
+        /* INPUT STYLES */
+        .input-username {
+            width: 100%;
+            padding: 15px 20px;
+            background: #10141b;
+            border: 1px solid #2a3f5a;
+            color: #fff;
+            font-size: 18px;
+            border-radius: 4px;
+            box-sizing: border-box;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            font-family: var(--font-stack);
+        }
+        
+        .input-username:focus {
+            outline: none;
+            border-color: var(--steam-blue);
+            box-shadow: 0 0 10px rgba(102, 192, 244, 0.2);
+            background: #141922;
+        }
+
         .join-row {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
         }
 
         .input-code {
             flex: 1;
-            padding: 20px;
+            padding: 15px;
             background: #000;
             border: 1px solid #444;
             color: var(--steam-blue);
@@ -159,6 +181,7 @@ HTML_TEMPLATE = """
             text-transform: uppercase;
             text-align: center;
             letter-spacing: 5px;
+            box-sizing: border-box;
         }
         
         .input-code:focus { outline: 1px solid var(--steam-blue); }
@@ -229,28 +252,39 @@ HTML_TEMPLATE = """
 
         {% elif page == 'local' %}
             <div style="text-align: center; margin-bottom: 30px;">
-                <h2 style="color:white;">Local Connection</h2>
-                <p style="color:#8f98a0;">Host a secure room or join an existing one.</p>
+                <h2 style="color:white; margin-bottom: 5px;">Local Connection</h2>
+                <p style="color:#8f98a0; margin-top: 0;">Configure your session to begin.</p>
             </div>
 
-            <form method="post">
+            <form method="post" id="local-connection-form" style="width: 100%; max-width: 450px; margin: 0 auto;">
                 
-                <div style="margin-bottom: 25px; text-align: center;">
-                    <input type="text" name="room_username" class="input-code" placeholder="ENTER USERNAME" maxlength="12" required style="width: 100%; text-align: center;">
-                </div>
+                <div style="text-align: center; color:#8f98a0; font-size: 13px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1px;">1. SET YOUR ALIAS</div>
+                <input type="text" name="username" class="input-username" placeholder="Enter Username" maxlength="12" required>
 
-                <button type="submit" formaction="/host" class="btn btn-host" style="width: 100%;">HOST NEW SERVER</button>
+                <div style="text-align: center; color:#8f98a0; font-size: 13px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1px;">2. CHOOSE ACTION</div>
+                <button type="submit" formaction="/host" id="btn-host" class="btn btn-host" style="width: 100%; margin-top: 0;">HOST NEW SERVER</button>
 
-                <div style="text-align: center; color: #8f98a0; margin: 20px 0;">— OR JOIN EXISTING —</div>
+                <div style="text-align: center; color: #44566c; margin: 25px 0; font-weight: bold; font-size: 14px; letter-spacing: 2px;">— OR JOIN EXISTING —</div>
 
-                <div class="join-row">
-                    <input type="text" name="room_code" id="room_code" class="code_input" placeholder="ENTER CODE" maxlength="4">
-                    <button type="submit" formaction="/join" class="btn btn-join">JOIN</button>
+                <div class="join-row"> 
+                    <input type="text" name="room_code" id="room_code_box" class="input-code" placeholder="CODE" maxlength="4">
+                    <button type="submit" formaction="/join" id="btn-join" class="btn btn-join">JOIN</button>
                 </div>
 
             </form>
+ 
+            <script>
+                // This ensures the browser doesn't block "Hosting" if the room code box is empty
+                document.getElementById('btn-host').addEventListener('click', function() {
+                    document.getElementById('room_code_box').required = false;
+                });
+                // This ensures the browser requires a code if they click "Join"
+                document.getElementById('btn-join').addEventListener('click', function() {
+                    document.getElementById('room_code_box').required = true;
+                });
+            </script>
 
-            <a href="/" style="color:#66c0f4; text-decoration:none; display:block; text-align:center; margin-top:30px;">Back to Menu</a>
+            <a href="/" style="color:#66c0f4; text-decoration:none; display:block; text-align:center; margin-top:40px;">Back to Menu</a>
  
         {% elif page == 'chat' %}
             <div class="chat-header">
@@ -306,7 +340,7 @@ HTML_TEMPLATE = """
 
 # --- FLASK ROUTES ---
 
-@app.route('/') #check the url routing and load a certain part of "HTML_TEMPLATE" based on the value give as page=
+@app.route('/') 
 def home():
     return render_template_string(HTML_TEMPLATE, page='home')
 
@@ -322,9 +356,10 @@ def lab():
 def local():
     return render_template_string(HTML_TEMPLATE, page='local')
 
-
 @app.route('/host', methods=['POST'])
 def host_server():
+    # Both host and join now pull from the single 'username' field
+    session['username'] = request.form.get('username') 
     code = generate_room_code()
     active_rooms[code] = {'users': 0}
     session['room'] = code
@@ -332,12 +367,14 @@ def host_server():
 
 @app.route('/join', methods=['POST'])
 def join_server():
+    # Both host and join now pull from the single 'username' field
+    session['username'] = request.form.get('username')
     code = request.form.get('room_code').upper()
+    
     if code in active_rooms:
         session['room'] = code
         return render_template_string(HTML_TEMPLATE, page='chat', room_code=code)
     else:
-        # Simple error handling: go back to local page
         return redirect(url_for('local'))
 
 @app.route('/leave')
@@ -350,23 +387,25 @@ def leave_server():
 @socketio.on('join')
 def on_join(data):
     room = data['room']
-    #username = data['username'] 
+    username = session.get('username', 'Guest')
     join_room(room)
-    send({'msg': f'[SYSTEM] A new user has joined Room {room}.', 'type': 'msg-system'}, to=room)
+    send({'msg': f'[SYSTEM] {username} has joined Room {room}.', 'type': 'msg-system'}, to=room)
 
 @socketio.on('message')
 def handle_message(data):
     room = data['room']
     msg = data['msg']
-    # Broadcast message to everyone in the room
-    send({'msg': f'User: {msg}', 'type': 'msg-user'}, to=room)
+    username = session.get('username', 'Guest')
+    print(f"[{room}] {username}: {msg}")
+    
+    send({'msg': f'{username}: {msg}', 'type': 'msg-user'}, to=room)
 
 @socketio.on('disconnect')
 def on_disconnect():
-    print("User disconnected")
+    username = session.get('username', 'Someone')
+    print(f"{username} disconnected")
 
 # --- RUNNER ---
 if __name__ == '__main__':
-    # Auto-open browser the first time the server starts
-    threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:5001")).start() #Open with delay to ensure the server is fully up (will run again if changes are made to code)
-    socketio.run(app, host='0.0.0.0', port=5001, debug=True, allow_unsafe_werkzeug=True)
+    threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:60600")).start() 
+    socketio.run(app, host='0.0.0.0', port=60600, debug=True, allow_unsafe_werkzeug=True)
