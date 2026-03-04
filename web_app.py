@@ -1,12 +1,9 @@
-from flask import Flask, render_template_string, request, redirect, url_for, session
+from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import threading
 import random
 import string
 import webbrowser
-import subprocess
-import os
-import time
 
 # Initialize Flask and SocketIO
 app = Flask(__name__) 
@@ -16,6 +13,7 @@ socketio = SocketIO(app)
 # Store active rooms and chat history in memory
 # Structure: { 'CODE': {'users': [], 'messages': []} }
 active_rooms = {}
+active_usernames = []
 
 # --- HELPER FUNCTIONS ---
 def generate_room_code():
@@ -259,7 +257,9 @@ HTML_TEMPLATE = """
             <form method="post" id="local-connection-form" style="width: 100%; max-width: 450px; margin: 0 auto;">
                 
                 <div style="text-align: center; color:#8f98a0; font-size: 13px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1px;">1. SET YOUR ALIAS</div>
-                <input type="text" name="username" class="input-username" placeholder="Enter Username" maxlength="12" required>
+
+                <input type="text" id="username_input" name="username" class="input-username" placeholder="Enter Username" maxlength="12" required>
+                <div id="username_warning" style="color: #ff4444; font-size: 14px; margin-top: -20px; margin-bottom: 20px; height: 16px; text-align: center;"></div>
 
                 <div style="text-align: center; color:#8f98a0; font-size: 13px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1px;">2. CHOOSE ACTION</div>
                 <button type="submit" formaction="/host" id="btn-host" class="btn btn-host" style="width: 100%; margin-top: 0;">HOST NEW SERVER</button>
@@ -274,6 +274,34 @@ HTML_TEMPLATE = """
             </form>
  
             <script>
+                //define variables for checking username availability
+                const usernameInput = document.getElementById('username_input');
+                const warningDiv = document.getElementById('username_warning');
+                const hostButton = document.getElementById('btn-host');
+                const joinButton = document.getElementById('btn-join');
+
+                usernameInput.addEventListener('input', function() {
+                    //fetch the takenUsernames list from server to keep it constantly updated
+                    fetch('/api/usernames')
+                        .then(response => response.json())
+                        .then(takenUsernames => {
+                    
+                    if(takenUsernames.includes(usernameInput.value))  { 
+                        warningDiv.textContent = "Username already in use.";
+                        hostButton.disabled = true;
+                        joinButton.disabled = true;
+                        usernameInput.style.borderColor = "#ff4444";
+                    }
+                    else {
+                        warningDiv.textContent = "";
+                        usernameInput.style.borderColor = "#2a3f5a";
+                        hostButton.disabled = false;
+                        joinButton.disabled = false;
+                    } 
+                    };
+
+                });
+                
                 // This ensures the browser doesn't block "Hosting" if the room code box is empty
                 document.getElementById('btn-host').addEventListener('click', function() {
                     document.getElementById('room_code_box').required = false;
@@ -282,6 +310,7 @@ HTML_TEMPLATE = """
                 document.getElementById('btn-join').addEventListener('click', function() {
                     document.getElementById('room_code_box').required = true;
                 });
+
             </script>
 
             <a href="/" style="color:#66c0f4; text-decoration:none; display:block; text-align:center; margin-top:40px;">Back to Menu</a>
@@ -342,7 +371,7 @@ HTML_TEMPLATE = """
 
 @app.route('/') 
 def home():
-    return render_template_string(HTML_TEMPLATE, page='home')
+    return render_template_string(HTML_TEMPLATE, page='home') # Sets the current page to whatever it is loaded to
 
 @app.route('/classroom')
 def classroom():
@@ -354,14 +383,15 @@ def lab():
 
 @app.route('/local')
 def local():
-    return render_template_string(HTML_TEMPLATE, page='local')
+    return render_template_string(HTML_TEMPLATE, page='local', active_usernames=active_usernames)
 
 @app.route('/host', methods=['POST'])
 def host_server():
     # Both host and join now pull from the single 'username' field
-    session['username'] = request.form.get('username') 
+    session['username'] = request.form.get('username')
     code = generate_room_code()
     active_rooms[code] = {'users': 0}
+    active_usernames.append(session['username']) # add usernames to a global list for tracking
     session['room'] = code
     return render_template_string(HTML_TEMPLATE, page='chat', room_code=code)
 
@@ -369,6 +399,7 @@ def host_server():
 def join_server():
     # Both host and join now pull from the single 'username' field
     session['username'] = request.form.get('username')
+    active_usernames.append(session['username']) # add usernames to a global list for tracking
     code = request.form.get('room_code').upper()
     
     if code in active_rooms:
@@ -381,6 +412,10 @@ def join_server():
 def leave_server():
     session.pop('room', None)
     return redirect(url_for('local'))
+
+@app.route('/api/usernames')
+def getUsernames():
+    return jsonify(active_usernames)
 
 # --- SOCKET EVENTS (The "Server" Logic) ---
 
@@ -407,5 +442,5 @@ def on_disconnect():
 
 # --- RUNNER ---
 if __name__ == '__main__':
-    threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:60600")).start() 
-    socketio.run(app, host='0.0.0.0', port=60600, debug=True, allow_unsafe_werkzeug=True)
+    threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:67676767")).start() 
+    socketio.run(app, host='0.0.0.0', port=67676767, debug=True, allow_unsafe_werkzeug=True)
