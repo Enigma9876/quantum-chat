@@ -1,5 +1,6 @@
 from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
+
 import threading
 import random
 import string
@@ -15,6 +16,8 @@ socketio = SocketIO(app)
 active_rooms = {}
 active_usernames = []
 
+
+
 # --- HELPER FUNCTIONS ---
 def generate_room_code():
     """Generate a unique 4-character code for rooms."""
@@ -22,6 +25,7 @@ def generate_room_code():
         code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
         if code not in active_rooms:
             return code
+
 
 
 # --- UI TEMPLATE FOR WEB APP ---
@@ -373,17 +377,25 @@ HTML_TEMPLATE = """
 def home():
     return render_template_string(HTML_TEMPLATE, page='home') # Sets the current page to whatever it is loaded to
 
+
+
 @app.route('/classroom')
 def classroom():
     return render_template_string(HTML_TEMPLATE, page='home') # Placeholder
+
+
 
 @app.route('/lab')
 def lab():
     return render_template_string(HTML_TEMPLATE, page='home') # Placeholder
 
+
+
 @app.route('/local')
 def local():
     return render_template_string(HTML_TEMPLATE, page='local', active_usernames=active_usernames)
+
+
 
 @app.route('/host', methods=['POST'])
 def host_server():
@@ -394,6 +406,8 @@ def host_server():
     active_usernames.append(session['username']) # add usernames to a global list for tracking
     session['room'] = code
     return render_template_string(HTML_TEMPLATE, page='chat', room_code=code)
+
+
 
 @app.route('/join', methods=['POST'])
 def join_server():
@@ -408,6 +422,8 @@ def join_server():
     else:
         return redirect(url_for('local'))
 
+
+
 @app.route('/leave')
 def leave_server():
     session.pop('room', None)
@@ -417,14 +433,17 @@ def leave_server():
 def getUsernames():
     return jsonify(active_usernames)
 
-# --- SOCKET EVENTS (The "Server" Logic) ---
 
+
+# --- SOCKET EVENTS (The "Server" Logic) ---
 @socketio.on('join')
 def on_join(data):
     room = data['room']
     username = session.get('username', 'Guest')
     join_room(room)
     send({'msg': f'[SYSTEM] {username} has joined Room {room}.', 'type': 'msg-system'}, to=room)
+
+
 
 @socketio.on('message')
 def handle_message(data):
@@ -434,6 +453,8 @@ def handle_message(data):
     print(f"[{room}] {username}: {msg}")
     
     send({'msg': f'{username}: {msg}', 'type': 'msg-user'}, to=room)
+
+
 
 @socketio.on('disconnect')
 def on_disconnect():
