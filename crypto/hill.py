@@ -72,7 +72,10 @@ class HillCipher:
     
 
 
-    #this is the main function that does the actual encryption and decryption. It processes the text in blocks of size n (the size of the key matrix) and applies the appropriate transformation based on whether we are encrypting or decrypting. It also handles padding for incomplete blocks and preserves all our non-alphabetic characters
+    #this is the main function that does the actual encryption and decryption. It processes the text in blocks of size n 
+    # (the size of the key matrix) and applies the appropriate transformation based on whether we are encrypting or decrypting. 
+    # It also handles padding for incomplete blocks and preserves all our non-alphabetic characters althought this is lowkey broken right now 
+    # since it will add padding to the end of the text if the last block is not full even if we are decrypting but this is just a simple implementation so I am not too worried about it
     def _process(self, text: str, key_matrix, decrypt: bool = False) -> str:
          
         if not isinstance(key_matrix, list) or not key_matrix:
@@ -118,6 +121,7 @@ class HillCipher:
 
 
 
+    # just a caller thing to allow manager.py to do things uniformly across all ciphers
     def encrypt(self, plaintext: bytes, key_matrix, **kwargs) -> bytes:
          text = plaintext.decode('utf-8')
          ciphertext = self._process(text, key_matrix, decrypt=False)
