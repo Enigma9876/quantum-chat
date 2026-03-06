@@ -3,7 +3,9 @@ from typing import List, Optional
 class HillCipher:
     id = "hill"
 
-
+    #looks goofy cuz i need a prime num of chars
+    ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 !@#$%^&*()_+{}|:\"<>?~`-=[];',./\\£€"
+    MODULUS = len(ALPHABET) # 97
 
     # this is just calculating the det for the matrix to make it so that it does not look supper messy when invertin
     def _matrix_determinant(self, matrix: List[List[int]]) -> int:
@@ -57,29 +59,30 @@ class HillCipher:
         n = len(matrix)
         vec = [ord(ch.upper()) - ord('A') for ch in block]
         result_nums = []
+
         for i in range(n):
             total = 0
             for j in range(n):
                 total += matrix[i][j] * vec[j]
             result_nums.append(total % 26)
+
         out = []
+
         for num, orig in zip(result_nums, block):
             ch = chr(num + ord('A'))
             if orig.islower():
                 ch = ch.lower()
             out.append(ch)
+
         return out
     
 
 
     #this is the main function that does the actual encryption and decryption. It processes the text in blocks of size n 
     # (the size of the key matrix) and applies the appropriate transformation based on whether we are encrypting or decrypting. 
-    # It also handles padding for incomplete blocks and preserves all our non-alphabetic characters althought this is lowkey broken right now 
-    # since it will add padding to the end of the text if the last block is not full even if we are decrypting but this is just a simple implementation so I am not too worried about it
     def _process(self, text: str, key_matrix, decrypt: bool = False) -> str:
-         
         if not isinstance(key_matrix, list) or not key_matrix:
-             raise ValueError("Key matrix must be a non‑empty list")
+             raise ValueError("Key matrix must be a non-empty list")
         
         n = len(key_matrix)
 
@@ -87,37 +90,50 @@ class HillCipher:
             raise ValueError("Key matrix must be square")
 
         modulus = 26
-        mat = key_matrix
+        mat = self._matrix_mod_inv(key_matrix, modulus) if decrypt else key_matrix
 
-        if decrypt:
-             mat = self._matrix_mod_inv(key_matrix, modulus)
+        #Map non-alphabetic characters and extract only letters for the cipher
+        alpha_chars = []
+        non_alpha_map = {}
 
-        result = []
-        buffer = []
-
-        for char in text:
-
+        for index, char in enumerate(text):
             if char.isalpha():
-                buffer.append(char)
+                alpha_chars.append(char)
+            else:
+                non_alpha_map[index] = char
 
-                if len(buffer) == n:
-                    result.extend(self._encrypt_block(buffer, mat))
-                    buffer = []
-            else:  
-                result.append(char)
+        #Handle Padding (ONLY during encryption)
+        if not decrypt:
+            while len(alpha_chars) % n != 0:
+                alpha_chars.append('X') # Pad with X to complete the matrix block
+
+        processed_alphas = []
+        for i in range(0, len(alpha_chars), n):
+            block = alpha_chars[i:i+n]
+            
+            # If decrypting and we hit a partial block, the ciphertext is malformed/truncated
+            if len(block) < n and decrypt:
+                processed_alphas.extend(block) 
+                continue
+                
+            processed_alphas.extend(self._encrypt_block(block, mat))
+
         
-        if buffer:
-            if not decrypt:
-                 
-                while len(buffer) < n:
-                    buffer.append('X')
-                result.extend(self._encrypt_block(buffer, mat))
-            else:                 
-                while len(buffer) < n:
-                    buffer.append('X')
-                result.extend(self._encrypt_block(buffer, mat))
+        result_str = ""
+        alpha_ptr = 0
+        
+        for i in range(len(text)):
+            if i in non_alpha_map:
+                result_str += non_alpha_map[i]
+            else:
+                result_str += processed_alphas[alpha_ptr]
+                alpha_ptr += 1
+                
+        while alpha_ptr < len(processed_alphas):
+            result_str += processed_alphas[alpha_ptr]
+            alpha_ptr += 1
 
-        return ''.join(result)
+        return result_str
 
 
 
@@ -146,9 +162,7 @@ if __name__ == "__main__":
 
     msg = input("Enter a message to encrypt: ")
     if not msg:
-        msg = "HELLO"
-
-      
+        msg = "HELLO"    
     
     key = [[3, 3], [2, 5]]
 
