@@ -285,7 +285,6 @@ HTML_TEMPLATE = """
                     fetch('/api/usernames')
                         .then(response => response.json())
                         .then(takenUsernames => {
-                    
                     if(takenUsernames.includes(usernameInput.value))  { 
                         warningDiv.textContent = "Username already in use.";
                         hostButton.disabled = true;
@@ -298,7 +297,7 @@ HTML_TEMPLATE = """
                         hostButton.disabled = false;
                         joinButton.disabled = false;
                     } 
-                    };
+                    });
 
                 });
                 
@@ -438,6 +437,7 @@ def handle_message(data):
 @socketio.on('disconnect')
 def on_disconnect():
     username = session.get('username', 'Someone')
+    active_usernames.remove(username) # Remove username from global list on disconnect
     print(f"{username} disconnected")
 
 # --- RUNNER ---
