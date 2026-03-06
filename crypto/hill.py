@@ -57,23 +57,19 @@ class HillCipher:
     #this uses our key to actually encrypt the text block 
     def _encrypt_block(self, block: List[str], matrix: List[List[int]]) -> List[str]:
         n = len(matrix)
-        vec = [ord(ch.upper()) - ord('A') for ch in block]
+        
+        # just fyi dont toutch this at all, had to do this because the cipher only works with letters and we want to be able to handle spaces and punctuation, so we map them to their own indices in the alphabet and then convert them back after processing the block
+        vec = [self.ALPHABET.index(ch) for ch in block]
+        
         result_nums = []
-
         for i in range(n):
             total = 0
             for j in range(n):
                 total += matrix[i][j] * vec[j]
-            result_nums.append(total % 26)
-
-        out = []
-
-        for num, orig in zip(result_nums, block):
-            ch = chr(num + ord('A'))
-            if orig.islower():
-                ch = ch.lower()
-            out.append(ch)
-
+            result_nums.append(total % self.MODULUS)
+            
+        # Convert the resulting numbers back into characters
+        out = [self.ALPHABET[num] for num in result_nums]
         return out
     
 
@@ -89,51 +85,32 @@ class HillCipher:
         if any(len(row) != n for row in key_matrix):
             raise ValueError("Key matrix must be square")
 
-        modulus = 26
-        mat = self._matrix_mod_inv(key_matrix, modulus) if decrypt else key_matrix
+        mat = key_matrix
+        if decrypt:
+             mat = self._matrix_mod_inv(key_matrix, self.MODULUS)
 
-        #Map non-alphabetic characters and extract only letters for the cipher
-        alpha_chars = []
-        non_alpha_map = {}
+        # Strip out any completely foreign characters (like emojis) to prevent crashes (i think discord gets around this by just converting them to :skull:)
+        clean_text = [char for char in text if char in self.ALPHABET]
 
-        for index, char in enumerate(text):
-            if char.isalpha():
-                alpha_chars.append(char)
-            else:
-                non_alpha_map[index] = char
-
-        #Handle Padding (ONLY during encryption)
         if not decrypt:
-            while len(alpha_chars) % n != 0:
-                alpha_chars.append('X') # Pad with X to complete the matrix block
+            # Pad with '~' to complete the final matrix block
+            while len(clean_text) % n != 0:
+                clean_text.append('~')
 
-        processed_alphas = []
-        for i in range(0, len(alpha_chars), n):
-            block = alpha_chars[i:i+n]
+        result = []
+        
+        # Process the text in chunks of size 'n'
+        for i in range(0, len(clean_text), n):
+            block = clean_text[i:i+n]
             
-            # If decrypting and we hit a partial block, the ciphertext is malformed/truncated
+            # Failsafe: If decrypting and we hit a partial block, the data was truncated
             if len(block) < n and decrypt:
-                processed_alphas.extend(block) 
+                result.extend(block)
                 continue
                 
-            processed_alphas.extend(self._encrypt_block(block, mat))
+            result.extend(self._encrypt_block(block, mat))
 
-        
-        result_str = ""
-        alpha_ptr = 0
-        
-        for i in range(len(text)):
-            if i in non_alpha_map:
-                result_str += non_alpha_map[i]
-            else:
-                result_str += processed_alphas[alpha_ptr]
-                alpha_ptr += 1
-                
-        while alpha_ptr < len(processed_alphas):
-            result_str += processed_alphas[alpha_ptr]
-            alpha_ptr += 1
-
-        return result_str
+        return ''.join(result)
 
 
 
