@@ -70,7 +70,7 @@ HTML_TEMPLATE = """
         .header {
             width: 100%;
             background: linear-gradient(to bottom, #1b2838 0%, #171a21 100%);
-            padding: 20px;
+            padding: 15px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.4);
             display: flex;
             justify-content: center;
@@ -79,7 +79,7 @@ HTML_TEMPLATE = """
 
         h1 {
             margin: 0;
-            font-size: 32px;
+            font-size: 28px;
             text-transform: uppercase;
             letter-spacing: 4px;
             color: #fff;
@@ -88,16 +88,16 @@ HTML_TEMPLATE = """
         }
 
         .container {
-            width: 90%;
-            max-width: 900px;
+            width: 95%; /* Expanded to fill more width */
+            max-width: 1400px; /* Increased from 1100px */
             background: rgba(23, 26, 33, 0.9);
-            padding: 40px;
+            padding: 30px; /* Slightly reduced padding to maximize internal space */
             border-radius: 8px;
             backdrop-filter: blur(10px);
             box-shadow: 0 0 30px rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.05);
-            margin-top: 40px;
-            height: 70vh; /* Fixed height for chat layout */
+            margin-top: 2vh; /* Reduced to push it higher on the screen */
+            height: 85vh; /* Expanded to fill more height */
             display: flex;
             flex-direction: column;
         }
@@ -192,7 +192,42 @@ HTML_TEMPLATE = """
             font-weight: bold;
         }
 
-        /* CHAT ROOM STYLES */
+        /* CHAT ROOM STYLES & LAYOUT */
+        .chat-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .chat-column {
+            flex: 4; /* Adjusted ratio to give monitor more space */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .encryption-panel {
+            flex: 3; /* Increased ratio to make it larger compared to the chat */
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            color: var(--steam-blue);
+            font-weight: bold;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
         .chat-header {
             display: flex;
             justify-content: space-between;
@@ -315,18 +350,43 @@ HTML_TEMPLATE = """
             <a href="/" style="color:#66c0f4; text-decoration:none; display:block; text-align:center; margin-top:40px;">Back to Menu</a>
  
         {% elif page == 'chat' %}
-            <div class="chat-header">
-                <h2 style="margin:0; color:#fff;">ROOM: <span style="color:var(--steam-green-top); font-family:monospace;">{{ room_code }}</span></h2>
-                <a href="/leave" style="color:#ff4444; text-decoration:none; border:1px solid #ff4444; padding:5px 15px; border-radius:4px;">DISCONNECT</a>
-            </div>
+            
+            <div class="chat-layout">
+                <div class="chat-column">
+                    <div class="chat-header">
+                        <h2 style="margin:0; color:#fff;">ROOM: <span style="color:var(--steam-green-top); font-family:monospace;">{{ room_code }}</span></h2>
+                        <a href="/leave" style="color:#ff4444; text-decoration:none; border:1px solid #ff4444; padding:5px 15px; border-radius:4px;">DISCONNECT</a>
+                    </div>
 
-            <div id="chat-box" class="chat-log">
-                <div class="message msg-system">[SYSTEM] Encrypted connection established.</div>
-            </div>
+                    <div id="chat-box" class="chat-log">
+                        <div class="message msg-system">[SYSTEM] Encrypted connection established.</div>
+                    </div>
 
-            <div class="chat-controls">
-                <input type="text" id="msg-input" class="chat-input" placeholder="Type an encrypted message..." autofocus>
-                <button onclick="sendMessage()" class="btn" style="width:auto; margin:0; padding:0 30px;">SEND</button>
+                    <div class="chat-controls">
+                        <input type="text" id="msg-input" class="chat-input" placeholder="Type an encrypted message..." autofocus>
+                        <button onclick="sendMessage()" class="btn" style="width:auto; margin:0; padding:0 30px;">SEND</button>
+                    </div>
+                </div>
+
+                <div class="encryption-panel">
+                    <div class="panel-header">Encryption Monitor</div>
+                    <div id="encryption-details" style="font-family: monospace; font-size: 16px; line-height: 1.6;">
+                        <p style="color: #8f98a0;">[Standby] Waiting for cipher selection...</p>
+                        
+                        <div style="margin-top: 20px; border-top: 1px dashed #444; padding-top: 15px;">
+                            <strong style="color: var(--steam-blue);">Status:</strong> <span style="color: var(--steam-green-top);">Ready</span><br><br>
+                            <strong style="color: var(--steam-blue);">Active Cipher:</strong> None<br><br>
+                            <strong style="color: var(--steam-blue);">Current Key:</strong> N/A<br><br>
+                        </div>
+
+                        <div style="margin-top: 20px; border-top: 1px dashed #444; padding-top: 15px;">
+                            <strong style="color: #fff;">Live Transformation:</strong><br>
+                            <div style="background: #101216; padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid #333;">
+                                <span style="color: #8f98a0; font-size: 14px;">(Data will appear here once messages are sent)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <script>
@@ -437,7 +497,8 @@ def handle_message(data):
 @socketio.on('disconnect')
 def on_disconnect():
     username = session.get('username', 'Someone')
-    active_usernames.remove(username) # Remove username from global list on disconnect
+    if username in active_usernames:
+        active_usernames.remove(username) # Remove username from global list on disconnect
     print(f"{username} disconnected")
 
 # --- RUNNER ---
