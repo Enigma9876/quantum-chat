@@ -6,6 +6,13 @@ import os
 class QuantumCipher:
     id = "quantum"
 
+
+
+    def __init__(self):
+        self.backend = BasicProvider().get_backend('bsk_simulator')
+
+
+
     def _process(self, text: str, key: int, decrypt: bool = False) -> str:
         return text
 

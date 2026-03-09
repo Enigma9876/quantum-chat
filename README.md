@@ -13,3 +13,4 @@ git pull --rebase origin main
  pip install qiskit
  pip install flask
  pip install flask_socketio
+ pip install qiskit qiskit-aer qiskit-ibm-runtime numpy
