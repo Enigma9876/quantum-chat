@@ -1,4 +1,7 @@
-import sys, qiskit 
+import numpy as np # this creates an alis for numpy btw
+from qiskit import QuantumCircuit, transpile
+from qiskit.providers.basic_provider import BasicProvider # Or Aer if installed
+import os
 
 class QuantumCipher:
     id = "quantum"
