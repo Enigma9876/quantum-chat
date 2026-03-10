@@ -364,6 +364,10 @@ HTML_TEMPLATE = """
 
                     <div class="chat-controls">
                         <input type="text" id="msg-input" class="chat-input" placeholder="Type an encrypted message..." autofocus>
+                        <select id="encryption-selector">
+                            <option value="none">None</option> 'have as default by being first in select'
+                            <option value="caesar">Caesar Cipher</option> 
+                        </select>
                         <button onclick="sendMessage()" class="btn" style="width:auto; margin:0; padding:0 30px;">SEND</button>
                     </div>
                 </div>
@@ -375,7 +379,7 @@ HTML_TEMPLATE = """
                         
                         <div style="margin-top: 20px; border-top: 1px dashed #444; padding-top: 15px;">
                             <strong style="color: var(--steam-blue);">Status:</strong> <span style="color: var(--steam-green-top);">Ready</span><br><br>
-                            <strong style="color: var(--steam-blue);">Active Cipher:</strong> None<br><br>
+                            <strong style="color: var(--steam-blue);">Active Cipher:</strong> <span id="current-cipher">None</span><br><br>
                             <strong style="color: var(--steam-blue);">Current Key:</strong> N/A<br><br>
                         </div>
 
@@ -394,6 +398,8 @@ HTML_TEMPLATE = """
                 const room = "{{ room_code }}";
                 const chatBox = document.getElementById('chat-box');
                 const input = document.getElementById('msg-input');
+                const selection_box = document.getElementById('encryption-selector');
+                const cipher_text = document.getElementById('current-cipher');
 
                 // Join the room immediately
                 socket.emit('join', {room: room});
@@ -417,6 +423,11 @@ HTML_TEMPLATE = """
                 // Send on Enter key
                 input.addEventListener("keypress", function(event) {
                     if (event.key === "Enter") sendMessage();
+                });
+
+                selection_box.addEventListener("change", function(event) {
+                    let val = selection_box.options[selection_box.selectedIndex].text
+                    cipher_text.textContent = val;
                 });
             </script>
         {% endif %}
