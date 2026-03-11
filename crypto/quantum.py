@@ -100,7 +100,7 @@ class QuantumCipher:
         key_int = 0 
         for bit in sift_key:
             key_int = (key_int << 1) | bit
-            
+
         return hex(key_int)[2::]
 
 
@@ -124,4 +124,20 @@ class QuantumCipher:
             counts = result[0].data.c.get_bitstring_counts() # this is a dict of bitstring: count
             
             return counts[0]
+
+
+if __name__ == "__main__":
+    cipher = QuantumCipher()
+    
+    print("\n--- Quantum Chat Encryption ---")
+    msg = input("Enter message: ")
+    if not msg: msg = "QuantumHello"
+    
+    # Trigger the BB84 simulation
+    print("Encrypting using BB84 Protocol...")
+    encrypted = cipher.encrypt(msg.encode(), "BB84")
+    print(f"Encrypted Payload: {encrypted.decode()}")
+    
+    decrypted = cipher.decrypt(encrypted, "BB84")
+    print(f"Decrypted: {decrypted.decode()}")
         
