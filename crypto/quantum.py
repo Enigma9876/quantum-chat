@@ -71,10 +71,57 @@ class QuantumCipher:
 
     def _simulate_bb84_key_exchange():
         # this will actuall also generare a key but in a real thing this would involve things across 2 diff machines
+        alic_bits = np.random.randint(2, size = n_bits)
+        alic_bases = np.random.randint(2, size = n_bits) # so 0=zbase and 1=xbase -wikipidia
+        bob_bases =np.random.randint(2, size = n_bits)
         
-        pass
+
+        qc = QuantumCircuit(n_bits, n_bits)
+
+        for i in range(n_bits):
+            if alice_bits[i] == 1:
+                qc.x(i) # so like this is saying basically if the bit is 1 then we apply an X gate to the qbit flips it from |0> to |1>
+            if alice_bases[i] == 1:
+                qc.h(i) #hammond!! gate.
+            
+            if bob_bases[i] == 1:
+                qc.h(i) # basically if bob's base is diff then we know we should discard it later (apply h to measure in x basis)
+
+            qc.measure(i, i) 
+
+        measured_bits_str = self._run_circuit(qc) 
+        bob_bits = [int(bit) for bit in measured_bits_str[::-1]]
+
+        sift_key = []
+        for i in range(n_bits):
+            if alice_bases[i] == bob_bases[i]: 
+                sift_key.append(alice_bits[i])
+
+        key_int = 0 
+        for bit in sift_key:
+            key_int = (key_int << 1) | bit
+            
+        return hex(key_int)[2::]
+
 
 
     def _run_circuit(self, circuit):
         #this needs support for running on sim or real quantum hardware
-        pass
+        if isinstance(self.backend, AerSimulator) : 
+            job = self.backend.run(transpile(circuit, self.backend), shots=1, memory = True)
+            result = job.result()
+
+            return result.get_memory()[0] #bit string
+        else:
+            print("[Quantum] Queuing for a job")
+
+            pm = generate_preset_pass_manager(backend = self.backend, optimization_level=1)
+            isa_circuit = pm.run(circuit) #isa stand for intermediate representation (its what we actually send to rub)
+            sampler = SamplerV2(mode = self.backend)
+            job = sampler.run([isa_circuit]) #, shots = ### btw
+            result = job.result()
+
+            counts = result[0].data.c.get_bitstring_counts() # this is a dict of bitstring: count
+            
+            return counts[0]
+        
