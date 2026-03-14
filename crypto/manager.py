@@ -1,10 +1,52 @@
 from typing import Dict, Any
+import os
+import inspect
+import sys
+import importlib.util
 
 class CryptoManager :
     #Makes it possible to registar moduals (cryptographic algorithms) and use them by their id. 
     #This allows for a flexible and extensible design where new algorithms can be added without modifying the core logic of encryption and decryption.
     def __init__(self):
         self._modules: Dict[str, Any] = {}
+        self.crypto_dir = os.path.dirname(os.path.abspath(__file__))
+        self.add_files() 
+    
+
+
+    #the thing letting me edit my comments to be easier to understand is broken so gl with the ons i put rn
+    def add_files(self):        
+            if self.crypto_dir not in sys.path:
+                sys.path.insert(0, self.crypto_dir)
+            
+            for filename in os.listdir(self.crypto_dir):
+                if filename.endswith(".py") and filename not in ["manager.py"]: #if u add nore files make sure toi add em here
+                    
+                    module_name = filename[:-3]
+                    full_path = os.path.join(self.crypto_dir, filename)
+                    
+                    try:
+                        # this should let it be able to lead anything in this folder without me havin to put in like a specific name
+                        spec = importlib.util.spec_from_file_location(module_name, full_path)
+                        if spec is None or spec.loader is None:
+                            continue
+                        
+                        module = importlib.util.module_from_spec(spec)
+                        
+                        if module_name not in sys.modules:
+                            sys.modules[module_name] = module
+                            
+                        spec.loader.exec_module(module)
+                        
+                        for name, obj in inspect.getmembers(module, inspect.isclass):
+                            if hasattr(obj, 'id'):
+                                
+                                self.register(obj())
+                                print(f"[CryptoManager] Auto-loaded '{obj.id}' from {filename}")
+                                
+                    except Exception as e:
+                        print(f"[CryptoManager] Failed to auto-load from {filename}: {e}")
+
 
 
     #Registers new moduals and ensures that they have an id
