@@ -45,7 +45,7 @@ class CryptoManager :
                                 print(f"[CryptoManager] Auto-loaded '{obj.id}' from {filename}")
                                 
                     except Exception as e:
-                        print(f"[CryptoManager] Failed to auto-load from {filename}: {e}")
+                        print(f"[CryptoManager] Was not able to load this file: {filename}: {e}")
 
 
 
