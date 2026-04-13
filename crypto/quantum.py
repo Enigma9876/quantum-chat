@@ -52,7 +52,8 @@ class QuantumCipher:
         # this will use XOR to encrypt/decrypt, lowk
 
         text_bytes = text.encode('utf-8')
-        text_int = int.from_bytes(text_bytes, 'big') #the reason this has the 'big' (note 'big' is big-endian and that is the standard for most systems) is because we want to convert the text into an integer representation that can be easily manipulated using bitwise operations
+        text_int = int.from_bytes(text_bytes, 'big') #the reason this has the 'big' (note 'big' is big-endian and that is the standard for most systems) is because we want 
+                                                     #to convert the text into an integer representation that can be easily manipulated using bitwise operations
 
 
         #we want to repeat the key if its to short (THIS WOULD NOT BE DONE IN REAL OTP)
