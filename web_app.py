@@ -536,7 +536,7 @@ def handle_message(data):
     username = session.get('username', 'Guest')
     print(f"[{room}] {username}: {msg}")
     # Test encryption by converting message to a Ceasar cipher
-    encrypted_bytes = encryption_manager.encrypt("caesar", msg, 3)
+    encrypted_bytes = encryption_manager.encrypt("caesar", msg.encode('utf-8'), 3)
     print(f"test + {encrypted_bytes}")
     
     send({'msg': f'{username}: {msg}', 'type': 'msg-user'}, to=room)
