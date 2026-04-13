@@ -82,3 +82,7 @@ class CryptoManager :
         if not mod:
             raise ValueError("Unknown algorithm " + alg_id)
         return mod.decrypt(ciphertext, key, meta)
+    
+if __name__ == "__main__":
+    manager = CryptoManager()
+    print("Available algorithms:", manager.available())
