@@ -5,10 +5,15 @@ import random
 import string
 import webbrowser
 
+from crypto import manager
+
 # Initialize Flask and SocketIO
 app = Flask(__name__) 
 app.config['SECRET_KEY'] = 'insightful_secret_key' # CHANGE THIS BEFORE DEPLOYMENT!
 socketio = SocketIO(app) 
+
+# Encryption related
+encryption_manager = manager.CryptoManager()
 
 # Store active rooms and chat history in memory
 # Structure: { 'CODE': {'users': [], 'messages': []} }
@@ -206,15 +211,29 @@ HTML_TEMPLATE = """
             flex-direction: column;
         }
 
+        /* UPDATED: ENCRYPTION PANEL LAYOUT */
         .encryption-panel {
-            flex: 3; /* Increased ratio to make it larger compared to the chat */
+            flex: 3;
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid #333;
             border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            /* Removed padding here so sections fill perfectly */
+        }
+
+        .panel-section {
+            flex: 1; /* Makes both top and bottom perfectly equal */
             padding: 20px;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+        }
+
+        .panel-divider {
+            height: 1px;
+            background: #444; /* Match existing border colors */
+            width: 100%;
         }
 
         .panel-header {
@@ -267,6 +286,28 @@ HTML_TEMPLATE = """
             border: 1px solid #333;
             color: white;
             font-size: 16px;
+        }
+
+        /* UPDATED: SELECTION BOX STYLES */
+        #encryption-selector {
+            padding: 15px;
+            background: #101216;
+            border: 1px solid #333;
+            color: white;
+            font-size: 16px;
+            font-family: var(--font-stack);
+            border-radius: 2px;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        #encryption-selector:focus {
+            border-color: var(--steam-blue);
+        }
+
+        #encryption-selector option {
+            background: var(--steam-dark);
+            color: white;
         }
     </style>
 </head>
@@ -365,7 +406,7 @@ HTML_TEMPLATE = """
                     <div class="chat-controls">
                         <input type="text" id="msg-input" class="chat-input" placeholder="Type an encrypted message..." autofocus>
                         <select id="encryption-selector">
-                            <option value="none">None</option> 'have as default by being first in select'
+                            <option value="none">None</option> 
                             <option value="caesar">Caesar Cipher</option> 
                         </select>
                         <button onclick="sendMessage()" class="btn" style="width:auto; margin:0; padding:0 30px;">SEND</button>
@@ -373,22 +414,14 @@ HTML_TEMPLATE = """
                 </div>
 
                 <div class="encryption-panel">
-                    <div class="panel-header">Encryption Monitor</div>
-                    <div id="encryption-details" style="font-family: monospace; font-size: 16px; line-height: 1.6;">
-                        <p style="color: #8f98a0;">[Standby] Waiting for cipher selection...</p>
-                        
-                        <div style="margin-top: 20px; border-top: 1px dashed #444; padding-top: 15px;">
-                            <strong style="color: var(--steam-blue);">Status:</strong> <span style="color: var(--steam-green-top);">Ready</span><br><br>
-                            <strong style="color: var(--steam-blue);">Active Cipher:</strong> <span id="current-cipher">None</span><br><br>
-                            <strong style="color: var(--steam-blue);">Current Key:</strong> N/A<br><br>
-                        </div>
-
-                        <div style="margin-top: 20px; border-top: 1px dashed #444; padding-top: 15px;">
-                            <strong style="color: #fff;">Live Transformation:</strong><br>
-                            <div style="background: #101216; padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid #333;">
-                                <span style="color: #8f98a0; font-size: 14px;">(Data will appear here once messages are sent)</span>
-                            </div>
-                        </div>
+                    <div class="panel-section">
+                        <div class="panel-header">Encryption - <span id="current-cipher" style="color: var(--steam-text);">None</span></div>
+                    </div>
+                    
+                    <div class="panel-divider"></div>
+                    
+                    <div class="panel-section">
+                        <div class="panel-header">Selected Message</div>
                     </div>
                 </div>
             </div>
@@ -426,7 +459,7 @@ HTML_TEMPLATE = """
                 });
 
                 selection_box.addEventListener("change", function(event) {
-                    let val = selection_box.options[selection_box.selectedIndex].text
+                    let val = selection_box.options[selection_box.selectedIndex].text;
                     cipher_text.textContent = val;
                 });
             </script>
@@ -502,6 +535,9 @@ def handle_message(data):
     msg = data['msg']
     username = session.get('username', 'Guest')
     print(f"[{room}] {username}: {msg}")
+    # Test encryption by converting message to a Ceasar cipher
+    encrypted_bytes = encryption_manager.encrypt("caesar", msg, 3)
+    print(f"test + {encrypted_bytes}")
     
     send({'msg': f'{username}: {msg}', 'type': 'msg-user'}, to=room)
 
