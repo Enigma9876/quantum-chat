@@ -32,11 +32,18 @@ class QuantumCipher:
 
 
     def encrypt(self, plaintext: bytes, key: int, **kwargs) -> bytes:
-        return plaintext
+        plaintext_utf = plaintext.decode('utf-8') 
+        required_bits = len(plaintext_utf.encode('utf-8')) * 8
+        key_hex = self._simulate_bb84_key_exchange(required_bits)
+        ciphertext_hex = self._one_time_pad(plaintext_utf, key_hex)
+        combind_texts = f"{key_hex}:{ciphertext_hex}".encode('utf-8')
+
+        return combind_texts
 
 
 
     def decrypt(self, ciphertext: bytes, key: int, meta: dict = None) -> bytes:
+
         return ciphertext
     
 
@@ -57,7 +64,7 @@ class QuantumCipher:
 
 
         #we want to repeat the key if its to short (THIS WOULD NOT BE DONE IN REAL OTP)
-        key_int = int
+        key_int = int(key_hex, 16)
         if key_int == 0: key_int = 1 # to avoid division by zero
 
         while key_int.bit_length() < text_int.bit_length():
@@ -70,12 +77,19 @@ class QuantumCipher:
     
 
 
-    def _simulate_bb84_key_exchange():
+    def _simulate_bb84_key_exchange(self, n_bits):
         # this will actuall also generare a key but in a real thing this would involve things across 2 diff machines
-        alic_bits = np.random.randint(2, size = n_bits)
-        alic_bases = np.random.randint(2, size = n_bits) # so 0=zbase and 1=xbase -wikipidia
+        chunks = []
+        while len(chunks) < n_bits:
+            chunks.append(n_bits.slice(len(chunks), len(chunks) + 3)) 
+            #get 3 bits per like section in chunks
+            
+        alice_bits = np.random.randint(2, size = n_bits)
+        alice_bases = np.random.randint(2, size = n_bits) # so 0=zbase and 1=xbase -wikipidia
         bob_bases =np.random.randint(2, size = n_bits)
         
+        
+
 
         qc = QuantumCircuit(n_bits, n_bits)
 
@@ -127,18 +141,20 @@ class QuantumCipher:
             return counts[0]
 
 
+
 if __name__ == "__main__":
     cipher = QuantumCipher()
     
-    print("\n--- Quantum Chat Encryption ---")
-    msg = input("Enter message: ")
-    if not msg: msg = "QuantumHello"
+    msg = input("Enter text: ")
+    if not msg: 
+        msg = "plu"
     
-    # Trigger the BB84 simulation
-    print("Encrypting using BB84 Protocol...")
-    encrypted = cipher.encrypt(msg.encode(), "BB84")
-    print(f"Encrypted Payload: {encrypted.decode()}")
+    #We pass 0 for the key because the BB84 protocol handles its own key generation
+    encrypted_bytes = cipher.encrypt(msg.encode('utf-8'), 0)
     
-    decrypted = cipher.decrypt(encrypted, "BB84")
-    print(f"Decrypted: {decrypted.decode()}")
-        
+    print(f"Encrypted (Key : Ciphertext):")
+    print(f"     {encrypted_bytes.decode('utf-8')}")
+    
+    print("Decryption (Note: WIP)")
+    decrypted_bytes = cipher.decrypt(encrypted_bytes, 0)
+    print(f"     {decrypted_bytes.decode('utf-8')}")
