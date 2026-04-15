@@ -110,7 +110,7 @@ class QuantumCipher:
 
         key_int = 0
         for bit in sifted_key[:n_bits]:
-            key_int = (key_int << 1) | bit
+            key_int = (key_int << 1) | int(bit)
 
         return hex(key_int)[2:]
 
