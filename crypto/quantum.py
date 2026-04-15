@@ -79,44 +79,40 @@ class QuantumCipher:
 
     def _simulate_bb84_key_exchange(self, n_bits):
         # this will actuall also generare a key but in a real thing this would involve things across 2 diff machines
-        chunks = []
-        while len(chunks) < n_bits:
-            chunks.append(n_bits.slice(len(chunks), len(chunks) + 3)) 
-            #get 3 bits per like section in chunks
-            
-        alice_bits = np.random.randint(2, size = n_bits)
-        alice_bases = np.random.randint(2, size = n_bits) # so 0=zbase and 1=xbase -wikipidia
-        bob_bases =np.random.randint(2, size = n_bits)
-        
-        
+        sifted_key = []
 
+        while len(sifted_key) < n_bits:
+            chunk_size = 16
+            alice_bits = np.random.randint(2, size=chunk_size)
+            alice_bases = np.random.randint(2, size=chunk_size)  # so 0=zbase and 1=xbase -wikipidia
+            bob_bases = np.random.randint(2, size=chunk_size)
 
-        qc = QuantumCircuit(n_bits, n_bits)
+            qc = QuantumCircuit(chunk_size, chunk_size)
+            for i in range(chunk_size):
+                if alice_bits[i] == 1:
+                    qc.x(i)  # if the bit is 1 then we apply an X gate to the qubit, flipping it from |0> to |1>
+                if alice_bases[i] == 1:
+                    qc.h(i)  # hammond!! gate.
 
-        for i in range(n_bits):
-            if alice_bits[i] == 1:
-                qc.x(i) # so like this is saying basically if the bit is 1 then we apply an X gate to the qbit flips it from |0> to |1>
-            if alice_bases[i] == 1:
-                qc.h(i) #hammond!! gate.
-            
-            if bob_bases[i] == 1:
-                qc.h(i) # basically if bob's base is diff then we know we should discard it later (apply h to measure in x basis)
+                if bob_bases[i] == 1:
+                    qc.h(i)  # if Bob's basis is different, we apply H before measuring in the X basis
 
-            qc.measure(i, i) 
+                qc.measure(i, i)
 
-        measured_bits_str = self._run_circuit(qc) 
-        bob_bits = [int(bit) for bit in measured_bits_str[::-1]]
+            measured_bits_str = self._run_circuit(qc)
+            bob_bits = [int(bit) for bit in measured_bits_str[::-1]]
 
-        sift_key = []
-        for i in range(n_bits):
-            if alice_bases[i] == bob_bases[i]: 
-                sift_key.append(alice_bits[i])
+            for i in range(chunk_size):
+                if alice_bases[i] == bob_bases[i]:
+                    sifted_key.append(alice_bits[i])
+                    if len(sifted_key) >= n_bits:
+                        break
 
-        key_int = 0 
-        for bit in sift_key:
+        key_int = 0
+        for bit in sifted_key[:n_bits]:
             key_int = (key_int << 1) | bit
 
-        return hex(key_int)[2::]
+        return hex(key_int)[2:]
 
 
 
