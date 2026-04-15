@@ -43,9 +43,23 @@ class QuantumCipher:
 
 
     def decrypt(self, ciphertext: bytes, key: int, meta: dict = None) -> bytes:
+            ciphertext_utf = ciphertext.decode('utf-8')
+            key_hex, cipher_hex = ciphertext_utf.split(':')
+            
+            cipher_int = int(cipher_hex, 16)
+            key_int = int(key_hex, 16)
 
-        return ciphertext
-    
+            if key_int == 0: key_int = 1
+
+            while key_int.bit_length() < cipher_int.bit_length():
+                key_int = (key_int << key_int.bit_length()) | key_int
+
+            plain_int = cipher_int ^ key_int
+
+            byte_length = (plain_int.bit_length() + 7) // 8
+            decrypted_bytes = plain_int.to_bytes(byte_length, 'big')
+
+            return decrypted_bytes
 
     """
     explaining ts rq
