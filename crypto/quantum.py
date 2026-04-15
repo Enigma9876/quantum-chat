@@ -156,15 +156,17 @@ if __name__ == "__main__":
     cipher = QuantumCipher()
     
     msg = input("Enter text: ")
-    if not msg: 
-        msg = "plu"
-    
-    #We pass 0 for the key because the BB84 protocol handles its own key generation
-    encrypted_bytes = cipher.encrypt(msg.encode('utf-8'), 0)
-    
-    print(f"Encrypted (Key : Ciphertext):")
-    print(f"     {encrypted_bytes.decode('utf-8')}")
-    
-    print("Decryption (Note: WIP)")
-    decrypted_bytes = cipher.decrypt(encrypted_bytes, 0)
-    print(f"     {decrypted_bytes.decode('utf-8')}")
+    while msg != "quit":
+        if not msg: 
+            msg = "pluh"
+        
+        #We pass 0 for the key because the BB84 protocol handles its own key generation
+        encrypted_bytes = cipher.encrypt(msg.encode('utf-8'), 0)
+        
+        print(f"Encrypted (Key : Ciphertext):")
+        print(f"     {encrypted_bytes.decode('utf-8')}")
+        
+        print("Decryption (Note: WIP)")
+        decrypted_bytes = cipher.decrypt(encrypted_bytes, 0)
+        print(f"     {decrypted_bytes.decode('utf-8')}")
+        msg = input("Enter text: ")
