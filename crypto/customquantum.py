@@ -46,10 +46,10 @@ class LiamQuantumCipher:
                 for i in range(chunk_size):
                     if eve_bases[i] == 1:
                         qc.h(i)
-                qc.measure(i, i) #this shuld force it to collapse
+                    qc.measure(i, i) #this shuld force it to collapse
 
-                if eve_bases[i] == 1:
-                    qc.h(i)  #simulating "hiding there tracks"
+                    if eve_bases[i] == 1:
+                        qc.h(i)  #simulating "hiding there tracks"
             
             for i in range(chunk_size):
                 if bob_bases[i] == 1:
@@ -65,23 +65,23 @@ class LiamQuantumCipher:
                     if len(sacrificed_bits) < 10:
                         sacrificed_bits.append((alice_bits[i], bob_bits[i]))
                     else: #using the rest of the bits for like the real key
-                        shifted_key.append(alice_bits[i])
+                        sifted_key.append(alice_bits[i])
                         if len(sifted_key) >= n_bits:
                             break
             
-            compramised = False
-            for alice_bit, bob_bit in sacrificed_bits:
-                if alice_bit != bob_bit:
-                    compramised = True
-                    print("tripwire triggered")
-                    break
-            
-            key_int = 0
-            for bit in sifted_key[:n_bits]:
-                key_int = (key_int << 1) | int(bit)
+        compramised = False
+        for alice_bit, bob_bit in sacrificed_bits:
+            if alice_bit != bob_bit:
+                compramised = True
+                print("tripwire triggered")
+                break
+        
+        key_int = 0
+        for bit in sifted_key[:n_bits]:
+            key_int = (key_int << 1) | int(bit)
 
-            hex_key = hex(key_int)[2:]
-            return hex_key, compramised
+        hex_key = hex(key_int)[2:]
+        return hex_key, compramised
 
     def _run_circuit(self, qc):
         pass
