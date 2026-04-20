@@ -1,10 +1,12 @@
 import numpy as np # this creates an alis for numpy btw
+import secrets
+import random
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
 from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
-class LiamQuantumCipher:
+class CustomQuantumCipher:
     id = "customquantum"
 
     def __init__(self):
@@ -12,12 +14,12 @@ class LiamQuantumCipher:
         self.service = None 
         self.set_backend()
 
-        def set_backend(self):
-            try:
-                self.service = QiskitRuntimeService() 
-                self.backend = self.service.least_busy(operational=True, simulator=False) 
-            except Exception as e:
-                self.backend = AerSimulator()
+    def set_backend(self):
+        try:
+            self.service = QiskitRuntimeService() 
+            self.backend = self.service.least_busy(operational=True, simulator=False) 
+        except Exception as e:
+            self.backend = AerSimulator()
 
     def _simulate_tripwire_key(self, n_bits, eve_listening=False):
         sifted_key = []
@@ -84,11 +86,86 @@ class LiamQuantumCipher:
         return hex_key, compramised
 
     def _run_circuit(self, qc):
-        pass
+        if isinstance(self.backend, AerSimulator) :
+            job = self.backend.run(transpile(qc, self.backend), shots=1, memory = True)
+            result = job.result()
+
+            return result.get_memory()[0] #bit string
+        else:
+            print("[Quantum] Queuing for a job")
+
+            pm = generate_preset_pass_manager(backend = self.backend, optimization_level=1)
+            isa_circuit = pm.run(qc)
+            sampler = SamplerV2(mode = self.backend)
+            job = sampler.run([isa_circuit])
+            result = job.result()
+
+            counts = result[0].data.c.get_bitstring_counts()
+
+            return counts[0]
+        
 
     def encrypt(self, plaintext: bytes, key: int, **kwargs) -> bytes:
-        pass
+            plaintext_str = plaintext.decode('utf-8')
+            required_bits = len(plaintext_str.encode('utf-8')) * 8
+
+            decoy_text = "SYSTEM LOG: NO ANOMALIES FOUND" 
+            key_b_hex = secrets.token_hex(16)
+            decoy_cipher = self._one_time_pad(decoy_text, key_b_hex)
+
+            eve_active = kwargs.get('eve_listening', random.choice([True, False]))
+            key_a_hex, compromised = self._simulate_tripwire_key(required_bits, eve_active)
+
+            real_cipher = self._one_time_pad(plaintext_str, key_a_hex)
+
+            comp_flag = "1" if compromised else "0"
+            combined_texts = f"{decoy_cipher}:{key_b_hex}:{real_cipher}:{key_a_hex}:{comp_flag}"
+
+            return combined_texts.encode('utf-8')
 
     def decrypt(self, ciphertext: bytes, key: int, **kwargs) -> bytes:
         pass
     
+
+
+    def _one_time_pad(self, text: str, key_hex : str) -> str:
+        # this will use XOR to encrypt/decrypt, lowk
+
+        text_bytes = text.encode('utf-8')
+        text_int = int.from_bytes(text_bytes, 'big') #the reason this has the 'big' (note 'big' is big-endian and that is the standard for most systems) is because we want 
+                                                     #to convert the text into an integer representation that can be easily manipulated using bitwise operations
+
+
+        #we want to repeat the key if its to short (THIS WOULD NOT BE DONE IN REAL OTP)
+        key_int = int(key_hex, 16)
+        if key_int == 0: key_int = 1 # to avoid division by zero
+
+        while key_int.bit_length() < text_int.bit_length():
+            key_int = (key_int << key_int.bit_length()) | key_int
+
+        #XOR that bish
+        cipher_int = text_int ^ key_int
+
+        return hex(cipher_int)[2:] # convert back to hex string, and removes da "0x" prefix
+    
+
+
+if __name__ == "__main__":
+    cipher = CustomQuantumCipher()
+    
+    print("\n=== INITIATING SCHRÖDINGER'S DECOY PROTOCOL ===")
+    msg = input("Enter top secret payload: ")
+    if not msg: 
+        msg = "The gold is buried under the old oak tree."
+    
+   
+    
+    secure_payload = cipher.encrypt(msg.encode('utf-8'), 0, eve_listening=False)
+    print("sucsess")
+    print(f"RAW PACKAGE: {secure_payload.decode('utf-8')}")
+
+    
+    print("\nSimulating eavesdropper interception")
+    compromised_payload = cipher.encrypt(msg.encode('utf-8'), 0, eve_listening=True)
+    print("decryption")
+    print(f"raw: {compromised_payload.decode('utf-8')}")
