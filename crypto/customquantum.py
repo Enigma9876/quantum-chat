@@ -123,8 +123,26 @@ class CustomQuantumCipher:
 
             return combined_texts.encode('utf-8')
 
-    def decrypt(self, ciphertext: bytes, key: int, **kwargs) -> bytes:
-        pass
+    def decrypt(self, ciphertext: bytes, key: int, meta: dict = None) -> bytes:
+        parts = ciphertext.decode('utf-8').split(':')
+        #decoy_cipher:key_b_hex:real_cipher:key_a_hex:comp_flag
+        real_cipher_hex = parts[2]
+        key_a_hex = parts[3]
+        comp_flag = parts[4]
+
+        if comp_flag == "1":
+            print("Warning: this transmission was flagged as potentially compromised")
+
+        cipher_int = int(real_cipher_hex, 16)
+        key_int = int(key_a_hex, 16)
+        if key_int == 0: key_int = 1
+
+        while key_int.bit_length() < cipher_int.bit_length():
+            key_int = (key_int << key_int.bit_length()) | key_int
+
+        plain_int = cipher_int ^ key_int
+        byte_length = (plain_int.bit_length() + 7) // 8
+        return plain_int.to_bytes(byte_length, 'big')
     
 
 
@@ -152,8 +170,7 @@ class CustomQuantumCipher:
 
 if __name__ == "__main__":
     cipher = CustomQuantumCipher()
-    
-    print("\n=== INITIATING SCHRÖDINGER'S DECOY PROTOCOL ===")
+   
     msg = input("Enter top secret payload: ")
     if not msg: 
         msg = "The gold is buried under the old oak tree."
@@ -162,10 +179,14 @@ if __name__ == "__main__":
     
     secure_payload = cipher.encrypt(msg.encode('utf-8'), 0, eve_listening=False)
     print("sucsess")
-    print(f"RAW PACKAGE: {secure_payload.decode('utf-8')}")
+    print(f"raw : {secure_payload.decode('utf-8')}")
+
+    print(f"decrypted: {cipher.decrypt(secure_payload, 0)}")
 
     
     print("\nSimulating eavesdropper interception")
     compromised_payload = cipher.encrypt(msg.encode('utf-8'), 0, eve_listening=True)
     print("decryption")
     print(f"raw: {compromised_payload.decode('utf-8')}")
+
+    print(f"decrypted: {cipher.decrypt(compromised_payload, 0)}")
