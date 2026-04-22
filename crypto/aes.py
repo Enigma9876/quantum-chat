@@ -214,7 +214,12 @@ class AESCipher:
 
 
     # applied all of the steps together
-    def encrypt(self, plaintext: bytes, key: bytes) -> bytes:
+    def encrypt(self, plaintext: bytes, key: bytes, **kwargs) -> bytes:
+        if isinstance(plaintext, str):
+            plaintext = plaintext.encode()
+        if isinstance(key, str):
+            key = key.encode()
+        
         num_rounds = 10 if len(key) == 16 else 12 if len(key) == 24 else 14 # thx gemni for teaching me this syntax in python (its called a ternary operator (does the same in java but looks goofier here) and now i need less lines)
         round_keys = self._key_expansion(key, num_rounds)
         state = self._bytes_to_state(plaintext[:16])
@@ -229,12 +234,24 @@ class AESCipher:
         state = self._sub_bytes(state)
         state = self._shift_rows(state)
         state = self._add_round_key(state, round_keys[num_rounds * 4 : (num_rounds + 1) * 4])
-        return self._state_to_bytes(state)
+        ciphertext = self._state_to_bytes(state)
+        #rturn hex-encoded output as UTF-8 bytes so callums thing does not implode
+        return ciphertext.hex().encode('utf-8')
 
 
 
     # just above but with the reverse order 
-    def decrypt(self, ciphertext: bytes, key: bytes) -> bytes:
+    def decrypt(self, ciphertext: bytes, key: bytes, meta: dict = None) -> bytes:
+        if isinstance(key, str):
+            key = key.encode()
+        
+        # Convert hex string back to bytes if needed
+        if isinstance(ciphertext, bytes):
+            try:
+                ciphertext = bytes.fromhex(ciphertext.decode('utf-8'))
+            except (ValueError, UnicodeDecodeError):
+                pass  # If not hex, use as-is
+        
         num_rounds = 10 if len(key) == 16 else 12 if len(key) == 24 else 14
         round_keys = self._key_expansion(key, num_rounds)
         state = self._bytes_to_state(ciphertext[:16])
