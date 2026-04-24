@@ -39,11 +39,16 @@ class CryptoManager :
                         spec.loader.exec_module(module)
                         
                         for name, obj in inspect.getmembers(module, inspect.isclass):
-                            if hasattr(obj, 'id'):
-                                
-                                self.register(obj())
-                                print(f"[CryptoManager] Auto-loaded '{obj.id}' from {filename}")
-                                
+                            #if its not defined in its self dont include itself
+                            if obj.__module__ != module.__name__:
+                                continue
+
+                            if getattr(obj, 'id', None) is None:
+                                continue
+
+                            self.register(obj())
+                            print(f"[CryptoManager] Auto-loaded '{obj.id}' from {filename}")
+
                     except Exception as e:
                         print(f"[CryptoManager] Was not able to load this file: {filename}: {e}")
 
