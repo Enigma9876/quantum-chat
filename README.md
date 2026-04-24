@@ -14,3 +14,4 @@ git pull --rebase origin main
  pip install flask
  pip install flask_socketio
  pip install qiskit qiskit-aer qiskit-ibm-runtime numpy
+ /home/codespace/.python/current/bin/python3 -m pip install qiskit-aer qiskit-ibm-runtime
