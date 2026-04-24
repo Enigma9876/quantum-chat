@@ -219,22 +219,31 @@ class AESCipher:
             plaintext = plaintext.encode()
         if isinstance(key, str):
             key = key.encode()
+            
+        #added da padding so the length is perfectly divisible by 16 (for the thing said before)
+        pad_len = 16 - (len(plaintext) % 16)
+        plaintext += bytes([pad_len] * pad_len)
         
         num_rounds = 10 if len(key) == 16 else 12 if len(key) == 24 else 14 # thx gemni for teaching me this syntax in python (its called a ternary operator (does the same in java but looks goofier here) and now i need less lines)
         round_keys = self._key_expansion(key, num_rounds)
-        state = self._bytes_to_state(plaintext[:16])
-        state = self._add_round_key(state, round_keys[0:4])
         
-        for round_num in range(1, num_rounds):
+        ciphertext = b""
+        
+        for i in range(0, len(plaintext), 16):
+            state = self._bytes_to_state(plaintext[i:i+16])
+            state = self._add_round_key(state, round_keys[0:4])
+            
+            for round_num in range(1, num_rounds):
+                state = self._sub_bytes(state)
+                state = self._shift_rows(state)
+                state = self._mix_columns(state)
+                state = self._add_round_key(state, round_keys[round_num * 4 : (round_num + 1) * 4])
+                
             state = self._sub_bytes(state)
             state = self._shift_rows(state)
-            state = self._mix_columns(state)
-            state = self._add_round_key(state, round_keys[round_num * 4 : (round_num + 1) * 4])
+            state = self._add_round_key(state, round_keys[num_rounds * 4 : (num_rounds + 1) * 4])
+            ciphertext += self._state_to_bytes(state)
             
-        state = self._sub_bytes(state)
-        state = self._shift_rows(state)
-        state = self._add_round_key(state, round_keys[num_rounds * 4 : (num_rounds + 1) * 4])
-        ciphertext = self._state_to_bytes(state)
         #rturn hex-encoded output as UTF-8 bytes so callums thing does not implode
         return ciphertext.hex().encode('utf-8')
 
@@ -250,23 +259,33 @@ class AESCipher:
             try:
                 ciphertext = bytes.fromhex(ciphertext.decode('utf-8'))
             except (ValueError, UnicodeDecodeError):
-                pass  # If not hex, use as-is
+                pass  # If not hex use asis
         
         num_rounds = 10 if len(key) == 16 else 12 if len(key) == 24 else 14
         round_keys = self._key_expansion(key, num_rounds)
-        state = self._bytes_to_state(ciphertext[:16])
-        state = self._add_round_key(state, round_keys[num_rounds * 4 : (num_rounds + 1) * 4])
         
-        for round_num in range(num_rounds - 1, 0, -1):
+        plaintext = b""
+        
+        #
+        for i in range(0, len(ciphertext), 16):
+            state = self._bytes_to_state(ciphertext[i:i+16])
+            state = self._add_round_key(state, round_keys[num_rounds * 4 : (num_rounds + 1) * 4])
+            
+            for round_num in range(num_rounds - 1, 0, -1):
+                state = self._inv_shift_rows(state)
+                state = self._inv_sub_bytes(state)
+                state = self._add_round_key(state, round_keys[round_num * 4 : (round_num + 1) * 4])
+                state = self._inv_mix_columns(state)
+                
             state = self._inv_shift_rows(state)
             state = self._inv_sub_bytes(state)
-            state = self._add_round_key(state, round_keys[round_num * 4 : (round_num + 1) * 4])
-            state = self._inv_mix_columns(state)
+            state = self._add_round_key(state, round_keys[0:4])
+            plaintext += self._state_to_bytes(state)
+
+        pad_len = plaintext[-1]
+        plaintext = plaintext[:-pad_len]
             
-        state = self._inv_shift_rows(state)
-        state = self._inv_sub_bytes(state)
-        state = self._add_round_key(state, round_keys[0:4])
-        return self._state_to_bytes(state)
+        return plaintext
     
 #test case runner curtisy of gemini
 if __name__ == "__main__":
@@ -274,7 +293,9 @@ if __name__ == "__main__":
     
     # Needs to be exactly 16 bytes (128-bit) for this barebones implementation!
     key = b"ThatsMyKungFuKey" 
-    plaintext = b"SecretMessage123" 
+    
+    # Making the plaintext much longer to test the chunking, and unaligned to test padding!
+    plaintext = b"SecretMessage123 that is now way longer than sixteen bytes to test the chunking and padding!" 
 
 
     print(f"Original text: {plaintext}")
@@ -293,5 +314,3 @@ if __name__ == "__main__":
         print("\n The math checked out. I did it!")
     else:
         print("\n something went wrong")
-    
-

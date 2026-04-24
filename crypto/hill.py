@@ -21,7 +21,6 @@ class HillCipher:
             det += ((-1) ** c) * matrix[0][c] * self._matrix_determinant(minor)
         return det
     
-
     #actually doing the inversion
     def _mod_inverse(self, a: int, modulus: int) -> Optional[int]:
         a = a % modulus
