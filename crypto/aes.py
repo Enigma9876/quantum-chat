@@ -254,12 +254,12 @@ class AESCipher:
         if isinstance(key, str):
             key = key.encode()
         
-        # Convert hex string back to bytes if needed
+        #onky if needed
         if isinstance(ciphertext, bytes):
             try:
                 ciphertext = bytes.fromhex(ciphertext.decode('utf-8'))
             except (ValueError, UnicodeDecodeError):
-                pass  # If not hex use asis
+                pass  
         
         num_rounds = 10 if len(key) == 16 else 12 if len(key) == 24 else 14
         round_keys = self._key_expansion(key, num_rounds)
