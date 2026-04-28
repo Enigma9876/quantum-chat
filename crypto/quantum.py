@@ -87,7 +87,7 @@ class QuantumCipher:
         #XOR that bish
         cipher_int = text_int ^ key_int
 
-        return hex(cipher_int)[2:] # convert back to hex string, and removes da "0x" prefix
+        return hex(cipher_int)[2:] # removes da "0x" prefix
     
 
 
