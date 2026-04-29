@@ -131,6 +131,7 @@ HTML_TEMPLATE = """
         .btn-disconnect:hover { background:rgba(239,68,68,0.15); border-color:var(--red); }
         .chat-body { flex:1; display:flex; min-height:0; overflow:hidden; }
         .chat-col { display:flex; flex-direction:column; width:38%; min-width:320px; border-right:1px solid var(--border); overflow:hidden; }
+        .room-quick-guide { background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); margin:16px 16px 0 16px; padding:12px 16px; border-radius:8px; font-size:12px; color:var(--blue-light); line-height:1.6; flex-shrink:0; }
         .chat-log { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:8px; }
         .chat-send-row { padding:12px 14px; border-top:1px solid var(--border); display:flex; gap:8px; flex-shrink:0; background:var(--bg-2); }
         .chat-input { flex:1; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#fff; font-size:14px; border-radius:8px; font-family:var(--sans); outline:none; transition:all 0.2s; }
@@ -204,6 +205,7 @@ HTML_TEMPLATE = """
         .tab-pane.active { display:flex; flex-direction:column; }
 
         /* ═══ SOLUTION / GUIDE STYLES ═══ */
+        .history-block { padding-bottom:16px; border-bottom:1px solid var(--border); margin-bottom:16px; }
         .sol-box { background:rgba(0,0,0,0.25); border:1px solid var(--border); border-radius:8px; padding:14px 18px; margin-bottom:10px; }
         .sol-title { font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.04); padding-bottom:7px; }
         .sol-explain { font-size:11px; color:var(--muted-2); line-height:1.7; padding:8px 10px; background:rgba(0,0,0,0.2); border-radius:5px; border-left:2px solid rgba(255,255,255,0.08); margin-bottom:8px; }
@@ -440,20 +442,23 @@ HTML_TEMPLATE = """
             </div>
         </div>
         <div class="chat-body">
-            <!-- Chat column -->
             <div class="chat-col">
+                <div class="room-quick-guide">
+                    <strong>Welcome to the Secure Room!</strong><br>
+                    <span style="color:var(--muted-2);">1. Select a cipher from the top right and configure its key.<br>
+                    2. Type a message — it will be encrypted locally before sending.<br>
+                    3. Click any message to open the Inspector and reveal its mathematical secrets.</span>
+                </div>
                 <div id="chat-box" class="chat-log"></div>
                 <div class="chat-send-row">
                     <input type="text" id="msg-input" class="chat-input" placeholder="Type an encrypted message..." autofocus>
                     <button onclick="sendMessage()" class="btn-send">Send</button>
                 </div>
             </div>
-            <!-- Encryption + inspector panel -->
             <div class="enc-panel">
                 <div class="enc-panel-top">
                     <div class="panel-hdr" style="color:var(--purple-light);">Cipher: <span id="current-cipher" style="color:#fff;font-weight:400;">Plaintext</span></div>
                     <div id="no-cipher-msg" style="color:var(--muted);font-style:italic;font-size:12px;">Select a cipher above to configure its key.</div>
-                    <!-- Caesar -->
                     <div id="caesar-controls" class="enc-param-wrapper" style="display:none;">
                         <div class="shift-row">
                             <div class="shift-badge" id="shift-badge">1</div>
@@ -468,7 +473,6 @@ HTML_TEMPLATE = """
                             <div><div class="alpha-label">Cipher</div><div id="example-shift" class="alpha-letters" style="color:var(--green-light);">B C D E F</div></div>
                         </div>
                     </div>
-                    <!-- Hill -->
                     <div id="hill-controls" class="enc-param-wrapper" style="display:none;">
                         <div class="hill-header">
                             <div>
@@ -483,7 +487,6 @@ HTML_TEMPLATE = """
                         <div id="hill-matrix-container"></div>
                         <div id="hill-validation" class="matrix-valid pending"><div class="valid-dot"></div><span>Enter matrix values to validate…</span></div>
                     </div>
-                    <!-- Text key -->
                     <div id="text-key-controls" class="enc-param-wrapper" style="display:none;">
                         <div class="enc-label">Keyword / Seed</div>
                         <div class="key-input-wrap">
@@ -497,7 +500,6 @@ HTML_TEMPLATE = """
                     </div>
                 </div>
 
-                <!-- Message Inspector -->
                 <div class="enc-panel-bottom">
                     <div class="panel-hdr" style="color:var(--blue-light);">Message Inspector</div>
                     <div id="sel-placeholder" style="color:var(--muted);font-style:italic;font-size:13px;text-align:center;padding-top:24px;">
@@ -509,16 +511,49 @@ HTML_TEMPLATE = """
                             <div style="color:var(--muted);font-size:9px;margin-bottom:5px;font-weight:800;letter-spacing:1px;">INTERCEPTED PAYLOAD</div>
                             <div id="sel-payload" style="color:#fff;font-family:var(--mono);word-break:break-all;font-size:13px;"></div>
                         </div>
-                        <!-- ══ TAB NAV: Guide → Decrypt → History ══ -->
                         <div class="tabs-nav" style="flex-shrink:0;">
-                            <button class="tab-btn active" onclick="switchTab('guide',event)">Guide</button>
+                            <button class="tab-btn active" onclick="switchTab('guide',event)">Guide / Info</button>
                             <button class="tab-btn" onclick="switchTab('decrypt',event)">Decrypt</button>
-                            <button class="tab-btn" onclick="switchTab('history',event)">History</button>
                         </div>
 
-                        <!-- ══ TAB: Guide (thorough solution, shown first) ══ -->
                         <div id="tab-guide" class="tab-pane active">
                             <div id="sol-none" style="display:block;text-align:center;color:var(--muted);font-style:italic;padding-top:16px;">Message was sent in plaintext.</div>
+                            
+                            <div id="hist-caesar" class="history-block" style="display:none;">
+                                <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Julius Caesar's Cipher</h3>
+                                <p style="margin-top:0;">Historically utilized by Julius Caesar to protect messages of military significance, this substitution cipher replaces each letter in the plaintext with a letter a fixed number of positions down the alphabet.</p>
+                                
+                                <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">How the Shift Works</h4>
+                                <p style="margin-top:0;">Imagine the alphabet written on a wheel. If your shift key is <strong>3</strong>, you spin the wheel forward by 3 spaces. 'A' becomes 'D', 'B' becomes 'E', and so on. When you reach the end of the alphabet, it simply wraps back around to the beginning—so 'X' becomes 'A', 'Y' becomes 'B', and 'Z' becomes 'C'.</p>
+
+                                <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">The Math</h4>
+                                <p style="margin-top:0;">Mathematically, this is expressed using modular arithmetic: <code style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;">C = (P + shift) mod 26</code>. The "mod 26" is the mathematical mechanism that handles the looping of the 26 letters.</p>
+
+                                <p style="margin-bottom:0;">Though trivial to break today via brute force or frequency analysis, it remains the foundational building block for complex modern algorithms.</p>
+                            </div>
+
+                            <div id="hist-hill" class="history-block" style="display:none;">
+                                <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Lester S. Hill's Matrix Cipher</h3>
+                                <p style="margin-top:0;">Invented in 1929, the Hill cipher revolutionized cryptology by introducing linear algebra into encryption. Instead of shifting single letters, it encrypts letters in chunks (blocks) by multiplying them against a grid of numbers known as the <strong>Key Matrix</strong>.</p>
+                                
+                                <h4 style="color:var(--purple-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">What is a Determinant?</h4>
+                                <p style="margin-top:0;">The <strong>determinant</strong> is a special number calculated directly from the Key Matrix (for a 2x2 matrix, it is calculated as <code>(top-left × bottom-right) - (top-right × bottom-left)</code>). Think of the determinant as the matrix's gatekeeper—it tells us crucial information about whether the encryption can actually be reversed.</p>
+
+                                <h4 style="color:var(--purple-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Rules for Decryption</h4>
+                                <p style="margin-top:0;">To decrypt a Hill Cipher, the receiver must calculate the <i>inverse</i> of the Key Matrix. For this mathematical magic to work in our 26-letter alphabet:
+                                    <ol style="margin-top:4px;padding-left:16px;color:var(--muted-2);">
+                                        <li style="margin-bottom:4px;"><strong>The determinant cannot be 0.</strong> If it is 0, the matrix mathematically collapses, and the message is irreversibly lost.</li>
+                                        <li><strong>It must be coprime with 26.</strong> The determinant cannot share any common factors with the number 26. This means the determinant cannot be an even number, and it cannot be a multiple of 13.</li>
+                                    </ol>
+                                </p>
+
+                                <p style="margin-bottom:0;">While its linearity makes it vulnerable to Known-Plaintext attacks, its concept of matrix diffusion heavily influenced modern block ciphers like AES.</p>
+                            </div>
+
+                            <div id="hist-aes" class="history-block" style="display:none;"><h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Advanced Encryption Standard</h3><p style="margin-top:0;">Adopted by NIST in 2001, the Rijndael cipher (AES) is the definitive global standard for symmetric key encryption.</p><p>With key sizes up to 256 bits, it is considered impenetrable by classical brute force.</p></div>
+                            <div id="hist-vigenere" class="history-block" style="display:none;"><h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Le Chiffre Indéchiffrable</h3><p style="margin-top:0;">For 300 years considered entirely unbreakable — ultimately defeated in 1863 by Friedrich Kasiski through pattern analysis.</p></div>
+                            <div id="hist-quantum" class="history-block" style="display:none;"><h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">BB84 Quantum Cryptography</h3><p style="margin-top:0;">Developed in 1984, BB84 relies on quantum physics. Measuring a quantum state alters it, making interception physically detectable.</p></div>
+
                             <div id="sol-dynamic" style="display:none;">
                                 <div class="sol-box" style="border-color:rgba(59,130,246,0.3);">
                                     <div class="sol-title" style="color:var(--blue-light);">1 — Encryption Process</div>
@@ -541,11 +576,9 @@ HTML_TEMPLATE = """
                             </div>
                         </div>
 
-                        <!-- ══ TAB: Decrypt (computer algo + manual walkthrough) ══ -->
                         <div id="tab-decrypt" class="tab-pane">
                             <div id="tool-container-none" style="display:none;text-align:center;color:var(--muted);font-style:italic;padding-top:16px;">No tools required for plaintext.</div>
                             <div id="tool-container-active" style="display:none;flex-direction:column;flex:1;gap:0;min-height:0;">
-                                <!-- Mode toggle -->
                                 <div class="decrypt-mode-bar">
                                     <button id="btn-mode-computer" class="mode-btn active" onclick="setDecryptMode('computer')">
                                         <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -556,26 +589,15 @@ HTML_TEMPLATE = """
                                         Manual
                                     </button>
                                 </div>
-                                <!-- Computer algorithm view -->
                                 <div id="mode-computer" style="flex:1;overflow-y:auto;min-height:0;padding-bottom:80px;">
                                     <div id="computer-view-content"></div>
                                 </div>
-                                <!-- Manual walkthrough view -->
                                 <div id="mode-manual" style="display:none;flex:1;overflow-y:auto;min-height:0;padding-bottom:80px;">
                                     <div id="manual-view-content"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- ══ TAB: History (was Lore) ══ -->
-                        <div id="tab-history" class="tab-pane">
-                            <div id="hist-none" style="display:block;text-align:center;color:var(--muted);font-style:italic;padding-top:16px;">No historical data for plaintext.</div>
-                            <div id="hist-caesar" class="history-block" style="display:none;"><h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Julius Caesar's Cipher</h3><p style="margin-top:0;">Historically utilized by Julius Caesar to protect messages of military significance, this substitution cipher shifted the alphabet by three positions.</p><p>Though trivial to break today via brute force or frequency analysis, it remains the foundational building block for complex modern algorithms.</p></div>
-                            <div id="hist-hill" class="history-block" style="display:none;"><h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Lester S. Hill's Matrix Cipher</h3><p style="margin-top:0;">Invented in 1929, the Hill cipher revolutionized cryptology by introducing linear algebra into encryption.</p><p>Its complete linearity makes it vulnerable to Known-Plaintext attacks, but its concept of matrix diffusion heavily influenced modern block ciphers like AES.</p></div>
-                            <div id="hist-aes" class="history-block" style="display:none;"><h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Advanced Encryption Standard</h3><p style="margin-top:0;">Adopted by NIST in 2001, the Rijndael cipher (AES) is the definitive global standard for symmetric key encryption.</p><p>With key sizes up to 256 bits, it is considered impenetrable by classical brute force.</p></div>
-                            <div id="hist-vigenere" class="history-block" style="display:none;"><h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Le Chiffre Indéchiffrable</h3><p style="margin-top:0;">For 300 years considered entirely unbreakable — ultimately defeated in 1863 by Friedrich Kasiski through pattern analysis.</p></div>
-                            <div id="hist-quantum" class="history-block" style="display:none;"><h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">BB84 Quantum Cryptography</h3><p style="margin-top:0;">Developed in 1984, BB84 relies on quantum physics. Measuring a quantum state alters it, making interception physically detectable.</p></div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1478,7 +1500,7 @@ HTML_TEMPLATE = """
             document.getElementById('sel-details').style.display = 'flex';
             document.getElementById('sel-payload').textContent = msg;
 
-            ['tool-container-none','tool-container-active','sol-none','sol-dynamic','hist-none'].forEach(eid => {
+            ['tool-container-none','tool-container-active','sol-none','sol-dynamic'].forEach(eid => {
                 const el = document.getElementById(eid); if (el) el.style.display = 'none';
             });
             document.querySelectorAll('.history-block').forEach(e => e.style.display = 'none');
@@ -1512,7 +1534,6 @@ HTML_TEMPLATE = """
             } else {
                 document.getElementById('tool-container-none').style.display = 'block';
                 document.getElementById('sol-none').style.display = 'block';
-                document.getElementById('hist-none').style.display = 'block';
             }
 
             // Always open to Guide tab first
@@ -1658,5 +1679,5 @@ def on_disconnect():
 
 # ── Runner ────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
-    threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:67667")).start()
-    socketio.run(app, host='0.0.0.0', port=67667, debug=True, allow_unsafe_werkzeug=True)
+    threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:6000")).start()
+    socketio.run(app, host='0.0.0.0', port=6000, debug=True, allow_unsafe_werkzeug=True)
