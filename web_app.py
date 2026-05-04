@@ -136,33 +136,35 @@ HTML_TEMPLATE = """
         .chat-send-row { padding:12px 14px; border-top:1px solid var(--border); display:flex; gap:8px; flex-shrink:0; background:var(--bg-2); }
         .chat-input { flex:1; padding:10px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:#fff; font-size:14px; border-radius:8px; font-family:var(--sans); outline:none; transition:all 0.2s; }
         .chat-input:focus { border-color:var(--blue); background:rgba(59,130,246,0.04); }
-        #encryption-selector { padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--text); font-size:13px; border-radius:8px; outline:none; cursor:pointer; font-family:var(--sans); transition:all 0.2s; }
+        #encryption-selector { padding:8px 12px; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--text); font-size:13px; border-radius:8px; outline:none; cursor:pointer; font-family:var(--sans); transition:all 0.2s; }
         #encryption-selector:focus { border-color:var(--blue); }
         #encryption-selector option { background:#0d1526; }
         .btn-send { padding:10px 20px; background:var(--blue); color:#fff; font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase; border:none; border-radius:8px; cursor:pointer; transition:all 0.2s; flex-shrink:0; }
         .btn-send:hover { background:var(--blue-light); transform:translateY(-1px); }
+        
+        /* ═══ ENCRYPTION PANEL ═══ */
         .enc-panel { flex:1; display:flex; flex-direction:column; overflow:hidden; background:rgba(8,13,24,0.5); }
-        .enc-panel-top { flex:0 0 auto; padding:16px 20px; border-bottom:1px solid var(--border); overflow-y:auto; max-height:35%; }
+        .enc-panel-top { flex:0 0 auto; padding:16px 20px; border-bottom:1px solid var(--border); overflow-y:auto; max-height:45%; }
         .enc-panel-bottom { flex:1; display:flex; flex-direction:column; padding:16px 20px; overflow:hidden; min-height:0; }
-        .panel-hdr { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+        .panel-hdr { display:flex; align-items:center; justify-content:space-between; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; color:var(--purple-light); }
+        
         .message-row { display:flex; flex-direction:column; margin-bottom:2px; }
         .msg-wrap { display:flex; align-items:flex-start; justify-content:space-between; padding:10px 14px; border-radius:8px; border:1px solid transparent; background:rgba(255,255,255,0.02); transition:all 0.2s; }
         .msg-wrap:hover { background:rgba(255,255,255,0.05); }
-        .msg-wrap.selected { background:rgba(59,130,246,0.1); border-color:var(--blue); }
         .msg-text { flex:1; font-size:13px; line-height:1.5; word-break:break-all; }
-        .msg-user-wrap { cursor:pointer; }
         .msg-system { color:var(--purple-light); font-style:italic; font-size:12px; padding:4px 8px; }
-        .msg-actions { display:flex; gap:6px; opacity:0; transition:opacity 0.2s; min-width:52px; justify-content:flex-end; }
+        .msg-actions { display:flex; gap:6px; opacity:0; transition:opacity 0.2s; min-width:76px; justify-content:flex-end; }
         .msg-wrap:hover .msg-actions { opacity:1; }
         .action-btn { background:none; border:none; cursor:pointer; color:var(--muted); padding:3px; display:flex; align-items:center; transition:all 0.15s; }
         .action-btn:hover { color:#fff; transform:scale(1.15); }
         .btn-trash:hover { color:var(--red); }
+        .btn-inspect:hover { color:var(--green-light); }
         .reactions-row { display:flex; gap:5px; flex-wrap:wrap; padding-left:8px; margin-top:4px; }
         .reaction-badge { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:3px 7px; font-size:12px; cursor:pointer; color:var(--muted-2); display:flex; align-items:center; gap:4px; user-select:none; transition:all 0.15s; }
         .reaction-badge:hover { background:rgba(255,255,255,0.12); }
         .reaction-badge.active { background:rgba(59,130,246,0.18); border-color:var(--blue); color:#fff; }
         .emoji-picker-container { position:fixed; z-index:1000; display:none; box-shadow:0 15px 40px rgba(0,0,0,0.7); border-radius:12px; border:1px solid var(--border); overflow:hidden; }
-        .enc-param-wrapper { display:flex; flex-direction:column; gap:10px; animation:fadeIn 0.25s; }
+        .enc-param-wrapper { display:flex; flex-direction:column; gap:10px; animation:fadeIn 0.25s; margin-bottom: 12px; }
         .enc-label { font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); }
         .shift-row { display:flex; align-items:center; gap:14px; }
         .shift-badge { width:50px; height:50px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(139,92,246,0.2)); border:2px solid rgba(59,130,246,0.4); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:20px; font-weight:800; color:#fff; }
@@ -259,17 +261,6 @@ HTML_TEMPLATE = """
         .algo-step-done { border-color:rgba(16,185,129,0.3) !important; }
         .algo-step-done .algo-step-title { color:var(--green-light); }
         .mat-disp { font-family:var(--mono); background:rgba(0,0,0,0.4); padding:8px 12px; border-radius:5px; display:inline-block; line-height:1.8; color:#fff; font-size:11px; }
-        .freq-bar-row { display:flex; align-items:center; gap:6px; margin-bottom:2px; }
-        .freq-letter { color:var(--blue-light); width:14px; flex-shrink:0; }
-        .freq-bar-track { flex:1; height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
-        .freq-bar-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--purple)); border-radius:4px; transition:width 0.5s; }
-        .freq-val { color:var(--muted); width:28px; text-align:right; font-size:10px; flex-shrink:0; }
-        .photon-row { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px; }
-        .photon-bit { width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; border:1px solid transparent; transition:all 0.3s; flex-shrink:0; }
-        .photon-0 { background:rgba(59,130,246,0.15); border-color:rgba(59,130,246,0.3); color:var(--blue-light); }
-        .photon-1 { background:rgba(139,92,246,0.15); border-color:rgba(139,92,246,0.3); color:var(--purple-light); }
-        .photon-match { background:rgba(16,185,129,0.2) !important; border-color:rgba(16,185,129,0.4) !important; }
-        .photon-mismatch { background:rgba(239,68,68,0.1) !important; border-color:rgba(239,68,68,0.25) !important; opacity:0.5; }
 
         /* ═══ MANUAL WALKTHROUGH ═══ */
         .manual-terminal { background:rgba(0,0,0,0.55); border:1px solid rgba(139,92,246,0.2); border-radius:10px; font-family:var(--mono); font-size:12px; overflow:hidden; }
@@ -278,7 +269,6 @@ HTML_TEMPLATE = """
         .manual-body { padding:14px; display:flex; flex-direction:column; gap:10px; }
         .step-box { background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:8px; }
         .step-title { color:var(--blue-light); font-weight:800; font-size:10px; letter-spacing:1.5px; margin-bottom:8px; text-transform:uppercase; }
-        .step-inp-row { display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; }
         .step-input { width:64px; padding:8px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; font-family:var(--mono); font-size:15px; border-radius:6px; text-align:center; outline:none; transition:border-color 0.2s; }
         .step-input:focus { border-color:var(--blue); }
         .check-btn { padding:8px 16px; background:rgba(59,130,246,0.15); border:1px solid var(--blue); color:var(--blue-light); border-radius:6px; cursor:pointer; font-family:var(--sans); font-weight:800; font-size:10px; letter-spacing:1px; text-transform:uppercase; transition:all 0.2s; }
@@ -289,11 +279,18 @@ HTML_TEMPLATE = """
         .prompt-sym { color:var(--green-light); flex-shrink:0; }
         .prompt-input { flex:1; background:none; border:none; border-bottom:1px solid rgba(255,255,255,0.1); color:#fff; font-family:var(--mono); font-size:12px; padding:4px 6px; outline:none; text-transform:uppercase; }
         .prompt-input:focus { border-bottom-color:var(--blue); }
-        .terminal-out { color:var(--green-light); font-size:11px; margin-top:6px; line-height:1.7; }
-        .terminal-err { color:var(--red); font-size:11px; margin-top:6px; }
         .brute-out { background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin-top:8px; font-family:var(--mono); font-size:13px; color:var(--green); min-height:36px; word-break:break-all; }
         .calc-link { display:inline-flex; align-items:center; gap:6px; margin-top:8px; padding:6px 10px; background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); border-radius:6px; color:var(--blue-light); text-decoration:none; font-size:10px; font-weight:800; transition:all 0.2s; }
         .calc-link:hover { background:rgba(59,130,246,0.18); color:#fff; }
+
+        /* ═══ MODAL STYLES ═══ */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); animation: fadeIn 0.2s; }
+        .modal-content { background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; width: 90%; max-width: 600px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); }
+        .modal-header h3 { margin: 0; font-size: 14px; font-weight: 800; color: #fff; letter-spacing: 1px; text-transform: uppercase; }
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+        .close-btn { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; transition: color 0.2s; }
+        .close-btn:hover { color: #fff; }
 
         @keyframes fadeIn { from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)} }
         @keyframes slideIn { from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)} }
@@ -430,24 +427,14 @@ HTML_TEMPLATE = """
                 <span style="color:var(--muted);font-size:13px;font-weight:600;">Room</span>
                 <span class="room-code-display">{{ room_code }}</span>
             </div>
-            <div style="display:flex;align-items:center;gap:16px;">
-                <select id="encryption-selector">
-                    <option value="none">Plaintext (None)</option>
-                    <option value="caesar">Caesar Cipher</option>
-                    <option value="hill">Hill Cipher</option>
-                    <option value="vigenere">Vigenère Cipher</option>
-                    <option value="aes">AES-256</option>
-                    <option value="quantum">BB84 Quantum</option>
-                </select>
             </div>
-        </div>
         <div class="chat-body">
             <div class="chat-col">
                 <div class="room-quick-guide">
                     <strong>Welcome to the Secure Room!</strong><br>
-                    <span style="color:var(--muted-2);">1. Select a cipher from the top right and configure its key.<br>
+                    <span style="color:var(--muted-2);">1. Select a cipher on the right and configure its key.<br>
                     2. Type a message — it will be encrypted locally before sending.<br>
-                    3. Click any message to open the Inspector and reveal its mathematical secrets.</span>
+                    3. Click the 🔍 icon next to any sent message to reveal its mathematical secrets.</span>
                 </div>
                 <div id="chat-box" class="chat-log"></div>
                 <div class="chat-send-row">
@@ -455,10 +442,23 @@ HTML_TEMPLATE = """
                     <button onclick="sendMessage()" class="btn-send">Send</button>
                 </div>
             </div>
+
             <div class="enc-panel">
                 <div class="enc-panel-top">
-                    <div class="panel-hdr" style="color:var(--purple-light);">Cipher: <span id="current-cipher" style="color:#fff;font-weight:400;">Plaintext</span></div>
-                    <div id="no-cipher-msg" style="color:var(--muted);font-style:italic;font-size:12px;">Select a cipher above to configure its key.</div>
+                    <div class="panel-hdr">
+                        <span>Cipher Configuration</span>
+                        <select id="encryption-selector">
+                            <option value="none">Plaintext (None)</option>
+                            <option value="caesar">Caesar Cipher</option>
+                            <option value="hill">Hill Cipher</option>
+                            <option value="vigenere">Vigenère Cipher</option>
+                            <option value="aes">AES-256</option>
+                            <option value="quantum">BB84 Quantum</option>
+                        </select>
+                    </div>
+                    
+                    <div id="no-cipher-msg" style="color:var(--muted);font-style:italic;font-size:12px;margin-bottom:16px;">Select a cipher above to configure its key.</div>
+                    
                     <div id="caesar-controls" class="enc-param-wrapper" style="display:none;">
                         <div class="shift-row">
                             <div class="shift-badge" id="shift-badge">1</div>
@@ -498,26 +498,26 @@ HTML_TEMPLATE = """
                             <div class="key-bars" id="key-strength-bars"></div>
                         </div>
                     </div>
+                    
+                    <div style="border-top:1px solid var(--border); padding-top:16px; margin-top:8px;">
+                        <div class="enc-label" style="margin-bottom:8px;">Example Message (Live Preview)</div>
+                        <textarea id="example-msg-input" class="chat-input" style="width:100%; height:60px; resize:none;" placeholder="Type a message to preview...">HELLO WORLD</textarea>
+                    </div>
                 </div>
 
                 <div class="enc-panel-bottom">
-                    <div class="panel-hdr" style="color:var(--blue-light);">Message Inspector</div>
-                    <div id="sel-placeholder" style="color:var(--muted);font-style:italic;font-size:13px;text-align:center;padding-top:24px;">
-                        <svg viewBox="0 0 24 24" width="40" height="40" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" fill="none" style="display:block;margin:0 auto 12px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        Click any message to analyze its payload.
-                    </div>
-                    <div id="sel-details" class="tabs-wrap" style="display:none;">
+                    <div id="sel-details" class="tabs-wrap">
                         <div style="background:rgba(0,0,0,0.35);padding:10px 12px;border-radius:7px;border:1px solid var(--border);margin-bottom:10px;flex-shrink:0;">
-                            <div style="color:var(--muted);font-size:9px;margin-bottom:5px;font-weight:800;letter-spacing:1px;">INTERCEPTED PAYLOAD</div>
-                            <div id="sel-payload" style="color:#fff;font-family:var(--mono);word-break:break-all;font-size:13px;"></div>
+                            <div style="color:var(--muted);font-size:9px;margin-bottom:5px;font-weight:800;letter-spacing:1px;">CIPHERTEXT PREVIEW</div>
+                            <div id="sel-payload" style="color:#fff;font-family:var(--mono);word-break:break-all;font-size:13px;">HELLO WORLD</div>
                         </div>
                         <div class="tabs-nav" style="flex-shrink:0;">
                             <button class="tab-btn active" onclick="switchTab('guide',event)">Guide / Info</button>
-                            <button class="tab-btn" onclick="switchTab('decrypt',event)">Decrypt</button>
+                            <button class="tab-btn" onclick="switchTab('decrypt',event)">Decrypt Tools</button>
                         </div>
 
                         <div id="tab-guide" class="tab-pane active">
-                            <div id="sol-none" style="display:block;text-align:center;color:var(--muted);font-style:italic;padding-top:16px;">Message was sent in plaintext.</div>
+                            <div id="sol-none" style="display:block;text-align:center;color:var(--muted);font-style:italic;padding-top:16px;">Plaintext involves no cryptographic operations.</div>
                             
                             <div id="hist-caesar" class="history-block" style="display:none;">
                                 <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Julius Caesar's Cipher</h3>
@@ -528,8 +528,6 @@ HTML_TEMPLATE = """
 
                                 <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">The Math</h4>
                                 <p style="margin-top:0;">Mathematically, this is expressed using modular arithmetic: <code style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;">C = (P + shift) mod 26</code>. The "mod 26" is the mathematical mechanism that handles the looping of the 26 letters.</p>
-
-                                <p style="margin-bottom:0;">Though trivial to break today via brute force or frequency analysis, it remains the foundational building block for complex modern algorithms.</p>
                             </div>
 
                             <div id="hist-hill" class="history-block" style="display:none;">
@@ -537,17 +535,15 @@ HTML_TEMPLATE = """
                                 <p style="margin-top:0;">Invented in 1929, the Hill cipher revolutionized cryptology by introducing linear algebra into encryption. Instead of shifting single letters, it encrypts letters in chunks (blocks) by multiplying them against a grid of numbers known as the <strong>Key Matrix</strong>.</p>
                                 
                                 <h4 style="color:var(--purple-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">What is a Determinant?</h4>
-                                <p style="margin-top:0;">The <strong>determinant</strong> is a special number calculated directly from the Key Matrix (for a 2x2 matrix, it is calculated as <code>(top-left × bottom-right) - (top-right × bottom-left)</code>). Think of the determinant as the matrix's gatekeeper—it tells us crucial information about whether the encryption can actually be reversed.</p>
+                                <p style="margin-top:0;">The <strong>determinant</strong> is a special number calculated directly from the Key Matrix. Think of the determinant as the matrix's gatekeeper—it tells us crucial information about whether the encryption can actually be reversed.</p>
 
                                 <h4 style="color:var(--purple-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Rules for Decryption</h4>
                                 <p style="margin-top:0;">To decrypt a Hill Cipher, the receiver must calculate the <i>inverse</i> of the Key Matrix. For this mathematical magic to work in our 26-letter alphabet:
                                     <ol style="margin-top:4px;padding-left:16px;color:var(--muted-2);">
-                                        <li style="margin-bottom:4px;"><strong>The determinant cannot be 0.</strong> If it is 0, the matrix mathematically collapses, and the message is irreversibly lost.</li>
-                                        <li><strong>It must be coprime with 26.</strong> The determinant cannot share any common factors with the number 26. This means the determinant cannot be an even number, and it cannot be a multiple of 13.</li>
+                                        <li style="margin-bottom:4px;"><strong>The determinant cannot be 0.</strong> If it is 0, the matrix mathematically collapses.</li>
+                                        <li><strong>It must be coprime with 26.</strong> The determinant cannot share any common factors with the number 26.</li>
                                     </ol>
                                 </p>
-
-                                <p style="margin-bottom:0;">While its linearity makes it vulnerable to Known-Plaintext attacks, its concept of matrix diffusion heavily influenced modern block ciphers like AES.</p>
                             </div>
 
                             <div id="hist-aes" class="history-block" style="display:none;"><h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Advanced Encryption Standard</h3><p style="margin-top:0;">Adopted by NIST in 2001, the Rijndael cipher (AES) is the definitive global standard for symmetric key encryption.</p><p>With key sizes up to 256 bits, it is considered impenetrable by classical brute force.</p></div>
@@ -565,19 +561,11 @@ HTML_TEMPLATE = """
                                     <div id="dyn-dec-explanation" class="sol-explain"></div>
                                     <div id="dyn-dec-steps" class="tscroll"></div>
                                 </div>
-                                <div class="sol-box">
-                                    <div class="sol-title">3 — Attack Vector</div>
-                                    <div id="dyn-tool" style="color:#fff;font-size:12px;line-height:1.7;"></div>
-                                </div>
-                                <div class="sol-box" style="border-color:rgba(16,185,129,0.3);">
-                                    <div class="sol-title" style="color:var(--green-light);">4 — Recovered Plaintext</div>
-                                    <div id="dyn-plain-2" style="color:#fff;font-size:15px;font-weight:bold;font-family:var(--mono);"></div>
-                                </div>
                             </div>
                         </div>
 
                         <div id="tab-decrypt" class="tab-pane">
-                            <div id="tool-container-none" style="display:none;text-align:center;color:var(--muted);font-style:italic;padding-top:16px;">No tools required for plaintext.</div>
+                            <div id="tool-container-none" style="display:block;text-align:center;color:var(--muted);font-style:italic;padding-top:16px;">No tools required for plaintext.</div>
                             <div id="tool-container-active" style="display:none;flex-direction:column;flex:1;gap:0;min-height:0;">
                                 <div class="decrypt-mode-bar">
                                     <button id="btn-mode-computer" class="mode-btn active" onclick="setDecryptMode('computer')">
@@ -603,6 +591,17 @@ HTML_TEMPLATE = """
             </div>
         </div>
     </div>
+    
+    <div id="inspector-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Message Inspection</h3>
+                <button class="close-btn" onclick="document.getElementById('inspector-modal').style.display='none'">✕</button>
+            </div>
+            <div class="modal-body" id="modal-body-content">
+                </div>
+        </div>
+    </div>
 
     <script>
         const socket = io();
@@ -611,21 +610,30 @@ HTML_TEMPLATE = """
         const chatBox = document.getElementById('chat-box');
         const input = document.getElementById('msg-input');
         const selBox = document.getElementById('encryption-selector');
-        const cipherText = document.getElementById('current-cipher');
+        
         const caesarCtrl = document.getElementById('caesar-controls');
         const caesarSlider = document.getElementById('caesar-slider');
         const shiftBadge = document.getElementById('shift-badge');
         const exShift = document.getElementById('example-shift');
+        
         const hillCtrl = document.getElementById('hill-controls');
         const hillMatrix = document.getElementById('hill-matrix-container');
+        
         const textKeyCtrl = document.getElementById('text-key-controls');
         const textKeyInp = document.getElementById('text-key-input');
+        
+        const exampleInput = document.getElementById('example-msg-input');
 
-        let selectedMsgId = null, emojiMsgId = null;
-        let activePayload = '', activeOriginal = '', activeCipherKey = null, activeCipherType = null;
+        let emojiMsgId = null;
+        
+        // State for the Live Example Preview
+        let activePayload = ''; 
+        let activeOriginal = 'HELLO WORLD'; 
+        let activeCipherKey = null; 
+        let activeCipherType = 'none';
         let currentDecryptMode = 'computer';
 
-        // ── Math helpers ────────────────────────────────────────────
+        // ── Math & Cryptography Helpers (JS implementations for preview) ────────
         const mod26 = n => ((n % 26) + 26) % 26;
         const mod97 = n => ((Math.round(n) % 97) + 97) % 97;
         function matDet(m) {
@@ -654,6 +662,140 @@ HTML_TEMPLATE = """
         function printMat(mat) {
             return mat.map(r => "[ " + r.map(v => v.toString().padStart(3,' ')).join(', ') + " ]").join('<br>');
         }
+        function caesarShift(text, n) {
+            return text.split('').map(c => {
+                const code = c.charCodeAt(0);
+                if (code >= 65 && code <= 90) return String.fromCharCode(((code-65-n+260)%26)+65);
+                if (code >= 97 && code <= 122) return String.fromCharCode(((code-97-n+260)%26)+97);
+                return c;
+            }).join('');
+        }
+        function vigenereEncrypt(plain, key) {
+            if(!key) return plain;
+            let res = '', j = 0;
+            key = key.toUpperCase().replace(/[^A-Z]/g, '');
+            if(!key.length) return plain;
+            for(let i=0; i<plain.length; i++) {
+                let c = plain.charCodeAt(i);
+                if(c >= 65 && c <= 90) { res += String.fromCharCode((c - 65 + key.charCodeAt(j%key.length) - 65) % 26 + 65); j++; }
+                else if(c >= 97 && c <= 122) { res += String.fromCharCode((c - 97 + key.charCodeAt(j%key.length) - 65) % 26 + 97); j++; }
+                else res += plain[i];
+            }
+            return res;
+        }
+        function hillEncrypt(plain, K) {
+            let p = plain.toUpperCase().replace(/[^A-Z]/g, '');
+            let n = K.length;
+            if(p.length === 0) return plain;
+            while(p.length % n !== 0) p += 'X';
+            let res = '';
+            for(let i=0; i<p.length; i+=n) {
+                let block = [];
+                for(let j=0; j<n; j++) block.push(p.charCodeAt(i+j)-65);
+                for(let r=0; r<n; r++) {
+                    let sum = 0;
+                    for(let c=0; c<n; c++) sum += K[r][c] * block[c];
+                    res += String.fromCharCode((sum % 26) + 65);
+                }
+            }
+            return res;
+        }
+        function freqScore(text) {
+            const freq = {A:8.2,B:1.5,C:2.8,D:4.3,E:12.7,F:2.2,G:2.0,H:6.1,I:7.0,J:0.15,K:0.77,L:4.0,M:2.4,N:6.7,O:7.5,P:1.9,Q:0.1,R:6.0,S:6.3,T:9.1,U:2.8,V:0.98,W:2.4,X:0.15,Y:2.0,Z:0.07};
+            let s = 0;
+            text.toUpperCase().split('').forEach(c => { if (freq[c]) s += freq[c]; });
+            return Math.round(s);
+        }
+
+        // ── Live Example Updates ──────────────────────────────────────
+        function updateLiveExample() {
+            activeOriginal = exampleInput.value || " ";
+            activeCipherType = selBox.value;
+            
+            if (activeCipherType === 'none') {
+                activePayload = activeOriginal;
+                activeCipherKey = null;
+            } else if (activeCipherType === 'caesar') {
+                activeCipherKey = parseInt(caesarSlider.value) || 0;
+                activePayload = caesarShift(activeOriginal, activeCipherKey);
+            } else if (activeCipherType === 'vigenere') {
+                activeCipherKey = textKeyInp.value;
+                activePayload = vigenereEncrypt(activeOriginal, activeCipherKey);
+            } else if (activeCipherType === 'hill') {
+                if(!validateHillMatrix()) {
+                    activePayload = "[Singular Matrix - Cannot Encrypt]";
+                    activeCipherKey = [];
+                } else {
+                    const cells = document.querySelectorAll('.hill-cell');
+                    let mat = [], row = [];
+                    cells.forEach(c => { row.push(parseInt(c.value)||0); if (row.length === currentHillSize) { mat.push(row); row = []; } });
+                    activeCipherKey = mat;
+                    activePayload = hillEncrypt(activeOriginal, activeCipherKey);
+                }
+            } else if (activeCipherType === 'aes') {
+                activeCipherKey = textKeyInp.value;
+                activePayload = "[AES-256 BINARY PAYLOAD SIMULATION]";
+            } else if (activeCipherType === 'quantum') {
+                activeCipherKey = textKeyInp.value;
+                activePayload = "[BB84 QUANTUM PHOTON STREAM]";
+            }
+
+            document.getElementById('sel-payload').textContent = activePayload;
+            refreshInspectorTabs();
+        }
+
+        function refreshInspectorTabs() {
+            ['tool-container-none','tool-container-active','sol-none','sol-dynamic'].forEach(eid => {
+                const el = document.getElementById(eid); if (el) el.style.display = 'none';
+            });
+            document.querySelectorAll('.history-block').forEach(e => e.style.display = 'none');
+
+            if (activeCipherType !== 'none') {
+                document.getElementById('tool-container-active').style.display = 'flex';
+                document.getElementById('sol-dynamic').style.display = 'block';
+
+                document.getElementById('dyn-enc-explanation').innerHTML = getCipherExpl(activeCipherType, activeCipherKey, false);
+                document.getElementById('dyn-dec-explanation').innerHTML = getCipherExpl(activeCipherType, activeCipherKey, true);
+                document.getElementById('dyn-enc-steps').innerHTML = encTable(activeOriginal, activePayload, activeCipherType, activeCipherKey);
+                document.getElementById('dyn-dec-steps').innerHTML = decTable(activeOriginal, activePayload, activeCipherType, activeCipherKey);
+
+                const toolMap = {
+                    caesar: 'hist-caesar',
+                    hill:   'hist-hill',
+                    aes:    'hist-aes',
+                    vigenere:'hist-vigenere',
+                    quantum: 'hist-quantum'
+                };
+                if (toolMap[activeCipherType]) {
+                    document.getElementById(toolMap[activeCipherType]).style.display = 'block';
+                }
+                initDecryptTools(activeCipherType);
+            } else {
+                document.getElementById('tool-container-none').style.display = 'block';
+                document.getElementById('sol-none').style.display = 'block';
+            }
+        }
+
+        // ── Input Hooks for Live Example ──────────────────────────────
+        exampleInput.addEventListener('input', updateLiveExample);
+        selBox.addEventListener('change', function() {
+            document.getElementById('no-cipher-msg').style.display = 'none';
+            caesarCtrl.style.display = hillCtrl.style.display = textKeyCtrl.style.display = 'none';
+            if (selBox.value === 'caesar') caesarCtrl.style.display = 'flex';
+            else if (selBox.value === 'hill') hillCtrl.style.display = 'flex';
+            else if (['aes','vigenere','quantum'].includes(selBox.value)) textKeyCtrl.style.display = 'flex';
+            else document.getElementById('no-cipher-msg').style.display = 'block';
+            updateLiveExample();
+        });
+        caesarSlider.addEventListener('input', function() {
+            const v = parseInt(this.value);
+            shiftBadge.textContent = v;
+            this.style.setProperty('--fp', ((v-1)/24*100).toFixed(1)+'%');
+            exShift.textContent = ['A','B','C','D','E'].map(c => { let n = c.charCodeAt(0)+v; if(n>90)n-=26; return String.fromCharCode(n); }).join(' ');
+            updateLiveExample();
+        });
+        caesarSlider.style.setProperty('--fp','0%');
+        textKeyInp.addEventListener('input', updateLiveExample);
 
         // ── Hill matrix validation ──────────────────────────────────
         function validateHillMatrix() {
@@ -688,7 +830,6 @@ HTML_TEMPLATE = """
             }
         }
         updateKeyMeta();
-        textKeyInp.addEventListener('input', updateKeyMeta);
 
         // ── Hill grid picker ────────────────────────────────────────
         let currentHillSize = 2;
@@ -709,7 +850,7 @@ HTML_TEMPLATE = """
                 cell.className = 'grid-cell'; cell.dataset.r = r; cell.dataset.c = c;
                 cell.addEventListener('mouseenter', () => { hoverSz = Math.max(2, Math.max(r, c)); hl(hoverSz, false); });
                 cell.addEventListener('mousedown', e => { e.preventDefault(); dragging = true; });
-                cell.addEventListener('mouseup', () => { if (!dragging) return; dragging = false; currentHillSize = hoverSz; renderHillMatrix(currentHillSize); hl(currentHillSize, true); });
+                cell.addEventListener('mouseup', () => { if (!dragging) return; dragging = false; currentHillSize = hoverSz; renderHillMatrix(currentHillSize); hl(currentHillSize, true); updateLiveExample(); });
                 picker.appendChild(cell);
             }
             picker.addEventListener('mouseleave', () => { dragging = false; hl(currentHillSize, true); });
@@ -725,10 +866,10 @@ HTML_TEMPLATE = """
                 const inp = document.createElement('input');
                 inp.type = 'number'; inp.className = 'chat-input hill-cell';
                 inp.value = (size === 2) ? (def[cnt] ?? 0) : (i === j ? 1 : 0);
-                inp.addEventListener('input', validateHillMatrix);
+                inp.addEventListener('input', () => { validateHillMatrix(); updateLiveExample(); });
                 hillMatrix.appendChild(inp); cnt++;
             }
-            setTimeout(validateHillMatrix, 50);
+            setTimeout(() => { validateHillMatrix(); updateLiveExample(); }, 50);
         }
         renderHillMatrix(2);
 
@@ -751,6 +892,36 @@ HTML_TEMPLATE = """
         });
         document.addEventListener('click', ev => { if (!pickerWrap.contains(ev.target) && !ev.target.closest('.btn-emoji')) pickerWrap.style.display = 'none'; });
 
+        // ── Modal / specific message pop up logic ───────────────────
+        function openInspectorModal(orig, cipherText, cipher, key) {
+            const modalBody = document.getElementById('modal-body-content');
+            if (cipher === 'system' || cipher === 'none') {
+                modalBody.innerHTML = `<div style="text-align:center;color:var(--muted);font-style:italic;padding-top:16px;">This message was sent in plaintext. No encryption involved.</div>`;
+            } else {
+                modalBody.innerHTML = `
+                    <div style="background:rgba(0,0,0,0.35);padding:10px 12px;border-radius:7px;border:1px solid var(--border);margin-bottom:16px;">
+                        <div style="color:var(--muted);font-size:9px;margin-bottom:5px;font-weight:800;letter-spacing:1px;">INTERCEPTED PAYLOAD</div>
+                        <div style="color:#fff;font-family:var(--mono);word-break:break-all;font-size:13px;">${cipherText}</div>
+                    </div>
+                    <div class="sol-box" style="border-color:rgba(59,130,246,0.3);">
+                        <div class="sol-title" style="color:var(--blue-light);">1 — Encryption Process</div>
+                        <div class="sol-explain">${getCipherExpl(cipher, key, false)}</div>
+                        <div class="tscroll">${encTable(orig, cipherText, cipher, key)}</div>
+                    </div>
+                    <div class="sol-box" style="border-color:rgba(139,92,246,0.3);">
+                        <div class="sol-title" style="color:var(--purple-light);">2 — Decryption Process</div>
+                        <div class="sol-explain">${getCipherExpl(cipher, key, true)}</div>
+                        <div class="tscroll">${decTable(orig, cipherText, cipher, key)}</div>
+                    </div>
+                    <div class="sol-box" style="border-color:rgba(16,185,129,0.3);">
+                        <div class="sol-title" style="color:var(--green-light);">4 — Recovered Plaintext</div>
+                        <div style="color:#fff;font-size:15px;font-weight:bold;font-family:var(--mono);">${orig}</div>
+                    </div>
+                `;
+            }
+            document.getElementById('inspector-modal').style.display = 'flex';
+        }
+
         // ── Socket ───────────────────────────────────────────────────
         socket.emit('join', { room });
         function appendMsg(data) {
@@ -765,12 +936,20 @@ HTML_TEMPLATE = """
             } else {
                 txt.innerHTML = `<span style="color:var(--blue-light);font-weight:800;font-size:11px;letter-spacing:1px;text-transform:uppercase;">${data.username}</span><br><span style="font-size:14px;margin-top:2px;display:inline-block;">${data.msg}</span>`;
                 wrap.classList.add('msg-user-wrap');
-                wrap.onclick = () => selectMessage(data.id, data.username, data.msg, data.original_msg, data.cipher || 'none', data.key || 0);
+                
                 const acts = document.createElement('div'); acts.className = 'msg-actions';
+                
+                // Add Inspect button directly to messages
+                const inspectBtn = document.createElement('button'); inspectBtn.className = 'action-btn btn-inspect';
+                inspectBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+                inspectBtn.onclick = e => { e.stopPropagation(); openInspectorModal(data.original_msg, data.msg, data.cipher || 'none', data.key || 0); };
+                acts.appendChild(inspectBtn);
+
                 const eBtn = document.createElement('button'); eBtn.className = 'action-btn btn-emoji';
                 eBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`;
                 eBtn.onclick = e => { e.stopPropagation(); emojiMsgId = data.id; const r = eBtn.getBoundingClientRect(); pickerWrap.style.display = 'block'; pickerWrap.style.top = (r.bottom + 5) + 'px'; pickerWrap.style.left = (r.left - 250) + 'px'; };
                 acts.appendChild(eBtn);
+                
                 if (data.username === myUsername) {
                     const dBtn = document.createElement('button'); dBtn.className = 'action-btn btn-trash';
                     dBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
@@ -805,7 +984,6 @@ HTML_TEMPLATE = """
         socket.on('reactions_updated', d => renderReactions(d.id, d.reactions));
         socket.on('message_deleted', d => {
             const el = document.getElementById('msg-row-' + d.id); if (el) el.remove();
-            if (selectedMsgId === d.id) clearSel();
         });
 
         function sendMessage() {
@@ -903,26 +1081,9 @@ HTML_TEMPLATE = """
             return `<div style="color:var(--muted);padding:10px;font-size:11px;font-style:italic;">[Block-level — requires key for reversal]</div>`;
         }
 
-        // ── Caesar shift helper ──────────────────────────────────────
-        function caesarShift(text, n) {
-            return text.split('').map(c => {
-                const code = c.charCodeAt(0);
-                if (code >= 65 && code <= 90) return String.fromCharCode(((code-65-n+260)%26)+65);
-                if (code >= 97 && code <= 122) return String.fromCharCode(((code-97-n+260)%26)+97);
-                return c;
-            }).join('');
-        }
-        function freqScore(text) {
-            const freq = {A:8.2,B:1.5,C:2.8,D:4.3,E:12.7,F:2.2,G:2.0,H:6.1,I:7.0,J:0.15,K:0.77,L:4.0,M:2.4,N:6.7,O:7.5,P:1.9,Q:0.1,R:6.0,S:6.3,T:9.1,U:2.8,V:0.98,W:2.4,X:0.15,Y:2.0,Z:0.07};
-            let s = 0;
-            text.toUpperCase().split('').forEach(c => { if (freq[c]) s += freq[c]; });
-            return Math.round(s);
-        }
-
         // ═══════════════════════════════════════════════════════════
         //  DECRYPT TAB — COMPUTER ALGORITHM VIEWS
         // ═══════════════════════════════════════════════════════════
-
         function algoHeader(title, color) {
             return `<div class="algo-header">
                 <div class="algo-header-dots">
@@ -1010,8 +1171,8 @@ HTML_TEMPLATE = """
 
         // ── Hill computer view ───────────────────────────────────────
         function renderHillComputer(container) {
-            if (!Array.isArray(activeCipherKey)) {
-                container.innerHTML = `<div style="color:var(--muted);padding:16px;font-style:italic;">Key data unavailable for visualization.</div>`;
+            if (!Array.isArray(activeCipherKey) || activeCipherKey.length === 0) {
+                container.innerHTML = `<div style="color:var(--muted);padding:16px;font-style:italic;">Key matrix data unavailable for visualization. Make sure matrix is completely filled.</div>`;
                 return;
             }
             const K = activeCipherKey;
@@ -1068,7 +1229,7 @@ HTML_TEMPLATE = """
 
         // ── Vigenère computer view ───────────────────────────────────
         function renderVigenereComputer(container) {
-            const key = String(activeCipherKey).toUpperCase();
+            const key = String(activeCipherKey).toUpperCase() || 'KEY';
             const keyLen = key.length;
             const ct = activePayload.toUpperCase().replace(/[^A-Z]/g,'');
             const freqEng = {A:8.2,B:1.5,C:2.8,D:4.3,E:12.7,F:2.2,G:2.0,H:6.1,I:7.0,J:0.15,K:0.77,L:4.0,M:2.4,N:6.7,O:7.5,P:1.9,Q:0.1,R:6.0,S:6.3,T:9.1,U:2.8,V:0.98,W:2.4,X:0.15,Y:2.0,Z:0.07};
@@ -1083,7 +1244,7 @@ HTML_TEMPLATE = """
             const steps = [
                 { title:'INPUT', body:`<div style="color:#fff;font-family:var(--mono);font-size:11px;word-break:break-all;">"${activePayload.substring(0,40)}${activePayload.length>40?'…':''}"</div>` },
                 { title:'STEP 1 — Kasiski Scan (repeated trigrams)', body: reps.length ? `Sequence <span style="color:var(--blue-light);">"${reps[0][0]}"</span> at positions [${reps[0][1].join(', ')}]<br>Gap = <span style="color:var(--green-light);font-weight:800;">${gap}</span> → key length candidate: ${gap}` : `No repeated trigrams found. Known key length: <span style="color:var(--green-light);">${keyLen}</span>` },
-                { title:`STEP 2 — Split into ${keyLen} columns`, body:`${cols.map((c,i)=>`Col ${i}: <span style="color:var(--blue-light);">${c.join('')}</span>`).join('<br>')}` },
+                { title:`STEP 2 — Split into ${keyLen} columns`, body:`${cols.map((c,i)=>`Col ${i}: <span style="color:var(--blue-light);">${c.join('').substring(0,25)}...</span>`).join('<br>')}` },
                 { title:'STEP 3 — Frequency Analysis per Column', body: cols.map((col, ci) => {
                     const counts = {};
                     col.forEach(c => { counts[c] = (counts[c]||0)+1; });
@@ -1176,7 +1337,7 @@ HTML_TEMPLATE = """
                         if (rTimer) { clearInterval(rTimer); rTimer = null; }
                         document.getElementById('aes-step-btn').disabled = true;
                         document.getElementById('aes-auto-btn').disabled = true;
-                        document.getElementById('aes-result').innerHTML = `<div class="algo-success">✓ 14 rounds complete — Avalanche effect: 1 bit change diffuses to all 128 bits<br>→ Ciphertext: "${activePayload.substring(0,20)}…"</div>`;
+                        document.getElementById('aes-result').innerHTML = `<div class="algo-success">✓ 14 rounds complete — Avalanche effect: 1 bit change diffuses to all 128 bits<br>→ Ciphertext output finalized.</div>`;
                     }
                 }
             }
@@ -1304,7 +1465,7 @@ HTML_TEMPLATE = """
         }
 
         function renderHillManual(container) {
-            if (!Array.isArray(activeCipherKey)) { container.innerHTML = `<div style="color:var(--muted);padding:16px;font-style:italic;">Key data unavailable.</div>`; return; }
+            if (!Array.isArray(activeCipherKey) || activeCipherKey.length === 0) { container.innerHTML = `<div style="color:var(--muted);padding:16px;font-style:italic;">Key data unavailable. Validate the Matrix first.</div>`; return; }
             const K = activeCipherKey;
             let hs = { matrix: K, size: K.length, det: null, detInv: null };
             container.innerHTML = `
@@ -1372,7 +1533,7 @@ HTML_TEMPLATE = """
         }
 
         function renderVigenereManual(container) {
-            const key = String(activeCipherKey).toUpperCase();
+            const key = String(activeCipherKey).toUpperCase() || "KEY";
             const ct = activePayload.toUpperCase().replace(/[^A-Z]/g,'');
             const tri = {};
             for (let i = 0; i <= ct.length-3; i++) { const s = ct.substr(i,3); if (!tri[s]) tri[s]=[]; tri[s].push(i); }
@@ -1407,7 +1568,7 @@ HTML_TEMPLATE = """
                 </div>`;
         }
         function checkVigManual1() {
-            const key = String(activeCipherKey).toUpperCase();
+            const key = String(activeCipherKey).toUpperCase() || 'KEY';
             const user = parseInt(document.getElementById('vm-inp1').value);
             if (user === key.length) {
                 document.getElementById('vm-fb1').innerHTML = `<div class="fb-ok">✓ Key length = ${key.length}</div>`;
@@ -1416,7 +1577,7 @@ HTML_TEMPLATE = """
             } else document.getElementById('vm-fb1').innerHTML = `<div class="fb-err">✗ Incorrect length.</div>`;
         }
         function checkVigManual2() {
-            const key = String(activeCipherKey).toUpperCase();
+            const key = String(activeCipherKey).toUpperCase() || 'KEY';
             const user = document.getElementById('vm-inp2').value.toUpperCase();
             if (user === key) document.getElementById('vm-fb2').innerHTML = `<div class="fb-ok">✓ Key: "${key}" → PLAINTEXT: "${activeOriginal}"</div>`;
             else document.getElementById('vm-fb2').innerHTML = `<div class="fb-err">✗ Wrong keyword.</div>`;
@@ -1459,6 +1620,7 @@ HTML_TEMPLATE = """
             const symbols = ['↕','↔','↗','↘'];
             document.getElementById('q-photon-show').textContent = symbols[Math.floor(Math.random()*4)];
         }
+
         function qManualGuess(basis) {
             window._qManualAttempts = (window._qManualAttempts||0)+1;
             const hit = Math.random() > 0.5;
@@ -1471,7 +1633,7 @@ HTML_TEMPLATE = """
         }
 
         // ═══════════════════════════════════════════════════════════
-        //  Main: initialize decrypt tools (auto, no button needed)
+        //  Main: initialize decrypt tools
         // ═══════════════════════════════════════════════════════════
         function initDecryptTools(cipher) {
             const cv = document.getElementById('computer-view-content');
@@ -1487,82 +1649,9 @@ HTML_TEMPLATE = """
             setDecryptMode('computer');
         }
 
-        // ═══════════════════════════════════════════════════════════
-        //  Message selection — auto-init, switch to Guide tab first
-        // ═══════════════════════════════════════════════════════════
-        function selectMessage(id, user, msg, orig, cipher, key) {
-            if (selectedMsgId) document.getElementById('msg-content-' + selectedMsgId)?.classList.remove('selected');
-            selectedMsgId = id;
-            document.getElementById('msg-content-' + id)?.classList.add('selected');
-            activePayload = msg; activeOriginal = orig || msg; activeCipherKey = key; activeCipherType = cipher;
+        // Initialize plain load
+        updateLiveExample();
 
-            document.getElementById('sel-placeholder').style.display = 'none';
-            document.getElementById('sel-details').style.display = 'flex';
-            document.getElementById('sel-payload').textContent = msg;
-
-            ['tool-container-none','tool-container-active','sol-none','sol-dynamic'].forEach(eid => {
-                const el = document.getElementById(eid); if (el) el.style.display = 'none';
-            });
-            document.querySelectorAll('.history-block').forEach(e => e.style.display = 'none');
-
-            if (cipher !== 'system' && cipher !== 'none') {
-                document.getElementById('tool-container-active').style.display = 'flex';
-                document.getElementById('sol-dynamic').style.display = 'block';
-
-                // Populate Guide tab
-                document.getElementById('dyn-plain-2').textContent = activeOriginal;
-                document.getElementById('dyn-enc-explanation').innerHTML = getCipherExpl(cipher, key, false);
-                document.getElementById('dyn-dec-explanation').innerHTML = getCipherExpl(cipher, key, true);
-                document.getElementById('dyn-enc-steps').innerHTML = encTable(activeOriginal, msg, cipher, key);
-                document.getElementById('dyn-dec-steps').innerHTML = decTable(activeOriginal, msg, cipher, key);
-
-                const toolMap = {
-                    caesar: ['hist-caesar', '<strong>Linear Shift Analysis:</strong> Only 25 keys — trivially brute-forced by testing all reverse shifts.'],
-                    hill:   ['hist-hill',    '<strong>Known-Plaintext Attack:</strong> The Hill cipher is linear; one n²-char plaintext–ciphertext pair reveals K via Gaussian elimination over Z₂₆.'],
-                    aes:    ['hist-aes',     '<strong>None (Computationally Secure):</strong> AES-256 has no known practical attacks. The Algorithm view shows per-round diffusion.'],
-                    vigenere:['hist-vigenere','<strong>Kasiski + Frequency Analysis:</strong> Repeated trigrams reveal key length; each column is then a simple Caesar shift.'],
-                    quantum: ['hist-quantum', '<strong>Quantum Channel Attack:</strong> Measuring a photon in the wrong basis collapses its state, introducing ~25% error — detected by Alice and Bob.'],
-                };
-                if (toolMap[cipher]) {
-                    document.getElementById(toolMap[cipher][0]).style.display = 'block';
-                    document.getElementById('dyn-tool').innerHTML = toolMap[cipher][1];
-                }
-
-                // Auto-initialize decrypt tools (no button press needed)
-                initDecryptTools(cipher);
-
-            } else {
-                document.getElementById('tool-container-none').style.display = 'block';
-                document.getElementById('sol-none').style.display = 'block';
-            }
-
-            // Always open to Guide tab first
-            switchTab('guide');
-        }
-
-        function clearSel() {
-            selectedMsgId = null;
-            document.getElementById('sel-placeholder').style.display = 'block';
-            document.getElementById('sel-details').style.display = 'none';
-        }
-
-        // ── Cipher selector ──────────────────────────────────────────
-        selBox.addEventListener('change', function() {
-            cipherText.textContent = selBox.options[selBox.selectedIndex].text;
-            document.getElementById('no-cipher-msg').style.display = 'none';
-            caesarCtrl.style.display = hillCtrl.style.display = textKeyCtrl.style.display = 'none';
-            if (selBox.value === 'caesar') caesarCtrl.style.display = 'flex';
-            else if (selBox.value === 'hill') hillCtrl.style.display = 'flex';
-            else if (['aes','vigenere','quantum'].includes(selBox.value)) textKeyCtrl.style.display = 'flex';
-            else document.getElementById('no-cipher-msg').style.display = 'block';
-        });
-        caesarSlider.addEventListener('input', function() {
-            const v = parseInt(this.value);
-            shiftBadge.textContent = v;
-            this.style.setProperty('--fp', ((v-1)/24*100).toFixed(1)+'%');
-            exShift.textContent = ['A','B','C','D','E'].map(c => { let n = c.charCodeAt(0)+v; if(n>90)n-=26; return String.fromCharCode(n); }).join(' ');
-        });
-        caesarSlider.style.setProperty('--fp','0%');
     </script>
     {% endif %}
 </body>
@@ -1572,12 +1661,16 @@ HTML_TEMPLATE = """
 # ── Routes ───────────────────────────────────────────────────────────────────
 @app.route('/')
 def home(): return render_template_string(HTML_TEMPLATE, page='home')
+
 @app.route('/classroom')
 def classroom(): return render_template_string(HTML_TEMPLATE, page='home')
+
 @app.route('/lab')
 def lab(): return render_template_string(HTML_TEMPLATE, page='home')
+
 @app.route('/local')
 def local(): return render_template_string(HTML_TEMPLATE, page='local', active_usernames=active_usernames)
+
 @app.route('/host', methods=['POST'])
 def host_server():
     session['username'] = request.form.get('username')
@@ -1586,6 +1679,7 @@ def host_server():
     active_usernames.append(session['username'])
     session['room'] = code
     return render_template_string(HTML_TEMPLATE, page='chat', room_code=code, current_user=session['username'])
+
 @app.route('/join', methods=['POST'])
 def join_server():
     session['username'] = request.form.get('username')
@@ -1595,6 +1689,7 @@ def join_server():
         session['room'] = code
         return render_template_string(HTML_TEMPLATE, page='chat', room_code=code, current_user=session['username'])
     return redirect(url_for('local'))
+
 @app.route('/leave')
 def leave_server():
     room = session.get('room')
@@ -1607,6 +1702,7 @@ def leave_server():
         active_rooms[room]['messages'].append(sys_msg)
         socketio.send(sys_msg, to=room)
     return redirect(url_for('local'))
+
 @app.route('/api/usernames')
 def get_usernames(): return jsonify(active_usernames)
 
