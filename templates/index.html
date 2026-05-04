@@ -25,10 +25,10 @@
         ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.12); border-radius:6px; }
 
         /* ═══ TOPBAR ═══ */
-        .topbar { position:fixed; top:0; left:0; right:0; z-index:100; height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 32px; background:rgba(8,13,24,0.9); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); }
-        .topbar-logo { font-size:13px; font-weight:800; letter-spacing:4px; text-transform:uppercase; background:linear-gradient(90deg,var(--blue-light),var(--purple-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .topbar { position:fixed; top:0; left:0; right:0; z-index:100; height:66px; display:flex; align-items:center; justify-content:space-between; padding:0 32px; background:rgba(8,13,24,0.9); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); }
+        .topbar-logo { font-size:25px; font-weight:800; letter-spacing:4px; text-transform:uppercase; background:linear-gradient(90deg,var(--blue-light),var(--purple-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
         .topbar-nav { display:flex; gap:8px; }
-        .topbar-link { padding:6px 14px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:0.5px; color:var(--muted-2); text-decoration:none; transition:all 0.2s; }
+        .topbar-link { padding:6px 14px; border-radius:6px; font-size:19px; font-weight:600; letter-spacing:0.5px; color:var(--muted-2); text-decoration:none; transition:all 0.2s; }
         .topbar-link:hover { color:#fff; background:rgba(255,255,255,0.06); }
         .topbar-link.active { color:var(--blue-light); background:rgba(59,130,246,0.1); }
 
@@ -63,7 +63,7 @@
         .connect-left::before { content:''; position:absolute; bottom:-80px; left:-80px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,rgba(16,185,129,0.08),transparent 70%); pointer-events:none; }
         .connect-left::after { content:''; position:absolute; top:-60px; right:-60px; width:240px; height:240px; border-radius:50%; background:radial-gradient(circle,rgba(59,130,246,0.07),transparent 70%); pointer-events:none; }
         .connect-brand { position:relative; z-index:1; }
-        .connect-brand-logo { font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:10px; margin-bottom:40px; }
+        .connect-brand-logo { font-size:41px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:10px; margin-bottom:40px; }
         .connect-brand-logo::before { content:''; display:block; width:28px; height:2px; background:linear-gradient(90deg,var(--blue),var(--purple)); }
         .connect-brand-title { font-size:36px; font-weight:900; line-height:1.1; letter-spacing:-1.5px; color:#fff; margin:0 0 16px 0; }
         .connect-brand-title em { font-style:normal; background:linear-gradient(135deg,var(--green-light),var(--blue-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
@@ -98,8 +98,8 @@
         .back-link:hover { color:var(--blue-light); }
 
         /* ═══ CHAT PAGE & RESIZERS ═══ */
-        .chat-page { height:100vh; display:flex; flex-direction:column; overflow:hidden; padding-top:56px; }
-        .chat-topbar-ext { display:flex; align-items:center; justify-content:space-between; padding:10px 20px; border-bottom:1px solid var(--border); background:var(--bg-2); flex-shrink:0; }
+        .chat-page { height:100vh; display:flex; flex-direction:column; overflow:hidden; padding-top:66px; }
+        .chat-topbar-ext { display:flex; align-items:center; justify-content:space-between; padding:20px 20px; border-bottom:1px solid var(--border); background:var(--bg-2); flex-shrink:0; }
         .room-badge { display:flex; align-items:center; gap:10px; }
         .room-badge-live { display:flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--green); }
         .room-badge-live::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 2s infinite; }
