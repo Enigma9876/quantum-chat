@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="home-page">
+    <div class="home-inner">
+        <div class="home-badge"><span class="home-badge-dot"></span>Cryptographic Learning Platform</div>
+        <h1 class="home-title">Master the Art of<br><span>Encryption</span></h1>
+        <p class="home-sub">From classical Caesar shifts to quantum BB84 photon streams — learn, experiment, and communicate with real cryptographic protocols.</p>
+        <div class="module-row">
+            <a href="/classroom" class="module-card" style="--card-accent:var(--blue-light);--card-icon-bg:rgba(59,130,246,0.1);--card-icon-border:rgba(59,130,246,0.2);">
+                <div class="card-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--blue-light)" stroke-width="1.8" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+                <div class="card-label">Module 01</div>
+                <h3 class="card-title">Classroom</h3>
+                <p class="card-desc">Guided, step-by-step cryptographic lessons. Build understanding from first principles with interactive exercises.</p>
+                <div class="card-footer"><span class="card-tag">Structured</span><span class="card-arrow">→</span></div>
+            </a>
+            <a href="/lab" class="module-card" style="--card-accent:var(--purple-light);--card-icon-bg:rgba(139,92,246,0.1);--card-icon-border:rgba(139,92,246,0.2);">
+                <div class="card-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--purple-light)" stroke-width="1.8" fill="none"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>
+                <div class="card-label">Module 02</div>
+                <h3 class="card-title">The Lab</h3>
+                <p class="card-desc">Open sandbox to freely experiment with cipher algorithms. Encrypt, break, and analyze without constraints.</p>
+                <div class="card-footer"><span class="card-tag" style="background:rgba(139,92,246,0.1);color:var(--purple-light);">Freeform</span><span class="card-arrow">→</span></div>
+            </a>
+            <a href="/local" class="module-card" style="--card-accent:var(--green-light);--card-icon-bg:rgba(16,185,129,0.1);--card-icon-border:rgba(16,185,129,0.25);">
+                <div class="card-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--green-light)" stroke-width="1.8" fill="none"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>
+                <div class="card-label">Module 03</div>
+                <h3 class="card-title">Secure Room</h3>
+                <p class="card-desc">Host or join a live encrypted chat room. Communicate across devices using real cipher protocols in real time.</p>
+                <div class="card-footer"><span class="card-tag" style="background:rgba(16,185,129,0.1);color:var(--green-light);">Live</span><span class="card-arrow">→</span></div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

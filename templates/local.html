@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="connect-page">
+    <div class="connect-left">
+        <div class="connect-brand">
+            <div class="connect-brand-logo">Insightful Encryptions</div>
+            <h2 class="connect-brand-title">Start a<br><em>Secure Session</em></h2>
+            <p class="connect-brand-sub">Create or join an encrypted communication room. All traffic is processed through your chosen cipher in real time.</p>
+            <div class="connect-features">
+                <div class="connect-feature">
+                    <div class="connect-feature-icon"><svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--green)" stroke-width="2" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                    <div class="connect-feature-text"><h4>End-to-End Ciphers</h4><p>Caesar, Hill, Vigenère, AES-256, or BB84 Quantum</p></div>
+                </div>
+                <div class="connect-feature">
+                    <div class="connect-feature-icon"><svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--green)" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+                    <div class="connect-feature-text"><h4>Cross-Device</h4><p>Connect from any device on the local network</p></div>
+                </div>
+                <div class="connect-feature">
+                    <div class="connect-feature-icon"><svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--green)" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                    <div class="connect-feature-text"><h4>Live Inspector</h4><p>Click any message to analyze its cipher payload</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="connect-right">
+        <div class="connect-form-wrap">
+            <h2 class="connect-form-title">Join the Network</h2>
+            <p class="connect-form-sub">Set your identity, then host a new room or enter a room code.</p>
+            <form method="post" id="local-form">
+                <div class="field-group">
+                    <label class="field-label" for="username_input">Your Alias</label>
+                    <input type="text" id="username_input" name="username" class="field-input" placeholder="e.g. CipherAgent" maxlength="12" required autocomplete="off">
+                    <span id="username_warning" class="field-warning"></span>
+                </div>
+                <button type="submit" formaction="/host" id="btn-host" class="btn-host-new">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                    Host New Room
+                </button>
+                <div class="divider-row">or join existing</div>
+                <div class="field-group" style="margin-bottom:0;">
+                    <label class="field-label" for="room_code_box">Room Code</label>
+                    <div class="join-row">
+                        <input type="text" name="room_code" id="room_code_box" class="field-input code-input" placeholder="----" maxlength="4">
+                        <button type="submit" formaction="/join" id="btn-join" class="btn-join-new">Join →</button>
+                    </div>
+                </div>
+            </form>
+            <a href="/" class="back-link">← Back to main menu</a>
+        </div>
+    </div>
+</div>
+<script>
+    const usernameInput = document.getElementById('username_input');
+    const warningDiv = document.getElementById('username_warning');
+    const hostBtn = document.getElementById('btn-host');
+    const joinBtn = document.getElementById('btn-join');
+    usernameInput.addEventListener('input', function() {
+        fetch('/api/usernames').then(r => r.json()).then(taken => {
+            if (taken.includes(usernameInput.value.trim())) {
+                warningDiv.textContent = 'Alias already in use on network.';
+                hostBtn.disabled = joinBtn.disabled = true;
+                usernameInput.style.borderColor = 'var(--red)';
+            } else {
+                warningDiv.textContent = '';
+                hostBtn.disabled = joinBtn.disabled = false;
+                usernameInput.style.borderColor = '';
+            }
+        });
+    });
+    document.getElementById('btn-host').addEventListener('click', () => document.getElementById('room_code_box').required = false);
+    document.getElementById('btn-join').addEventListener('click', () => document.getElementById('room_code_box').required = true);
+</script>
+{% endblock %}
