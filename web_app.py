@@ -1765,7 +1765,7 @@ def handle_delete(data):
             if msg.get('id') == msg_id and msg.get('username') == username:
                 active_rooms[room]['messages'] = [x for x in active_rooms[room]['messages'] if x.get('id') != msg_id]
                 emit('message_deleted', {'id': msg_id}, to=room)
-                break
+                break 
 
 @socketio.on('disconnect')
 def on_disconnect():
