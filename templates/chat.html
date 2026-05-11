@@ -10,7 +10,8 @@
         </div>
     </div>
     <div class="chat-body">
-        <div class="chat-col">
+        
+        <div class="chat-col" id="chat-col">
             <div class="room-quick-guide">
                 <strong>Welcome to the Secure Room!</strong><br>
                 <span style="color:var(--muted-2);">1. Select a cipher on the right and configure its key.<br>
@@ -24,8 +25,10 @@
             </div>
         </div>
 
+        <div class="resizer-x" id="resizer-x"></div>
+
         <div class="enc-panel">
-            <div class="enc-panel-top">
+            <div class="enc-panel-top" id="enc-top">
                 <div class="panel-hdr">
                     <span>Cipher Configuration</span>
                     <select id="encryption-selector">
@@ -85,6 +88,8 @@
                     <textarea id="example-msg-input" class="chat-input" style="width:100%; height:60px; resize:none;" placeholder="Type a message to preview...">HELLO WORLD</textarea>
                 </div>
             </div>
+
+            <div class="resizer-y" id="resizer-y"></div>
 
             <div class="enc-panel-bottom">
                 <div id="sel-details" class="tabs-wrap">
@@ -1232,6 +1237,74 @@
 
     // Initialize plain load
     updateLiveExample();
+
+    // ===========================================================
+    //  CUSTOM RESIZER LOGIC
+    // ===========================================================
+    
+    const resizerX = document.getElementById('resizer-x');
+    const chatCol = document.getElementById('chat-col');
+    let isResizingX = false;
+
+    resizerX.addEventListener('mousedown', (e) => {
+        isResizingX = true;
+        document.body.style.cursor = 'col-resize';
+        resizerX.classList.add('dragging');
+        e.preventDefault(); 
+    });
+
+    const resizerY = document.getElementById('resizer-y');
+    const encTop = document.getElementById('enc-top');
+    let isResizingY = false;
+
+    resizerY.addEventListener('mousedown', (e) => {
+        isResizingY = true;
+        document.body.style.cursor = 'row-resize';
+        resizerY.classList.add('dragging');
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizingX && !isResizingY) return;
+        
+        if (isResizingX) {
+            const containerOffset = chatCol.parentElement.getBoundingClientRect().left;
+            let newWidth = e.clientX - containerOffset;
+            
+            if (newWidth < 320) newWidth = 320;
+            const maxWidth = window.innerWidth * 0.75;
+            if (newWidth > maxWidth) newWidth = maxWidth;
+            
+            chatCol.style.width = newWidth + 'px';
+            chatCol.style.flex = 'none'; 
+        }
+        
+        if (isResizingY) {
+            const containerOffset = encTop.parentElement.getBoundingClientRect().top;
+            let newHeight = e.clientY - containerOffset;
+            
+            const minHeight = window.innerHeight * 0.2;
+            const maxHeight = window.innerHeight * 0.8;
+            if (newHeight < minHeight) newHeight = minHeight;
+            if (newHeight > maxHeight) newHeight = maxHeight;
+            
+            encTop.style.height = newHeight + 'px';
+            encTop.style.flex = 'none'; 
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isResizingX) {
+            isResizingX = false;
+            document.body.style.cursor = 'default';
+            resizerX.classList.remove('dragging');
+        }
+        if (isResizingY) {
+            isResizingY = false;
+            document.body.style.cursor = 'default';
+            resizerY.classList.remove('dragging');
+        }
+    });
 
 </script>
 {% endblock %}
