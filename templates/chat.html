@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block content %}
 <div class="chat-page">
     <div class="chat-topbar-ext">
@@ -6,9 +7,8 @@
             <span class="room-badge-live">Live</span>
             <span style="color:var(--muted);font-size:13px;font-weight:600;">Room</span>
             <span class="room-code-display">{{ room_code }}</span>
-            {% if is_host %}<span style="color:var(--red); font-size:10px; font-weight:800; border: 1px solid var(--red); padding: 2px 6px; border-radius: 4px; margin-left: 10px;">HOST</span>{% endif %}
         </div>
-        </div>
+    </div>
     <div class="chat-body">
         <div class="chat-col">
             <div class="room-quick-guide">
@@ -188,8 +188,6 @@
     const socket = io();
     const room = "{{ room_code }}";
     const myUsername = "{{ current_user }}";
-    const isRoomHost = {{ 'true' if is_host else 'false' }};
-    
     const chatBox = document.getElementById('chat-box');
     const input = document.getElementById('msg-input');
     const selBox = document.getElementById('encryption-selector');
@@ -533,8 +531,7 @@
             eBtn.onclick = e => { e.stopPropagation(); emojiMsgId = data.id; const r = eBtn.getBoundingClientRect(); pickerWrap.style.display = 'block'; pickerWrap.style.top = (r.bottom + 5) + 'px'; pickerWrap.style.left = (r.left - 250) + 'px'; };
             acts.appendChild(eBtn);
             
-            // PERMISSIONS: Render delete button if user is the sender OR the room host
-            if (data.username === myUsername || isRoomHost) {
+            if (data.username === myUsername) {
                 const dBtn = document.createElement('button'); dBtn.className = 'action-btn btn-trash';
                 dBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
                 dBtn.onclick = e => { e.stopPropagation(); socket.emit('delete_message', { room, id: data.id }); };
