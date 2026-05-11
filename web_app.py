@@ -20,7 +20,7 @@ def generate_room_code():
         if code not in active_rooms:
             return code
 
-# ── Routes ───────────────────────────────────────────────────────────────────
+# -- Routes -------------------------------------------------------------------
 @app.route('/')
 def home(): 
     return render_template('home.html', page='home')
@@ -73,7 +73,7 @@ def leave_server():
 def get_usernames(): 
     return jsonify(active_usernames)
 
-# ── Socket events ─────────────────────────────────────────────────────────────
+# -- Socket events -------------------------------------------------------------
 @socketio.on('join')
 def on_join(data):
     room = data['room']
@@ -140,7 +140,7 @@ def on_disconnect():
     if username in active_usernames:
         active_usernames.remove(username)
 
-# ── Runner ────────────────────────────────────────────────────────────────────
+# -- Runner --------------------------------------------------------------------
 if __name__ == '__main__':
     threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:6000")).start()
     socketio.run(app, host='0.0.0.0', port=6000, debug=True, allow_unsafe_werkzeug=True)

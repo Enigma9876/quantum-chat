@@ -214,7 +214,7 @@
     let activeCipherType = 'none';
     let currentDecryptMode = 'computer';
 
-    // ── Math & Cryptography Helpers (JS implementations for preview) ────────
+    // -- Math & Cryptography Helpers (JS implementations for preview) --------
     const mod26 = n => ((n % 26) + 26) % 26;
     const mod97 = n => ((Math.round(n) % 97) + 97) % 97;
     function matDet(m) {
@@ -288,7 +288,7 @@
         return Math.round(s);
     }
 
-    // ── Live Example Updates ──────────────────────────────────────
+    // -- Live Example Updates --------------------------------------
     function updateLiveExample() {
         activeOriginal = exampleInput.value || " ";
         activeCipherType = selBox.value;
@@ -357,7 +357,7 @@
         }
     }
 
-    // ── Input Hooks for Live Example ──────────────────────────────
+    // -- Input Hooks for Live Example ------------------------------
     exampleInput.addEventListener('input', updateLiveExample);
     selBox.addEventListener('change', function() {
         document.getElementById('no-cipher-msg').style.display = 'none';
@@ -378,7 +378,7 @@
     caesarSlider.style.setProperty('--fp','0%');
     textKeyInp.addEventListener('input', updateLiveExample);
 
-    // ── Hill matrix validation ──────────────────────────────────
+    // -- Hill matrix validation ----------------------------------
     function validateHillMatrix() {
         const cells = document.querySelectorAll('.hill-cell');
         if (!cells.length) return true;
@@ -399,7 +399,7 @@
         return valid;
     }
 
-    // ── Key meta ────────────────────────────────────────────────
+    // -- Key meta ------------------------------------------------
     function updateKeyMeta() {
         const len = textKeyInp.value.length;
         document.getElementById('key-length-label').textContent = len + ' CHAR' + (len !== 1 ? 'S' : '');
@@ -412,7 +412,7 @@
     }
     updateKeyMeta();
 
-    // ── Hill grid picker ────────────────────────────────────────
+    // -- Hill grid picker ----------------------------------------
     let currentHillSize = 2;
     (function() {
         const picker = document.getElementById('hill-grid-picker');
@@ -454,7 +454,7 @@
     }
     renderHillMatrix(2);
 
-    // ── Emoji picker ────────────────────────────────────────────
+    // -- Emoji picker --------------------------------------------
     const pickerWrap = document.createElement('div');
     pickerWrap.className = 'emoji-picker-container';
     const emojiPicker = document.createElement('emoji-picker');
@@ -473,7 +473,7 @@
     });
     document.addEventListener('click', ev => { if (!pickerWrap.contains(ev.target) && !ev.target.closest('.btn-emoji')) pickerWrap.style.display = 'none'; });
 
-    // ── Modal / specific message pop up logic ───────────────────
+    // -- Modal / specific message pop up logic -------------------
     function openInspectorModal(orig, cipherText, cipher, key) {
         const modalBody = document.getElementById('modal-body-content');
         if (cipher === 'system' || cipher === 'none') {
@@ -503,7 +503,7 @@
         document.getElementById('inspector-modal').style.display = 'flex';
     }
 
-    // ── Socket ───────────────────────────────────────────────────
+    // -- Socket ---------------------------------------------------
     socket.emit('join', { room });
     function appendMsg(data) {
         const row = document.createElement('div'); row.className = 'message-row';
@@ -583,7 +583,7 @@
     }
     input.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
 
-    // ── Tab switching ────────────────────────────────────────────
+    // -- Tab switching --------------------------------------------
     function switchTab(id, ev) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         if (ev) ev.target.classList.add('active');
@@ -595,7 +595,7 @@
         document.getElementById('tab-' + id).classList.add('active');
     }
 
-    // ── Decrypt mode toggle ──────────────────────────────────────
+    // -- Decrypt mode toggle --------------------------------------
     function setDecryptMode(mode) {
         currentDecryptMode = mode;
         document.getElementById('btn-mode-computer').classList.toggle('active', mode === 'computer');
@@ -604,7 +604,7 @@
         document.getElementById('mode-manual').style.display = mode === 'manual' ? 'block' : 'none';
     }
 
-    // ── Guide tab helpers ────────────────────────────────────────
+    // -- Guide tab helpers ----------------------------------------
     const m = s => `<code style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;font-size:10px;">${s}</code>`;
     function getCipherExpl(type, key, dec) {
         if (type === 'caesar') {
@@ -662,9 +662,9 @@
         return `<div style="color:var(--muted);padding:10px;font-size:11px;font-style:italic;">[Block-level — requires key for reversal]</div>`;
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // ===========================================================
     //  DECRYPT TAB — COMPUTER ALGORITHM VIEWS
-    // ═══════════════════════════════════════════════════════════
+    // ===========================================================
     function algoHeader(title, color) {
         return `<div class="algo-header">
             <div class="algo-header-dots">
@@ -676,7 +676,7 @@
         </div>`;
     }
 
-    // ── Caesar computer view ─────────────────────────────────────
+    // -- Caesar computer view -------------------------------------
     function renderCaesarComputer(container) {
         let step = 0, timer = null, done = false;
         const totalKey = parseInt(activeCipherKey) || 1;
@@ -750,7 +750,7 @@
         document.getElementById('cs-reset').onclick = reset;
     }
 
-    // ── Hill computer view ───────────────────────────────────────
+    // -- Hill computer view ---------------------------------------
     function renderHillComputer(container) {
         if (!Array.isArray(activeCipherKey) || activeCipherKey.length === 0) {
             container.innerHTML = `<div style="color:var(--muted);padding:16px;font-style:italic;">Key matrix data unavailable for visualization. Make sure matrix is completely filled.</div>`;
@@ -808,7 +808,7 @@
         showStep();
     }
 
-    // ── Vigenère computer view ───────────────────────────────────
+    // -- Vigenère computer view -----------------------------------
     function renderVigenereComputer(container) {
         const key = String(activeCipherKey).toUpperCase() || 'KEY';
         const keyLen = key.length;
@@ -872,7 +872,7 @@
         showVStep();
     }
 
-    // ── AES computer view ────────────────────────────────────────
+    // -- AES computer view ----------------------------------------
     function renderAesComputer(container) {
         const hex = () => Math.floor(Math.random()*256).toString(16).padStart(2,'0').toUpperCase();
         const makeGrid = (color) => Array(16).fill(0).map(() => `<div style="background:${color};padding:6px 4px;border-radius:3px;text-align:center;font-size:10px;font-family:var(--mono);">${hex()}</div>`).join('');
@@ -943,7 +943,7 @@
         aesStep();
     }
 
-    // ── Quantum computer view ────────────────────────────────────
+    // -- Quantum computer view ------------------------------------
     function renderQuantumComputer(container) {
         const N = 12;
         const aliceBits = Array.from({length:N}, () => Math.random()>0.5?1:0);
@@ -1005,9 +1005,9 @@
         doQStage();
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // ===========================================================
     //  DECRYPT TAB — MANUAL WALKTHROUGH VIEWS
-    // ═══════════════════════════════════════════════════════════
+    // ===========================================================
 
     function renderCaesarManual(container) {
         container.innerHTML = `
@@ -1213,9 +1213,9 @@
         document.getElementById('q-photon-show').textContent = symbols[Math.floor(Math.random()*4)];
     }
 
-    // ═══════════════════════════════════════════════════════════
+    // ===========================================================
     //  Main: initialize decrypt tools
-    // ═══════════════════════════════════════════════════════════
+    // ===========================================================
     function initDecryptTools(cipher) {
         const cv = document.getElementById('computer-view-content');
         const mv = document.getElementById('manual-view-content');
