@@ -70,6 +70,12 @@ def on_join(data):
     username = session.get('username', 'Guest')
     join_room(room)
     emit('chat_history', rm.get_messages(room), to=request.sid)
+    
+    # Provide late-joiners with current restrictions if applied
+    room_state = rm.active_rooms.get(room, {})
+    if room_state.get('forced_cipher'):
+        emit('cipher_forced', {'cipher': room_state['forced_cipher']}, to=request.sid)
+
     sys_msg = {'id': str(uuid.uuid4()), 'type': 'msg-system',
                'msg': f'[SYSTEM] {username} has joined Room {room}.',
                'reactions': {}, 'cipher': 'system', 'key': 0}
@@ -84,6 +90,12 @@ def handle_message(data):
     enc_value = data.get('encryption-value')
     username = session.get('username', 'Guest')
     
+    if not rm.can_send_message(room, username):
+        emit('system_alert', {'msg': 'You are currently muted and cannot send messages.'}, to=request.sid)
+        return
+        
+    is_bold = data.get('is_bold', False) if rm.is_host(room, username) else False
+    
     if enc_type != 'none':
         try:
             encrypted = encryption_manager.encrypt(enc_type, msg.encode('utf-8'), enc_value).decode('utf-8')
@@ -95,10 +107,46 @@ def handle_message(data):
     payload = {'id': str(uuid.uuid4()), 'username': username,
                'msg': encrypted, 'original_msg': msg,
                'type': 'msg-user', 'reactions': {},
-               'cipher': enc_type, 'key': enc_value}
+               'cipher': enc_type, 'key': enc_value, 'is_bold': is_bold}
                
     rm.add_message(room, payload)
     send(payload, to=room)
+
+@socketio.on('host_action')
+def handle_host_action(data):
+    room = data['room']
+    action = data['action']
+    username = session.get('username')
+    
+    # Master validation
+    if not rm.is_host(room, username):
+        return
+        
+    if action == 'force_cipher':
+        cipher = data['cipher']
+        rm.set_forced_cipher(room, cipher)
+        emit('cipher_forced', {'cipher': cipher}, to=room)
+        
+    elif action == 'toggle_global_mute':
+        state = rm.toggle_global_mute(room)
+        emit('system_alert', {'msg': f'Global mute is now {"ON" if state else "OFF"}.'}, to=room)
+        
+    elif action == 'toggle_user_mute':
+        target = data['target']
+        state = rm.toggle_user_mute(room, target)
+        emit('system_alert', {'msg': f'{target} has been {"muted" if state else "unmuted"}.'}, to=room)
+        
+    elif action == 'kick':
+        target = data['target']
+        rm.remove_user(target)
+        emit('user_kicked', {'target': target}, to=room)
+        
+    elif action == 'rename':
+        target = data['target']
+        new_name = data['new_name']
+        if not target or not new_name: return
+        rm.rename_user(room, target, new_name)
+        emit('user_renamed', {'old_name': target, 'new_name': new_name}, to=room)
 
 @socketio.on('react_message')
 def handle_reaction(data):
@@ -122,7 +170,7 @@ def handle_delete(data):
     messages = rm.get_messages(room)
     for msg in messages:
         if msg.get('id') == msg_id:
-            # PERMISSION CHECK utilizing the RoomManager
+            # PERMISSION CHECK utilizing the RoomManager (Hosts can inherently bypass this loop rule)
             if rm.can_delete_message(room, username, msg.get('username')):
                 rm.remove_message(room, msg_id)
                 emit('message_deleted', {'id': msg_id}, to=room)
