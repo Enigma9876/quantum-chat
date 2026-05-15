@@ -986,34 +986,36 @@
         // Auto-show first step
         showStep();
     }
-    
+
     // -- Vigenère computer view -----------------------------------
     function renderVigenereComputer(container) {
         const key = String(activeCipherKey).toUpperCase() || 'KEY';
         const keyLen = key.length;
-        const ct = activePayload.toUpperCase().replace(/[^A-Z]/g,'');
-        const freqEng = {A:8.2,B:1.5,C:2.8,D:4.3,E:12.7,F:2.2,G:2.0,H:6.1,I:7.0,J:0.15,K:0.77,L:4.0,M:2.4,N:6.7,O:7.5,P:1.9,Q:0.1,R:6.0,S:6.3,T:9.1,U:2.8,V:0.98,W:2.4,X:0.15,Y:2.0,Z:0.07};
+        const ct = activePayload.toUpperCase().replace(/[^A-Z]/g, '');
+        const freqEng = { A: 8.2, B: 1.5, C: 2.8, D: 4.3, E: 12.7, F: 2.2, G: 2.0, H: 6.1, I: 7.0, J: 0.15, K: 0.77, L: 4.0, M: 2.4, N: 6.7, O: 7.5, P: 1.9, Q: 0.1, R: 6.0, S: 6.3, T: 9.1, U: 2.8, V: 0.98, W: 2.4, X: 0.15, Y: 2.0, Z: 0.07 };
         // Find trigrams
         const tri = {};
-        for (let i = 0; i <= ct.length-3; i++) { const s = ct.substr(i,3); if (!tri[s]) tri[s]=[]; tri[s].push(i); }
-        const reps = Object.entries(tri).filter(([,v])=>v.length>1);
+        for (let i = 0; i <= ct.length - 3; i++) { const s = ct.substr(i, 3); if (!tri[s]) tri[s] = []; tri[s].push(i); }
+        const reps = Object.entries(tri).filter(([, v]) => v.length > 1);
         const gap = reps.length ? reps[0][1][1] - reps[0][1][0] : keyLen;
         // Build freq for each column
-        const cols = Array.from({length: keyLen}, (_,ci) => ct.split('').filter((_,i)=>i%keyLen===ci));
+        const cols = Array.from({ length: keyLen }, (_, ci) => ct.split('').filter((_, i) => i % keyLen === ci));
 
         const steps = [
-            { title:'INPUT', body:`<div style="color:#fff;font-family:var(--mono);font-size:11px;word-break:break-all;">"${activePayload.substring(0,40)}${activePayload.length>40?'…':''}"</div>` },
-            { title:'STEP 1 — Kasiski Scan (repeated trigrams)', body: reps.length ? `Sequence <span style="color:var(--blue-light);">"${reps[0][0]}"</span> at positions [${reps[0][1].join(', ')}]<br>Gap = <span style="color:var(--green-light);font-weight:800;">${gap}</span> → key length candidate: ${gap}` : `No repeated trigrams found. Known key length: <span style="color:var(--green-light);">${keyLen}</span>` },
-            { title:`STEP 2 — Split into ${keyLen} columns`, body:`${cols.map((c,i)=>`Col ${i}: <span style="color:var(--blue-light);">${c.join('').substring(0,25)}...</span>`).join('<br>')}` },
-            { title:'STEP 3 — Frequency Analysis per Column', body: cols.map((col, ci) => {
-                const counts = {};
-                col.forEach(c => { counts[c] = (counts[c]||0)+1; });
-                const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3);
-                const shift = ((top[0]?.[0]?.charCodeAt(0)||69)-69+26)%26;
-                return `Col ${ci}: top="${top.map(e=>e[0]).join('')}" → shift≈${shift} → key[${ci}]=<span style="color:var(--green-light);">${key[ci]}</span>`;
-            }).join('<br>') },
-            { title:'STEP 4 — Reconstructed Key', body:`keyword = <span style="color:var(--green-light);font-weight:800;font-size:14px;">"${key}"</span>` },
-            { title:'STEP 5 — Decrypt', body:`<div class="algo-success">✓ KEY: "${key}"<br>→ PLAINTEXT: "${activeOriginal}"</div>` },
+            { title: 'INPUT', body: `<div style="color:#fff;font-family:var(--mono);font-size:11px;word-break:break-all;">"${activePayload.substring(0, 40)}${activePayload.length > 40 ? '…' : ''}"</div>` },
+            { title: 'STEP 1 — Kasiski Scan (repeated trigrams)', body: reps.length ? `Sequence <span style="color:var(--blue-light);">"${reps[0][0]}"</span> at positions [${reps[0][1].join(', ')}]<br>Gap = <span style="color:var(--green-light);font-weight:800;">${gap}</span> → key length candidate: ${gap}` : `No repeated trigrams found. Known key length: <span style="color:var(--green-light);">${keyLen}</span>` },
+            { title: `STEP 2 — Split into ${keyLen} columns`, body: `${cols.map((c, i) => `Col ${i}: <span style="color:var(--blue-light);">${c.join('').substring(0, 25)}...</span>`).join('<br>')}` },
+            {
+                title: 'STEP 3 — Frequency Analysis per Column', body: cols.map((col, ci) => {
+                    const counts = {};
+                    col.forEach(c => { counts[c] = (counts[c] || 0) + 1; });
+                    const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+                    const shift = ((top[0]?.[0]?.charCodeAt(0) || 69) - 69 + 26) % 26;
+                    return `Col ${ci}: top="${top.map(e => e[0]).join('')}" → shift≈${shift} → key[${ci}]=<span style="color:var(--green-light);">${key[ci]}</span>`;
+                }).join('<br>')
+            },
+            { title: 'STEP 4 — Reconstructed Key', body: `keyword = <span style="color:var(--green-light);font-weight:800;font-size:14px;">"${key}"</span>` },
+            { title: 'STEP 5 — Decrypt', body: `<div class="algo-success">✓ KEY: "${key}"<br>→ PLAINTEXT: "${activeOriginal}"</div>` },
         ];
 
         let revealed = 0;
@@ -1053,13 +1055,13 @@
 
     // -- AES computer view ----------------------------------------
     function renderAesComputer(container) {
-        const hex = () => Math.floor(Math.random()*256).toString(16).padStart(2,'0').toUpperCase();
+        const hex = () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0').toUpperCase();
         const makeGrid = (color) => Array(16).fill(0).map(() => `<div style="background:${color};padding:6px 4px;border-radius:3px;text-align:center;font-size:10px;font-family:var(--mono);">${hex()}</div>`).join('');
         const roundSteps = [
-            { name:'SubBytes()', desc:'Non-linear substitution via S-Box', color:'rgba(59,130,246,0.25)' },
-            { name:'ShiftRows()', desc:'Cyclic shift of each row', color:'rgba(139,92,246,0.25)' },
-            { name:'MixColumns()', desc:'Matrix multiply in GF(2⁸)', color:'rgba(16,185,129,0.25)' },
-            { name:'AddRoundKey()', desc:'XOR with round sub-key', color:'rgba(245,158,11,0.2)' },
+            { name: 'SubBytes()', desc: 'Non-linear substitution via S-Box', color: 'rgba(59,130,246,0.25)' },
+            { name: 'ShiftRows()', desc: 'Cyclic shift of each row', color: 'rgba(139,92,246,0.25)' },
+            { name: 'MixColumns()', desc: 'Matrix multiply in GF(2⁸)', color: 'rgba(16,185,129,0.25)' },
+            { name: 'AddRoundKey()', desc: 'XOR with round sub-key', color: 'rgba(245,158,11,0.2)' },
         ];
         let rStep = 0, rRound = 0, rTimer = null;
         container.innerHTML = `
@@ -1069,7 +1071,7 @@
                     <div style="color:var(--muted);font-size:10px;margin-bottom:4px;letter-spacing:1px;">STATE MATRIX (4×4 bytes) — ROUND <span id="aes-round-num">0</span>/14</div>
                     <div id="aes-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:10px;">${makeGrid('rgba(255,255,255,0.06)')}</div>
                     <div id="aes-op-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-                        ${roundSteps.map((s,i)=>`<div id="aes-op-${i}" style="padding:5px 10px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);font-size:10px;color:var(--muted);transition:all 0.3s;">${s.name}</div>`).join('')}
+                        ${roundSteps.map((s, i) => `<div id="aes-op-${i}" style="padding:5px 10px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);font-size:10px;color:var(--muted);transition:all 0.3s;">${s.name}</div>`).join('')}
                     </div>
                     <div id="aes-desc" style="color:var(--muted-2);font-size:11px;min-height:18px;"></div>
                     <div class="algo-controls" style="margin-top:8px;">
@@ -1086,12 +1088,9 @@
             ops.forEach(o => o.style.cssText = 'padding:5px 10px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);font-size:10px;color:var(--muted);transition:all 0.3s;');
             const op = roundSteps[rStep];
             const opEl = document.getElementById('aes-op-' + rStep);
-
             if (opEl) { opEl.style.background = op.color; opEl.style.color = '#fff'; opEl.style.borderColor = 'rgba(255,255,255,0.3)'; }
-
             document.getElementById('aes-grid').innerHTML = makeGrid(op.color);
             document.getElementById('aes-desc').textContent = op.desc;
-
             rStep = (rStep + 1) % 4;
             if (rStep === 0) {
                 rRound++;
@@ -1115,7 +1114,6 @@
             document.getElementById('aes-step-btn').disabled = false;
             document.getElementById('aes-auto-btn').disabled = false;
         }
-
         document.getElementById('aes-step-btn').onclick = aesStep;
         document.getElementById('aes-auto-btn').onclick = () => {
             if (rTimer) return;
@@ -1129,11 +1127,11 @@
     // -- Quantum computer view ------------------------------------
     function renderQuantumComputer(container) {
         const N = 12;
-        const aliceBits = Array.from({length:N}, () => Math.random()>0.5?1:0);
-        const aliceBases = Array.from({length:N}, () => Math.random()>0.5?'+':'×');
-        const eveBases = Array.from({length:N}, () => Math.random()>0.5?'+':'×');
-        const bobBases = Array.from({length:N}, () => Math.random()>0.5?'+':'×');
-        const photonSyms = {'+0':'↕','+1':'↔','×0':'↗','×1':'↘'};
+        const aliceBits = Array.from({ length: N }, () => Math.random() > 0.5 ? 1 : 0);
+        const aliceBases = Array.from({ length: N }, () => Math.random() > 0.5 ? '+' : '×');
+        const eveBases = Array.from({ length: N }, () => Math.random() > 0.5 ? '+' : '×');
+        const bobBases = Array.from({ length: N }, () => Math.random() > 0.5 ? '+' : '×');
+        const photonSyms = { '+0': '↕', '+1': '↔', '×0': '↗', '×1': '↘' };
         let step = -1;
         container.innerHTML = `
             <div class="algo-terminal anim-in">
@@ -1154,24 +1152,24 @@
                 document.getElementById('q-stage-label').textContent = 'STAGE 1 — Alice encodes bits as polarized photons';
                 document.getElementById('q-photon-display').innerHTML = `
                     <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">BIT&nbsp;&nbsp;&nbsp;BASIS&nbsp;&nbsp;PHOTON</div>
-                    <div class="photon-row">${aliceBits.map((b,i)=>`<div style="text-align:center;"><div style="font-size:9px;color:var(--muted);">${aliceBases[i]}</div><div class="photon-bit ${b?'photon-1':'photon-0'}">${photonSyms[aliceBases[i]+b]}</div><div style="font-size:9px;color:var(--muted);">${b}</div></div>`).join('')}</div>`;
+                    <div class="photon-row">${aliceBits.map((b, i) => `<div style="text-align:center;"><div style="font-size:9px;color:var(--muted);">${aliceBases[i]}</div><div class="photon-bit ${b ? 'photon-1' : 'photon-0'}">${photonSyms[aliceBases[i] + b]}</div><div style="font-size:9px;color:var(--muted);">${b}</div></div>`).join('')}</div>`;
             },
             () => {
                 document.getElementById('q-stage-label').textContent = 'STAGE 2 — Eve intercepts: measures in random bases';
-                const eveResults = aliceBits.map((b,i) => eveBases[i]===aliceBases[i]?b:Math.random()>0.5?1:0);
+                const eveResults = aliceBits.map((b, i) => eveBases[i] === aliceBases[i] ? b : Math.random() > 0.5 ? 1 : 0);
                 document.getElementById('q-photon-display').innerHTML += `
                     <div style="font-size:10px;color:var(--muted);margin:6px 0 2px;">EVE'S BASES</div>
-                    <div class="photon-row">${eveResults.map((b,i)=>`<div style="text-align:center;"><div style="font-size:9px;color:${eveBases[i]===aliceBases[i]?'var(--green)':'var(--red)'};">${eveBases[i]}</div><div class="photon-bit ${b?'photon-1':'photon-0'} ${eveBases[i]===aliceBases[i]?'photon-match':'photon-mismatch'}">${photonSyms[eveBases[i]+b]}</div></div>`).join('')}</div>`;
+                    <div class="photon-row">${eveResults.map((b, i) => `<div style="text-align:center;"><div style="font-size:9px;color:${eveBases[i] === aliceBases[i] ? 'var(--green)' : 'var(--red)'};">${eveBases[i]}</div><div class="photon-bit ${b ? 'photon-1' : 'photon-0'} ${eveBases[i] === aliceBases[i] ? 'photon-match' : 'photon-mismatch'}">${photonSyms[eveBases[i] + b]}</div></div>`).join('')}</div>`;
             },
             () => {
                 document.getElementById('q-stage-label').textContent = 'STAGE 3 — Bob measures, compares bases with Alice';
-                const matches = aliceBases.map((a,i)=>a===bobBases[i]);
-                const errorRate = matches.filter((m,i)=>m&&eveBases[i]!==aliceBases[i]).length / matches.filter(m=>m).length;
+                const matches = aliceBases.map((a, i) => a === bobBases[i]);
+                const errorRate = matches.filter((m, i) => m && eveBases[i] !== aliceBases[i]).length / matches.filter(m => m).length;
                 document.getElementById('q-photon-display').innerHTML += `
                     <div style="font-size:10px;color:var(--muted);margin:6px 0 2px;">BOB'S BASES (matching Alice = shared key bit)</div>
-                    <div class="photon-row">${aliceBits.map((b,i)=>`<div style="text-align:center;"><div style="font-size:9px;color:${matches[i]?'var(--green)':'var(--muted)'};">${bobBases[i]}</div><div class="photon-bit ${b?'photon-1':'photon-0'}" style="opacity:${matches[i]?1:0.3};">${matches[i]?b:'–'}</div></div>`).join('')}</div>
-                    <div style="margin-top:8px;padding:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;font-size:11px;color:var(--red);">⚠ Eve's interception introduced ~${Math.round(errorRate*100)||22}% error rate — DETECTED</div>`;
-                document.getElementById('q-result').innerHTML = `<div class="algo-success" style="margin-top:8px;">✓ Simulation complete<br>Eve detected via error spike<br>→ Shared key bits: [${aliceBits.filter((_,i)=>aliceBases[i]===bobBases[i]).join('')}]</div>`;
+                    <div class="photon-row">${aliceBits.map((b, i) => `<div style="text-align:center;"><div style="font-size:9px;color:${matches[i] ? 'var(--green)' : 'var(--muted)'};">${bobBases[i]}</div><div class="photon-bit ${b ? 'photon-1' : 'photon-0'}" style="opacity:${matches[i] ? 1 : 0.3};">${matches[i] ? b : '–'}</div></div>`).join('')}</div>
+                    <div style="margin-top:8px;padding:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;font-size:11px;color:var(--red);">⚠ Eve's interception introduced ~${Math.round(errorRate * 100) || 22}% error rate — DETECTED</div>`;
+                document.getElementById('q-result').innerHTML = `<div class="algo-success" style="margin-top:8px;">✓ Simulation complete<br>Eve detected via error spike<br>→ Shared key bits: [${aliceBits.filter((_, i) => aliceBases[i] === bobBases[i]).join('')}]</div>`;
                 document.getElementById('q-step-btn').disabled = true;
                 document.getElementById('q-auto-btn').disabled = true;
             }
@@ -1195,7 +1193,7 @@
     function renderCaesarManual(container) {
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('MANUAL DECRYPTION — CAESAR SHIFT', 'var(--purple-light)').replace('algo-terminal','manual-terminal').replace('algo-header','manual-header').replace('algo-title','manual-title')}
+                ${algoHeader('MANUAL DECRYPTION — CAESAR SHIFT', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div style="color:var(--muted);font-size:10px;">Try each reverse shift until the plaintext makes sense.</div>
                     <div>
@@ -1234,10 +1232,10 @@
         let hs = { matrix: K, size: K.length, det: null, detInv: null };
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('MANUAL DECRYPTION — HILL MATRIX', 'var(--purple-light)').replace('algo-terminal','manual-terminal').replace('algo-header','manual-header').replace('algo-title','manual-title')}
+                ${algoHeader('MANUAL DECRYPTION — HILL MATRIX', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div style="color:var(--muted);font-size:10px;">Work through each mathematical step to invert the key matrix.</div>
-                    <div class="mat-disp" style="margin-bottom:4px;">${printMat(K).replace(/ /g,'&nbsp;')}</div>
+                    <div class="mat-disp" style="margin-bottom:4px;">${printMat(K).replace(/ /g, '&nbsp;')}</div>
                     <div id="hill-manual-steps"></div>
                 </div>
             </div>`;
@@ -1249,7 +1247,7 @@
         const container = document.getElementById('hill-manual-steps');
         container.innerHTML = `<div class="step-box anim-in">
             <div class="step-title">Step 1 — Compute det(K) mod 26</div>
-            <div style="color:var(--muted-2);font-size:11px;margin-bottom:8px;">${K.length===2?`Formula: (${K[0][0]}×${K[1][1]}) − (${K[0][1]}×${K[1][0]}) = ${rawDet}. Now take mod 26.`:'Compute determinant, then take mod 26.'}</div>
+            <div style="color:var(--muted-2);font-size:11px;margin-bottom:8px;">${K.length === 2 ? `Formula: (${K[0][0]}×${K[1][1]}) − (${K[0][1]}×${K[1][0]}) = ${rawDet}. Now take mod 26.` : 'Compute determinant, then take mod 26.'}</div>
             <div class="prompt-line">
                 <span class="prompt-sym">$</span>
                 <span style="color:var(--muted-2);font-size:11px;">det(K) mod 26 =</span>
@@ -1285,30 +1283,30 @@
             const K = activeCipherKey;
             const adj = matAdj(K);
             const invM = adj.map(r => r.map(v => mod26(v * correct)));
-            document.getElementById('hm-fb2').innerHTML = `<div class="fb-ok">✓ det⁻¹ = ${correct}  (${det}×${correct}=${det*correct} mod 26=1)</div>`;
+            document.getElementById('hm-fb2').innerHTML = `<div class="fb-ok">✓ det⁻¹ = ${correct}  (${det}×${correct}=${det * correct} mod 26=1)</div>`;
             document.getElementById('hm-inp2').disabled = true;
             document.getElementById('hill-manual-steps').innerHTML += `<div class="step-box anim-in" style="border-color:rgba(16,185,129,0.3);">
                 <div class="step-title" style="color:var(--green-light);">Steps 3–5 — Adjugate → K⁻¹ → Decrypt</div>
                 <div style="color:var(--muted);font-size:10px;margin-bottom:4px;">K⁻¹ = ${correct} × adj(K) mod 26:</div>
-                <div class="mat-disp" style="color:var(--green-light);">${printMat(invM).replace(/ /g,'&nbsp;')}</div>
+                <div class="mat-disp" style="color:var(--green-light);">${printMat(invM).replace(/ /g, '&nbsp;')}</div>
                 <div class="algo-success" style="margin-top:8px;">✓ PLAINTEXT: "${activeOriginal}"</div>
             </div>`;
-        } else document.getElementById('hm-fb2').innerHTML = `<div class="fb-err">✗ (${det}×${user}) mod 26 = ${(det*user)%26} ≠ 1</div>`;
+        } else document.getElementById('hm-fb2').innerHTML = `<div class="fb-err">✗ (${det}×${user}) mod 26 = ${(det * user) % 26} ≠ 1</div>`;
     }
 
     function renderVigenereManual(container) {
         const key = String(activeCipherKey).toUpperCase() || "KEY";
-        const ct = activePayload.toUpperCase().replace(/[^A-Z]/g,'');
+        const ct = activePayload.toUpperCase().replace(/[^A-Z]/g, '');
         const tri = {};
-        for (let i = 0; i <= ct.length-3; i++) { const s = ct.substr(i,3); if (!tri[s]) tri[s]=[]; tri[s].push(i); }
-        const reps = Object.entries(tri).filter(([,v])=>v.length>1);
+        for (let i = 0; i <= ct.length - 3; i++) { const s = ct.substr(i, 3); if (!tri[s]) tri[s] = []; tri[s].push(i); }
+        const reps = Object.entries(tri).filter(([, v]) => v.length > 1);
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('MANUAL DECRYPTION — VIGENÈRE', 'var(--purple-light)').replace('algo-terminal','manual-terminal').replace('algo-header','manual-header').replace('algo-title','manual-title')}
+                ${algoHeader('MANUAL DECRYPTION — VIGENÈRE', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div class="step-box">
                         <div class="step-title">Step 1 — Kasiski: Find key length</div>
-                        ${reps.length ? `<div style="color:var(--muted-2);font-size:11px;">Trigram <span style="color:var(--blue-light);">"${reps[0][0]}"</span> repeats at [${reps[0][1].join(', ')}]<br>Gap = ${reps[0][1][1]-reps[0][1][0]} → factors include key length</div>` : `<div style="color:var(--muted-2);font-size:11px;">Text too short for Kasiski. Estimate key length by other means.</div>`}
+                        ${reps.length ? `<div style="color:var(--muted-2);font-size:11px;">Trigram <span style="color:var(--blue-light);">"${reps[0][0]}"</span> repeats at [${reps[0][1].join(', ')}]<br>Gap = ${reps[0][1][1] - reps[0][1][0]} → factors include key length</div>` : `<div style="color:var(--muted-2);font-size:11px;">Text too short for Kasiski. Estimate key length by other means.</div>`}
                         <div class="prompt-line" style="margin-top:8px;">
                             <span class="prompt-sym">$</span><span style="color:var(--muted-2);font-size:11px;">key_length =</span>
                             <input type="number" id="vm-inp1" class="step-input" placeholder="?">
@@ -1350,7 +1348,7 @@
     function renderAesManual(container) {
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('AES-256 — MANUAL NOTE', 'var(--purple-light)').replace('algo-terminal','manual-terminal').replace('algo-header','manual-header').replace('algo-title','manual-title')}
+                ${algoHeader('AES-256 — MANUAL NOTE', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div style="color:var(--muted-2);font-size:12px;line-height:1.8;">
                         AES-256 has no practical manual decryption path — it is designed to be computationally infeasible without the key.<br><br>
@@ -1365,7 +1363,7 @@
         let score = 0, attempts = 0;
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('BB84 — INTERACTIVE EAVESDROP', 'var(--purple-light)').replace('algo-terminal','manual-terminal').replace('algo-header','manual-header').replace('algo-title','manual-title')}
+                ${algoHeader('BB84 — INTERACTIVE EAVESDROP', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div style="color:var(--muted-2);font-size:11px;line-height:1.7;">A photon is sent in a random basis. Choose your measurement basis. Wrong choice = state collapse = detected.</div>
                     <div style="margin:10px 0;padding:10px;background:rgba(0,0,0,0.3);border-radius:6px;border:1px solid var(--border);text-align:center;">
@@ -1381,19 +1379,19 @@
                 </div>
             </div>`;
         window._qManualScore = 0; window._qManualAttempts = 0;
-        const symbols = ['↕','↔','↗','↘'];
-        document.getElementById('q-photon-show').textContent = symbols[Math.floor(Math.random()*4)];
+        const symbols = ['↕', '↔', '↗', '↘'];
+        document.getElementById('q-photon-show').textContent = symbols[Math.floor(Math.random() * 4)];
     }
 
     function qManualGuess(basis) {
-        window._qManualAttempts = (window._qManualAttempts||0)+1;
+        window._qManualAttempts = (window._qManualAttempts || 0) + 1;
         const hit = Math.random() > 0.5;
-        if (hit) { window._qManualScore = (window._qManualScore||0)+1; document.getElementById('q-manual-fb').innerHTML = `<div class="fb-ok">✓ Basis matched! Bit intercepted undetected.</div>`; }
+        if (hit) { window._qManualScore = (window._qManualScore || 0) + 1; document.getElementById('q-manual-fb').innerHTML = `<div class="fb-ok">✓ Basis matched! Bit intercepted undetected.</div>`; }
         else document.getElementById('q-manual-fb').innerHTML = `<div class="fb-err">✗ Wrong basis — photon collapsed. Error rate spiked. Alice & Bob will notice ~25% error.</div>`;
         document.getElementById('q-attempts').textContent = window._qManualAttempts;
         document.getElementById('q-score').textContent = window._qManualScore;
-        const symbols = ['↕','↔','↗','↘'];
-        document.getElementById('q-photon-show').textContent = symbols[Math.floor(Math.random()*4)];
+        const symbols = ['↕', '↔', '↗', '↘'];
+        document.getElementById('q-photon-show').textContent = symbols[Math.floor(Math.random() * 4)];
     }
 
     // ===========================================================
@@ -1419,7 +1417,7 @@
     // ===========================================================
     //  CUSTOM RESIZER LOGIC
     // ===========================================================
-    
+
     const resizerX = document.getElementById('resizer-x');
     const chatCol = document.getElementById('chat-col');
     let isResizingX = false;
@@ -1428,7 +1426,7 @@
         isResizingX = true;
         document.body.style.cursor = 'col-resize';
         resizerX.classList.add('dragging');
-        e.preventDefault(); 
+        e.preventDefault();
     });
 
     const resizerY = document.getElementById('resizer-y');
@@ -1444,30 +1442,30 @@
 
     document.addEventListener('mousemove', (e) => {
         if (!isResizingX && !isResizingY) return;
-        
+
         if (isResizingX) {
             const containerOffset = chatCol.parentElement.getBoundingClientRect().left;
             let newWidth = e.clientX - containerOffset;
-            
+
             if (newWidth < 320) newWidth = 320;
             const maxWidth = window.innerWidth * 0.75;
             if (newWidth > maxWidth) newWidth = maxWidth;
-            
+
             chatCol.style.width = newWidth + 'px';
-            chatCol.style.flex = 'none'; 
+            chatCol.style.flex = 'none';
         }
-        
+
         if (isResizingY) {
             const containerOffset = encTop.parentElement.getBoundingClientRect().top;
             let newHeight = e.clientY - containerOffset;
-            
+
             const minHeight = window.innerHeight * 0.2;
             const maxHeight = window.innerHeight * 0.8;
             if (newHeight < minHeight) newHeight = minHeight;
             if (newHeight > maxHeight) newHeight = maxHeight;
-            
+
             encTop.style.height = newHeight + 'px';
-            encTop.style.flex = 'none'; 
+            encTop.style.flex = 'none';
         }
     });
 
