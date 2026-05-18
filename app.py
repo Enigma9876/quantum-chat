@@ -143,9 +143,14 @@ def handle_host_action(data):
         
     elif action == 'rename':
         target = data['target']
-        new_name = data['new_name']
-        if not target or not new_name: return
+        new_name = data['new_name']      
+        if not target or not new_name: 
+            return       
         rm.rename_user(room, target, new_name)
+        
+        #made it so the flask session is also updating the usernames so it shows on the front end
+        if session.get('username') == target:
+            session['username'] = new_name        
         emit('user_renamed', {'old_name': target, 'new_name': new_name}, to=room)
 
 @socketio.on('react_message')
