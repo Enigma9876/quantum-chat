@@ -102,7 +102,7 @@ class RoomManager:
                 return True
         return False
 
-def rename_user(self, code, old_name, new_name):
+    def rename_user(self, code, old_name, new_name):
         if old_name in self.active_usernames:
             self.active_usernames.remove(old_name)
         if new_name not in self.active_usernames:

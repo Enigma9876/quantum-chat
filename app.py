@@ -11,8 +11,9 @@ app.config['SECRET_KEY'] = 'insightful_secret_key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 encryption_manager = manager.CryptoManager()
 rm = RoomManager()
+socket_users = {}
 
-# ── Routes ───────────────────────────────────────────────────────────────────
+# -- Routes -------------------------------------------------------------------
 @app.route('/')
 def home(): 
     return render_template('home.html', page='home')
@@ -63,11 +64,12 @@ def leave_server():
 def get_usernames(): 
     return jsonify(rm.active_usernames)
 
-# ── Socket events ─────────────────────────────────────────────────────────────
+# -- Socket events -------------------------------------------------------------
 @socketio.on('join')
 def on_join(data):
     room = data['room']
     username = session.get('username', 'Guest')
+    socket_users[request.sid] = username
     join_room(room)
     emit('chat_history', rm.get_messages(room), to=request.sid)
     
@@ -88,7 +90,7 @@ def handle_message(data):
     msg = data['msg']
     enc_type = data['encryption']
     enc_value = data.get('encryption-value')
-    username = session.get('username', 'Guest')
+    username = socket_users.get(request.sid, session.get('username', 'Guest'))
     
     if not rm.can_send_message(room, username):
         emit('system_alert', {'msg': 'You are currently muted and cannot send messages.'}, to=request.sid)
@@ -158,7 +160,7 @@ def handle_host_action(data):
 def handle_session_update(data):
     #think of this like updating the user catch ig
     if 'new_name' in data:
-        session['username'] = data['new_name']
+        socket_users[request.sid] = data['new_name']
 
 @socketio.on('react_message')
 def handle_reaction(data):
@@ -194,7 +196,7 @@ def on_disconnect():
     if username:
         rm.remove_user(username)
 
-# ── Runner ────────────────────────────────────────────────────────────────────
+# -- Runner --------------------------------------------------------------------
 if __name__ == '__main__':
     threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:6000")).start()
     socketio.run(app, host='0.0.0.0', port=6000, debug=True, allow_unsafe_werkzeug=True)

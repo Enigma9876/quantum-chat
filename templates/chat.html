@@ -739,10 +739,10 @@
             alert("The host has renamed you to: " + d.new_name);
 
             //Tell the bum ahh server to update MY personal session
-            socket.emit('user_renamed', { 'old_name': target, 'new_name': new_name }, to = room)
+            socket.emit('update_my_session_name', { new_name: d.new_name });
         }
     });
-    // --------------------------
+    // --------------------------   
 
     function sendMessage() {
         if (!input.value.trim()) return;
