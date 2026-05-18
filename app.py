@@ -153,6 +153,13 @@ def handle_host_action(data):
             session['username'] = new_name        
         emit('user_renamed', {'old_name': target, 'new_name': new_name}, to=room)
 
+
+@socketio.on('update_my_session_name')
+def handle_session_update(data):
+    #think of this like updating the user catch ig
+    if 'new_name' in data:
+        session['username'] = data['new_name']
+
 @socketio.on('react_message')
 def handle_reaction(data):
     room, msg_id, emoji = data['room'], data['id'], data['emoji']
