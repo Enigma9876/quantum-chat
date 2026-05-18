@@ -737,6 +737,9 @@
         if (d.old_name === myUsername) {
             myUsername = d.new_name;
             alert("The host has renamed you to: " + d.new_name);
+
+            //Tell the bum ahh server to update MY personal session
+            socket.emit('update_my_session_name', { new_name: d.new_name });
         }
     });
     // --------------------------
