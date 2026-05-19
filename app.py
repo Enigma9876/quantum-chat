@@ -198,5 +198,5 @@ def on_disconnect():
 
 # -- Runner --------------------------------------------------------------------
 if __name__ == '__main__':
-    threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:6000")).start()
+    #threading.Timer(1.25, lambda: webbrowser.open("http://127.0.0.1:6000")).start()
     socketio.run(app, host='0.0.0.0', port=6000, debug=True, allow_unsafe_werkzeug=True)
