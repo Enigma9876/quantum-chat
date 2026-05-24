@@ -37,6 +37,41 @@
         if (ans === parseInt(activeCipherKey)) fb.innerHTML = `<div class="fb-ok">✓ Correct! Shift = ${ans} → "${activeOriginal}"</div>`;
         else fb.innerHTML = `<div class="fb-err">✗ Shift ${ans} garbles the text. Keep searching.</div>`;
     }
+    
+    function renderAffineManual(container) {
+        container.innerHTML = `
+            <div class="manual-terminal anim-in">
+                ${algoHeader('MANUAL DECRYPTION — AFFINE CIPHER', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
+                <div class="manual-body">
+                    <div style="color:var(--muted);font-size:10px;">Solve for the multiplier (A) and shift (B) to reverse the encryption.</div>
+                    <div class="step-box" style="margin-top:10px;">
+                        <div class="step-title">Submit Answer</div>
+                        <div class="prompt-line" style="margin-bottom:8px;">
+                            <span class="prompt-sym">$</span>
+                            <span style="color:var(--muted-2);font-size:11px;">Multiplier (A) =</span>
+                            <input type="number" id="manual-affine-a" class="step-input" placeholder="?" style="width:60px;">
+                        </div>
+                        <div class="prompt-line">
+                            <span class="prompt-sym">$</span>
+                            <span style="color:var(--muted-2);font-size:11px;">Shift (B) =</span>
+                            <input type="number" id="manual-affine-b" class="step-input" min="0" max="25" placeholder="?" style="width:60px;">
+                            <button class="check-btn" onclick="checkAffineManual()">Execute</button>
+                        </div>
+                        <div id="manual-affine-fb"></div>
+                    </div>
+                </div>
+            </div>`;
+    }
+    function checkAffineManual() {
+        const aAns = parseInt(document.getElementById('manual-affine-a').value);
+        const bAns = parseInt(document.getElementById('manual-affine-b').value);
+        const fb = document.getElementById('manual-affine-fb');
+        if (aAns === parseInt(activeCipherKey[0]) && bAns === parseInt(activeCipherKey[1])) {
+            fb.innerHTML = `<div class="fb-ok">✓ Correct! A = ${aAns}, B = ${bAns} → "${activeOriginal}"</div>`;
+        } else {
+            fb.innerHTML = `<div class="fb-err">✗ Incorrect parameters. Keep searching.</div>`;
+        }
+    }
 
     function renderHillManual(container) {
         if (!Array.isArray(activeCipherKey) || activeCipherKey.length === 0) { container.innerHTML = `<div style="color:var(--muted);padding:16px;font-style:italic;">Key data unavailable. Validate the Matrix first.</div>`; return; }

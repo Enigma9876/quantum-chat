@@ -5,6 +5,7 @@
                     <select id="encryption-selector">
                         <option value="none">Plaintext (None)</option>
                         <option value="caesar">Caesar Cipher</option>
+                        <option value="affine">Affine Cipher</option>
                         <option value="hill">Hill Cipher</option>
                         <option value="vigenere">Vigenère Cipher</option>
                         <option value="aes">AES-256</option>
@@ -33,6 +34,37 @@
                             <div class="alpha-label">Cipher</div>
                             <div id="example-shift" class="alpha-letters" style="color:var(--green-light);">B C D E F
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="affine-controls" class="enc-param-wrapper" style="display:none;">
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <div style="flex:1;">
+                            <div class="enc-label" style="margin-bottom:6px;">Multiplier (A)</div>
+                            <select id="affine-a" class="chat-input" style="width:100%; padding:4px;">
+                                <option value="1">1</option>
+                                <option value="3">3</option>
+                                <option value="5" selected>5</option>
+                                <option value="7">7</option>
+                                <option value="9">9</option>
+                                <option value="11">11</option>
+                                <option value="15">15</option>
+                                <option value="17">17</option>
+                                <option value="19">19</option>
+                                <option value="21">21</option>
+                                <option value="23">23</option>
+                                <option value="25">25</option>
+                            </select>
+                        </div>
+                        <div style="flex:1;">
+                            <div class="enc-label" style="margin-bottom:6px;">Shift (B)</div>
+                            <input type="number" id="affine-b" class="chat-input" value="8" min="0" max="25" style="width:100%; padding:4px;">
+                        </div>
+                    </div>
+                    <div class="alpha-strip">
+                        <div>
+                            <div class="alpha-label">Math</div>
+                            <div class="alpha-letters" style="color:var(--purple-light); font-size:12px;">E(x) = (A * x + B) mod 26</div>
                         </div>
                     </div>
                 </div>

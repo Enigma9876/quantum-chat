@@ -11,6 +11,10 @@
     const shiftBadge = document.getElementById('shift-badge');
     const exShift = document.getElementById('example-shift');
 
+    const affineCtrl = document.getElementById('affine-controls');
+    const affineA = document.getElementById('affine-a');
+    const affineB = document.getElementById('affine-b');
+
     const hillCtrl = document.getElementById('hill-controls');
     const hillMatrix = document.getElementById('hill-matrix-container');
 
@@ -130,6 +134,7 @@
         if (!input.value.trim()) return;
         let encVal = 0;
         if (selBox.value === 'caesar') { encVal = parseInt(caesarSlider.value) || 0; }
+        else if (selBox.value === 'affine') { encVal = [parseInt(affineA.value) || 1, parseInt(affineB.value) || 0]; }
         else if (selBox.value === 'hill') {
             if (!validateHillMatrix()) { alert('Singular matrix — choose different values.'); return; }
             const cells = document.querySelectorAll('.hill-cell');
@@ -156,6 +161,7 @@
         cv.innerHTML = '';
         mv.innerHTML = '';
         if (cipher === 'caesar') { renderCaesarComputer(cv); renderCaesarManual(mv); }
+        else if (cipher === 'affine') { renderAffineComputer(cv); renderAffineManual(mv); }
         else if (cipher === 'hill') { renderHillComputer(cv); renderHillManual(mv); }
         else if (cipher === 'vigenere') { renderVigenereComputer(cv); renderVigenereManual(mv); }
         else if (cipher === 'aes') { renderAesComputer(cv); renderAesManual(mv); }

@@ -25,26 +25,12 @@ class AffineCipher :
 
 
     def encrypt(self, plaintext: bytes, key: tuple, **kwargs) -> bytes:
-        a, b = key
-        m = 256
-        result = bytearray()
-        for byte in plaintext:
-            encrypted = (a * byte + b) % m
-            result.append(encrypted)
-        return bytes(result)
-
-
-
+        text = plaintext.decode('utf-8')
+        return self.process(text, key, decrypt=False).encode('utf-8')
 
     def decrypt(self, ciphertext: bytes, key: tuple, meta: dict = None) -> bytes:
-        a, b = key
-        m = 256
-        a_inv = self.mod_inverse(a, m)
-        result = bytearray()
-        for byte in ciphertext:
-            decrypted = (a_inv * (byte - b)) % m
-            result.append(decrypted)
-        return bytes(result)
+        text = ciphertext.decode('utf-8')
+        return self.process(text, key, decrypt=True).encode('utf-8')
 
 
 

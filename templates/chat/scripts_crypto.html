@@ -36,6 +36,14 @@
             return c;
         }).join('');
     }
+    function affineEncrypt(text, a, b) {
+        return text.split('').map(c => {
+            const code = c.charCodeAt(0);
+            if (code >= 65 && code <= 90) return String.fromCharCode(((a * (code - 65) + b) % 26) + 65);
+            if (code >= 97 && code <= 122) return String.fromCharCode(((a * (code - 97) + b) % 26) + 97);
+            return c;
+        }).join('');
+    }
     function vigenereEncrypt(plain, key) {
         if (!key) return plain;
         let res = '', j = 0;
@@ -84,6 +92,9 @@
         } else if (activeCipherType === 'caesar') {
             activeCipherKey = parseInt(caesarSlider.value) || 0;
             activePayload = caesarShift(activeOriginal, activeCipherKey);
+        } else if (activeCipherType === 'affine') {
+            activeCipherKey = [parseInt(affineA.value) || 1, parseInt(affineB.value) || 0];
+            activePayload = affineEncrypt(activeOriginal, activeCipherKey[0], activeCipherKey[1]);
         } else if (activeCipherType === 'vigenere') {
             activeCipherKey = textKeyInp.value;
             activePayload = vigenereEncrypt(activeOriginal, activeCipherKey);
@@ -127,6 +138,7 @@
 
             const toolMap = {
                 caesar: 'hist-caesar',
+                affine: 'hist-affine',
                 hill: 'hist-hill',
                 aes: 'hist-aes',
                 vigenere: 'hist-vigenere',
@@ -146,8 +158,9 @@
     exampleInput.addEventListener('input', updateLiveExample);
     selBox.addEventListener('change', function () {
         document.getElementById('no-cipher-msg').style.display = 'none';
-        caesarCtrl.style.display = hillCtrl.style.display = textKeyCtrl.style.display = 'none';
+        caesarCtrl.style.display = hillCtrl.style.display = textKeyCtrl.style.display = affineCtrl.style.display = 'none';
         if (selBox.value === 'caesar') caesarCtrl.style.display = 'flex';
+        else if (selBox.value === 'affine') affineCtrl.style.display = 'flex';
         else if (selBox.value === 'hill') hillCtrl.style.display = 'flex';
         else if (['aes', 'vigenere', 'quantum'].includes(selBox.value)) textKeyCtrl.style.display = 'flex';
         else document.getElementById('no-cipher-msg').style.display = 'block';
@@ -161,6 +174,8 @@
         updateLiveExample();
     });
     caesarSlider.style.setProperty('--fp', '0%');
+    affineA.addEventListener('change', updateLiveExample);
+    affineB.addEventListener('input', updateLiveExample);
     textKeyInp.addEventListener('input', updateLiveExample);
 
     // -- Hill matrix validation ----------------------------------
@@ -315,6 +330,9 @@
         if (type === 'caesar') {
             const s = parseInt(key) || 0;
             return dec ? `Each ciphertext letter is shifted <strong>${s}</strong> positions backward. ${m('P=(C−' + s + '+26) mod 26')}` : `Each letter is shifted <strong>${s}</strong> positions forward. ${m('C=(P+' + s + ') mod 26')}`;
+        } else if (type === 'affine') {
+            const a = key[0], b = key[1], invA = modInverse26(a);
+            return dec ? `Multiply by modular inverse of ${a} (${invA}) and subtract ${b}. ${m('P = ' + invA + ' * (C - ' + b + ') mod 26')}` : `Multiply plaintext value by ${a} and add ${b}. ${m('C = (' + a + ' * P + ' + b + ') mod 26')}`;
         } else if (type === 'vigenere') {
             const k = String(key).toUpperCase();
             return dec ? `Subtract each keyword letter of <strong>"${k}"</strong> from the ciphertext. ${m('P[i]=(C[i]−K[i mod ' + k.length + ']+26) mod 26')}` : `Pair each letter with keyword <strong>"${k}"</strong>. ${m('C[i]=(P[i]+K[i mod ' + k.length + ']) mod 26')}`;
@@ -338,6 +356,10 @@
             const s = parseInt(key) || 0;
             for (let i = 0; i < Math.min(pC.length, L); i++) { const pv = pC[i].charCodeAt(0) - 65, cv = (pv + s) % 26; rows.push(`<tr><td style="color:#fff;">${pC[i]}(${pv})</td><td class="op-cell">+${s} mod 26=${cv}</td><td class="enc-cell">${String.fromCharCode(cv + 65)}(${cv})</td></tr>`); }
             return buildTable(rows, ['PLAIN', 'OP', 'CIPHER']);
+        } else if (type === 'affine') {
+            const a = key[0], b = key[1];
+            for (let i = 0; i < Math.min(pC.length, L); i++) { const pv = pC[i].charCodeAt(0) - 65, cv = (a * pv + b) % 26; rows.push(`<tr><td style="color:#fff;">${pC[i]}(${pv})</td><td class="op-cell">*${a}+${b} mod 26=${cv}</td><td class="enc-cell">${String.fromCharCode(cv + 65)}(${cv})</td></tr>`); }
+            return buildTable(rows, ['PLAIN', 'OP', 'CIPHER']);
         } else if (type === 'vigenere') {
             const k = String(key).toUpperCase();
             for (let i = 0; i < Math.min(pC.length, L); i++) { const kc = k[i % k.length], kv = kc.charCodeAt(0) - 65, pv = pC[i].charCodeAt(0) - 65, cv = (pv + kv) % 26; rows.push(`<tr><td style="color:#fff;">${pC[i]}(${pv})</td><td class="op-cell">+${kc}(${kv})=${cv}</td><td class="enc-cell">${String.fromCharCode(cv + 65)}(${cv})</td></tr>`); }
@@ -354,6 +376,10 @@
         if (type === 'caesar') {
             const s = parseInt(key) || 0;
             for (let i = 0; i < Math.min(cC.length, L); i++) { const cv = cC[i].charCodeAt(0) - 65, pv = ((cv - s) % 26 + 26) % 26; rows.push(`<tr><td style="color:#fff;">${cC[i]}(${cv})</td><td class="op-cell">(${cv}−${s}+26) mod 26=${pv}</td><td class="hi-cell">${String.fromCharCode(pv + 65)}(${pv})</td></tr>`); }
+            return buildTable(rows, ['CIPHER', 'REVERSE', 'PLAIN']);
+        } else if (type === 'affine') {
+            const a = key[0], b = key[1], invA = modInverse26(a);
+            for (let i = 0; i < Math.min(cC.length, L); i++) { const cv = cC[i].charCodeAt(0) - 65, pv = (invA * (cv - b + 26)) % 26; rows.push(`<tr><td style="color:#fff;">${cC[i]}(${cv})</td><td class="op-cell">${invA}*(${cv}-${b}) mod 26=${pv}</td><td class="hi-cell">${String.fromCharCode(pv + 65)}(${pv})</td></tr>`); }
             return buildTable(rows, ['CIPHER', 'REVERSE', 'PLAIN']);
         } else if (type === 'vigenere') {
             const k = String(key).toUpperCase();
