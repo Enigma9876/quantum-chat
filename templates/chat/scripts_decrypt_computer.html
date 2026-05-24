@@ -1,0 +1,345 @@
+    // ===========================================================
+    //  DECRYPT TAB — COMPUTER ALGORITHM VIEWS
+    // ===========================================================
+    function algoHeader(title, color) {
+        return `<div class="algo-header">
+            <div class="algo-header-dots">
+                <div class="algo-header-dot" style="background:#ef4444;"></div>
+                <div class="algo-header-dot" style="background:#f59e0b;"></div>
+                <div class="algo-header-dot" style="background:#10b981;"></div>
+            </div>
+            <div class="algo-title" style="color:${color || 'var(--blue-light)'};">${title}</div>
+        </div>`;
+    }
+
+    // -- Caesar computer view -------------------------------------
+    function renderCaesarComputer(container) {
+        let step = 0, timer = null, done = false;
+        const totalKey = parseInt(activeCipherKey) || 1;
+
+        container.innerHTML = `
+            <div class="algo-terminal anim-in">
+                ${algoHeader('CAESAR BRUTE-FORCE CRACKER')}
+                <div class="algo-body">
+                    <div class="algo-pseudocode">
+                        <div class="algo-line"><span class="kw">for</span> (shift = <span class="val">1</span>; shift &lt;= <span class="val">25</span>; shift++) {</div>
+                        <div class="algo-line">&nbsp;&nbsp;candidate = <span class="fn">reverse_shift</span>(ciphertext, shift)</div>
+                        <div class="algo-line">&nbsp;&nbsp;score = <span class="fn">freq_score</span>(candidate) <span class="cm">// english letter freq</span></div>
+                        <div class="algo-line">&nbsp;&nbsp;<span class="kw">if</span> (score &gt; best_score) best = {shift, candidate}</div>
+                        <div class="algo-line">}</div>
+                    </div>
+                    <div style="color:var(--muted);font-size:10px;letter-spacing:1px;">INPUT: <span style="color:#fff;">"${activePayload.substring(0, 30)}${activePayload.length > 30 ? '…' : ''}"</span></div>
+                    <div id="caesar-scan" class="scan-results"></div>
+                    <div class="algo-controls">
+                        <button class="ctrl-btn" id="cs-step">▶ Step</button>
+                        <button class="ctrl-btn" id="cs-auto">⏩ Auto-Run</button>
+                        <button class="ctrl-btn" id="cs-reset" style="opacity:0.6;">↺ Reset</button>
+                    </div>
+                    <div id="caesar-algo-result"></div>
+                </div>
+            </div>`;
+
+        function addRow() {
+            if (step >= 25 || done) return;
+            step++;
+            const candidate = caesarShift(activePayload, step);
+            const score = freqScore(candidate);
+            const isKey = step === totalKey;
+            const bar = Math.min(10, Math.round(score / 6));
+            const scanEl = document.getElementById('caesar-scan');
+            if (!scanEl) return;
+            const row = document.createElement('div');
+            row.className = 'scan-row anim-in' + (isKey ? ' scan-match' : '');
+            row.innerHTML = `
+                <span class="scan-shift">shift=${String(step).padStart(2, '0')}</span>
+                <span class="scan-text">${candidate.substring(0, 14)}${candidate.length > 14 ? '…' : ''}</span>
+                <span class="scan-bar">${'█'.repeat(bar)}${'░'.repeat(10 - bar)}</span>
+                <span class="scan-score">${score}</span>
+                ${isKey ? '<span class="scan-tag">← HIT</span>' : ''}`;
+            scanEl.appendChild(row);
+            scanEl.scrollTop = scanEl.scrollHeight;
+            if (isKey || step >= 25) {
+                done = true;
+                if (timer) { clearInterval(timer); timer = null; }
+                document.getElementById('cs-step').disabled = true;
+                document.getElementById('cs-auto').disabled = true;
+                const res = document.getElementById('caesar-algo-result');
+                if (res) res.innerHTML = `<div class="algo-success">✓ KEY FOUND: shift = ${totalKey}<br>→ PLAINTEXT: "${activeOriginal}"</div>`;
+            }
+        }
+
+        function reset() {
+            step = 0; done = false;
+            if (timer) { clearInterval(timer); timer = null; }
+            document.getElementById('caesar-scan').innerHTML = '';
+            document.getElementById('caesar-algo-result').innerHTML = '';
+            document.getElementById('cs-step').disabled = false;
+            document.getElementById('cs-auto').disabled = false;
+        }
+
+        document.getElementById('cs-step').onclick = addRow;
+        document.getElementById('cs-auto').onclick = () => {
+            if (timer || done) return;
+            document.getElementById('cs-step').disabled = true;
+            timer = setInterval(() => { addRow(); if (done) clearInterval(timer); }, 90);
+        };
+        document.getElementById('cs-reset').onclick = reset;
+    }
+
+    // -- Hill computer view ---------------------------------------
+    function renderHillComputer(container) {
+        if (!Array.isArray(activeCipherKey) || activeCipherKey.length === 0) {
+            container.innerHTML = `<div style="color:var(--muted);padding:16px;font-style:italic;">Key matrix data unavailable for visualization. Make sure matrix is completely filled.</div>`;
+            return;
+        }
+        const K = activeCipherKey;
+        const n = K.length;
+        const rawDet = matDet(K);
+        const det = mod26(rawDet);
+        const detInv = modInverse26(det);
+        const adj = matAdj(K);
+        const invM = adj.map(r => r.map(v => mod26(v * detInv)));
+        const steps = [
+            { id: 'hs0', title: 'INPUT — Key Matrix K', body: `<div class="mat-disp">${printMat(K).replace(/ /g, '&nbsp;')}</div>` },
+            { id: 'hs1', title: 'STEP 1 — Compute det(K)', body: `<div style="line-height:2;">${n === 2 ? `det = (${K[0][0]}×${K[1][1]}) − (${K[0][1]}×${K[1][0]}) = <span style="color:var(--green-light);">${rawDet}</span>` : `det(K) = <span style="color:var(--green-light);">${rawDet}</span>`}<br>det mod 26 = <span style="color:var(--green-light);font-weight:800;">${det}</span></div>` },
+            { id: 'hs2', title: 'STEP 2 — Modular Inverse of det', body: `<div style="line-height:2;">Find X: (${det} × X) mod 26 = 1<br>X = <span style="color:var(--green-light);font-weight:800;">${detInv}</span>  <span style="color:var(--muted);">(${det}×${detInv}=${det * detInv}, mod 26=${(det * detInv) % 26} ✓)</span></div>` },
+            { id: 'hs3', title: 'STEP 3 — Adjugate Matrix', body: `<div class="mat-disp" style="color:var(--purple-light);">${printMat(adj.map(r => r.map(mod26))).replace(/ /g, '&nbsp;')}</div>` },
+            { id: 'hs4', title: 'STEP 4 — K⁻¹ = det⁻¹ × adj(K) mod 26', body: `<div class="mat-disp" style="color:var(--green-light);">${printMat(invM).replace(/ /g, '&nbsp;')}</div>` },
+            { id: 'hs5', title: 'STEP 5 — Decode Ciphertext Blocks', body: `<div class="algo-success">✓ K⁻¹ applied to all blocks<br>→ PLAINTEXT: "${activeOriginal}"</div>` },
+        ];
+        let revealed = 0;
+        container.innerHTML = `
+            <div class="algo-terminal anim-in">
+                ${algoHeader('HILL CIPHER MATRIX INVERSION', 'var(--purple-light)')}
+                <div class="algo-body">
+                    <div id="hill-algo-steps" style="display:flex;flex-direction:column;gap:6px;"></div>
+                    <div class="algo-controls" style="margin-top:6px;">
+                        <button class="ctrl-btn" id="hs-step">▶ Next Step</button>
+                        <button class="ctrl-btn" id="hs-auto">⏩ Auto-Run</button>
+                    </div>
+                </div>
+            </div>`;
+
+        function showStep() {
+            if (revealed >= steps.length) return;
+            const s = steps[revealed++];
+            const el = document.createElement('div');
+            el.className = 'algo-step-block anim-in';
+            el.innerHTML = `<div class="algo-step-title">${s.title}</div><div class="algo-step-val">${s.body}</div>`;
+            document.getElementById('hill-algo-steps').appendChild(el);
+            if (revealed >= steps.length) {
+                document.getElementById('hs-step').disabled = true;
+                document.getElementById('hs-auto').disabled = true;
+            }
+        }
+
+        let hsTimer = null;
+        document.getElementById('hs-step').onclick = showStep;
+        document.getElementById('hs-auto').onclick = () => {
+            if (hsTimer) return;
+            document.getElementById('hs-step').disabled = true;
+            hsTimer = setInterval(() => { showStep(); if (revealed >= steps.length) clearInterval(hsTimer); }, 600);
+        };
+        // Auto-show first step
+        showStep();
+    }
+
+    // -- Vigenère computer view -----------------------------------
+    function renderVigenereComputer(container) {
+        const key = String(activeCipherKey).toUpperCase() || 'KEY';
+        const keyLen = key.length;
+        const ct = activePayload.toUpperCase().replace(/[^A-Z]/g, '');
+        const freqEng = { A: 8.2, B: 1.5, C: 2.8, D: 4.3, E: 12.7, F: 2.2, G: 2.0, H: 6.1, I: 7.0, J: 0.15, K: 0.77, L: 4.0, M: 2.4, N: 6.7, O: 7.5, P: 1.9, Q: 0.1, R: 6.0, S: 6.3, T: 9.1, U: 2.8, V: 0.98, W: 2.4, X: 0.15, Y: 2.0, Z: 0.07 };
+        // Find trigrams
+        const tri = {};
+        for (let i = 0; i <= ct.length - 3; i++) { const s = ct.substr(i, 3); if (!tri[s]) tri[s] = []; tri[s].push(i); }
+        const reps = Object.entries(tri).filter(([, v]) => v.length > 1);
+        const gap = reps.length ? reps[0][1][1] - reps[0][1][0] : keyLen;
+        // Build freq for each column
+        const cols = Array.from({ length: keyLen }, (_, ci) => ct.split('').filter((_, i) => i % keyLen === ci));
+
+        const steps = [
+            { title: 'INPUT', body: `<div style="color:#fff;font-family:var(--mono);font-size:11px;word-break:break-all;">"${activePayload.substring(0, 40)}${activePayload.length > 40 ? '…' : ''}"</div>` },
+            { title: 'STEP 1 — Kasiski Scan (repeated trigrams)', body: reps.length ? `Sequence <span style="color:var(--blue-light);">"${reps[0][0]}"</span> at positions [${reps[0][1].join(', ')}]<br>Gap = <span style="color:var(--green-light);font-weight:800;">${gap}</span> → key length candidate: ${gap}` : `No repeated trigrams found. Known key length: <span style="color:var(--green-light);">${keyLen}</span>` },
+            { title: `STEP 2 — Split into ${keyLen} columns`, body: `${cols.map((c, i) => `Col ${i}: <span style="color:var(--blue-light);">${c.join('').substring(0, 25)}...</span>`).join('<br>')}` },
+            {
+                title: 'STEP 3 — Frequency Analysis per Column', body: cols.map((col, ci) => {
+                    const counts = {};
+                    col.forEach(c => { counts[c] = (counts[c] || 0) + 1; });
+                    const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+                    const shift = ((top[0]?.[0]?.charCodeAt(0) || 69) - 69 + 26) % 26;
+                    return `Col ${ci}: top="${top.map(e => e[0]).join('')}" → shift≈${shift} → key[${ci}]=<span style="color:var(--green-light);">${key[ci]}</span>`;
+                }).join('<br>')
+            },
+            { title: 'STEP 4 — Reconstructed Key', body: `keyword = <span style="color:var(--green-light);font-weight:800;font-size:14px;">"${key}"</span>` },
+            { title: 'STEP 5 — Decrypt', body: `<div class="algo-success">✓ KEY: "${key}"<br>→ PLAINTEXT: "${activeOriginal}"</div>` },
+        ];
+
+        let revealed = 0;
+        container.innerHTML = `
+            <div class="algo-terminal anim-in">
+                ${algoHeader('KASISKI + FREQUENCY ATTACK', 'var(--green-light)')}
+                <div class="algo-body">
+                    <div id="vig-algo-steps" style="display:flex;flex-direction:column;gap:6px;"></div>
+                    <div class="algo-controls" style="margin-top:6px;">
+                        <button class="ctrl-btn" id="vs-step">▶ Next Step</button>
+                        <button class="ctrl-btn" id="vs-auto">⏩ Auto-Run</button>
+                    </div>
+                </div>
+            </div>`;
+
+        function showVStep() {
+            if (revealed >= steps.length) return;
+            const s = steps[revealed++];
+            const el = document.createElement('div');
+            el.className = 'algo-step-block anim-in';
+            el.innerHTML = `<div class="algo-step-title">${s.title}</div><div class="algo-step-val" style="font-size:11px;line-height:1.8;">${s.body}</div>`;
+            document.getElementById('vig-algo-steps').appendChild(el);
+            if (revealed >= steps.length) {
+                document.getElementById('vs-step').disabled = true;
+                document.getElementById('vs-auto').disabled = true;
+            }
+        }
+        let vsTimer = null;
+        document.getElementById('vs-step').onclick = showVStep;
+        document.getElementById('vs-auto').onclick = () => {
+            if (vsTimer) return;
+            document.getElementById('vs-step').disabled = true;
+            vsTimer = setInterval(() => { showVStep(); if (revealed >= steps.length) clearInterval(vsTimer); }, 700);
+        };
+        showVStep();
+    }
+
+    // -- AES computer view ----------------------------------------
+    function renderAesComputer(container) {
+        const hex = () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0').toUpperCase();
+        const makeGrid = (color) => Array(16).fill(0).map(() => `<div style="background:${color};padding:6px 4px;border-radius:3px;text-align:center;font-size:10px;font-family:var(--mono);">${hex()}</div>`).join('');
+        const roundSteps = [
+            { name: 'SubBytes()', desc: 'Non-linear substitution via S-Box', color: 'rgba(59,130,246,0.25)' },
+            { name: 'ShiftRows()', desc: 'Cyclic shift of each row', color: 'rgba(139,92,246,0.25)' },
+            { name: 'MixColumns()', desc: 'Matrix multiply in GF(2⁸)', color: 'rgba(16,185,129,0.25)' },
+            { name: 'AddRoundKey()', desc: 'XOR with round sub-key', color: 'rgba(245,158,11,0.2)' },
+        ];
+        let rStep = 0, rRound = 0, rTimer = null;
+        container.innerHTML = `
+            <div class="algo-terminal anim-in">
+                ${algoHeader('AES-256 ROUND VISUALIZER', 'var(--green-light)')}
+                <div class="algo-body">
+                    <div style="color:var(--muted);font-size:10px;margin-bottom:4px;letter-spacing:1px;">STATE MATRIX (4×4 bytes) — ROUND <span id="aes-round-num">0</span>/14</div>
+                    <div id="aes-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:10px;">${makeGrid('rgba(255,255,255,0.06)')}</div>
+                    <div id="aes-op-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                        ${roundSteps.map((s, i) => `<div id="aes-op-${i}" style="padding:5px 10px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);font-size:10px;color:var(--muted);transition:all 0.3s;">${s.name}</div>`).join('')}
+                    </div>
+                    <div id="aes-desc" style="color:var(--muted-2);font-size:11px;min-height:18px;"></div>
+                    <div class="algo-controls" style="margin-top:8px;">
+                        <button class="ctrl-btn" id="aes-step-btn">▶ Next Op</button>
+                        <button class="ctrl-btn" id="aes-auto-btn">⏩ Auto-Run</button>
+                        <button class="ctrl-btn" id="aes-reset-btn" style="opacity:0.6;">↺ Reset</button>
+                    </div>
+                    <div id="aes-result"></div>
+                </div>
+            </div>`;
+
+        function aesStep() {
+            const ops = document.querySelectorAll('[id^="aes-op-"]');
+            ops.forEach(o => o.style.cssText = 'padding:5px 10px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);font-size:10px;color:var(--muted);transition:all 0.3s;');
+            const op = roundSteps[rStep];
+            const opEl = document.getElementById('aes-op-' + rStep);
+            if (opEl) { opEl.style.background = op.color; opEl.style.color = '#fff'; opEl.style.borderColor = 'rgba(255,255,255,0.3)'; }
+            document.getElementById('aes-grid').innerHTML = makeGrid(op.color);
+            document.getElementById('aes-desc').textContent = op.desc;
+            rStep = (rStep + 1) % 4;
+            if (rStep === 0) {
+                rRound++;
+                document.getElementById('aes-round-num').textContent = rRound;
+                if (rRound >= 14) {
+                    if (rTimer) { clearInterval(rTimer); rTimer = null; }
+                    document.getElementById('aes-step-btn').disabled = true;
+                    document.getElementById('aes-auto-btn').disabled = true;
+                    document.getElementById('aes-result').innerHTML = `<div class="algo-success">✓ 14 rounds complete — Avalanche effect: 1 bit change diffuses to all 128 bits<br>→ Ciphertext output finalized.</div>`;
+                }
+            }
+        }
+        function aesReset() {
+            rStep = 0; rRound = 0;
+            if (rTimer) { clearInterval(rTimer); rTimer = null; }
+            document.getElementById('aes-grid').innerHTML = makeGrid('rgba(255,255,255,0.06)');
+            document.getElementById('aes-round-num').textContent = '0';
+            document.getElementById('aes-desc').textContent = '';
+            document.getElementById('aes-result').innerHTML = '';
+            document.querySelectorAll('[id^="aes-op-"]').forEach(o => o.style.cssText = 'padding:5px 10px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);font-size:10px;color:var(--muted);transition:all 0.3s;');
+            document.getElementById('aes-step-btn').disabled = false;
+            document.getElementById('aes-auto-btn').disabled = false;
+        }
+        document.getElementById('aes-step-btn').onclick = aesStep;
+        document.getElementById('aes-auto-btn').onclick = () => {
+            if (rTimer) return;
+            document.getElementById('aes-step-btn').disabled = true;
+            rTimer = setInterval(aesStep, 350);
+        };
+        document.getElementById('aes-reset-btn').onclick = aesReset;
+        aesStep();
+    }
+
+    // -- Quantum computer view ------------------------------------
+    function renderQuantumComputer(container) {
+        const N = 12;
+        const aliceBits = Array.from({ length: N }, () => Math.random() > 0.5 ? 1 : 0);
+        const aliceBases = Array.from({ length: N }, () => Math.random() > 0.5 ? '+' : '×');
+        const eveBases = Array.from({ length: N }, () => Math.random() > 0.5 ? '+' : '×');
+        const bobBases = Array.from({ length: N }, () => Math.random() > 0.5 ? '+' : '×');
+        const photonSyms = { '+0': '↕', '+1': '↔', '×0': '↗', '×1': '↘' };
+        let step = -1;
+        container.innerHTML = `
+            <div class="algo-terminal anim-in">
+                ${algoHeader('BB84 QUANTUM CHANNEL SIMULATION', 'var(--purple-light)')}
+                <div class="algo-body">
+                    <div id="q-stage-label" style="color:var(--muted);font-size:10px;letter-spacing:1.5px;margin-bottom:6px;">WAITING TO START…</div>
+                    <div id="q-photon-display" style="display:flex;flex-direction:column;gap:6px;"></div>
+                    <div class="algo-controls" style="margin-top:8px;">
+                        <button class="ctrl-btn" id="q-step-btn">▶ Next Stage</button>
+                        <button class="ctrl-btn" id="q-auto-btn">⏩ Auto-Run</button>
+                    </div>
+                    <div id="q-result"></div>
+                </div>
+            </div>`;
+
+        const stages = [
+            () => {
+                document.getElementById('q-stage-label').textContent = 'STAGE 1 — Alice encodes bits as polarized photons';
+                document.getElementById('q-photon-display').innerHTML = `
+                    <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">BIT&nbsp;&nbsp;&nbsp;BASIS&nbsp;&nbsp;PHOTON</div>
+                    <div class="photon-row">${aliceBits.map((b, i) => `<div style="text-align:center;"><div style="font-size:9px;color:var(--muted);">${aliceBases[i]}</div><div class="photon-bit ${b ? 'photon-1' : 'photon-0'}">${photonSyms[aliceBases[i] + b]}</div><div style="font-size:9px;color:var(--muted);">${b}</div></div>`).join('')}</div>`;
+            },
+            () => {
+                document.getElementById('q-stage-label').textContent = 'STAGE 2 — Eve intercepts: measures in random bases';
+                const eveResults = aliceBits.map((b, i) => eveBases[i] === aliceBases[i] ? b : Math.random() > 0.5 ? 1 : 0);
+                document.getElementById('q-photon-display').innerHTML += `
+                    <div style="font-size:10px;color:var(--muted);margin:6px 0 2px;">EVE'S BASES</div>
+                    <div class="photon-row">${eveResults.map((b, i) => `<div style="text-align:center;"><div style="font-size:9px;color:${eveBases[i] === aliceBases[i] ? 'var(--green)' : 'var(--red)'};">${eveBases[i]}</div><div class="photon-bit ${b ? 'photon-1' : 'photon-0'} ${eveBases[i] === aliceBases[i] ? 'photon-match' : 'photon-mismatch'}">${photonSyms[eveBases[i] + b]}</div></div>`).join('')}</div>`;
+            },
+            () => {
+                document.getElementById('q-stage-label').textContent = 'STAGE 3 — Bob measures, compares bases with Alice';
+                const matches = aliceBases.map((a, i) => a === bobBases[i]);
+                const errorRate = matches.filter((m, i) => m && eveBases[i] !== aliceBases[i]).length / matches.filter(m => m).length;
+                document.getElementById('q-photon-display').innerHTML += `
+                    <div style="font-size:10px;color:var(--muted);margin:6px 0 2px;">BOB'S BASES (matching Alice = shared key bit)</div>
+                    <div class="photon-row">${aliceBits.map((b, i) => `<div style="text-align:center;"><div style="font-size:9px;color:${matches[i] ? 'var(--green)' : 'var(--muted)'};">${bobBases[i]}</div><div class="photon-bit ${b ? 'photon-1' : 'photon-0'}" style="opacity:${matches[i] ? 1 : 0.3};">${matches[i] ? b : '–'}</div></div>`).join('')}</div>
+                    <div style="margin-top:8px;padding:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px;font-size:11px;color:var(--red);">⚠ Eve's interception introduced ~${Math.round(errorRate * 100) || 22}% error rate — DETECTED</div>`;
+                document.getElementById('q-result').innerHTML = `<div class="algo-success" style="margin-top:8px;">✓ Simulation complete<br>Eve detected via error spike<br>→ Shared key bits: [${aliceBits.filter((_, i) => aliceBases[i] === bobBases[i]).join('')}]</div>`;
+                document.getElementById('q-step-btn').disabled = true;
+                document.getElementById('q-auto-btn').disabled = true;
+            }
+        ];
+
+        let qStep = 0, qTimer = null;
+        function doQStage() { if (qStep < stages.length) stages[qStep++](); }
+        document.getElementById('q-step-btn').onclick = doQStage;
+        document.getElementById('q-auto-btn').onclick = () => {
+            if (qTimer) return;
+            document.getElementById('q-step-btn').disabled = true;
+            qTimer = setInterval(() => { doQStage(); if (qStep >= stages.length) clearInterval(qTimer); }, 900);
+        };
+        doQStage();
+    }
+

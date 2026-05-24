@@ -1,0 +1,78 @@
+        <div class="enc-panel">
+            <div class="enc-panel-top" id="enc-top">
+                <div class="panel-hdr">
+                    <span>Cipher Configuration</span>
+                    <select id="encryption-selector">
+                        <option value="none">Plaintext (None)</option>
+                        <option value="caesar">Caesar Cipher</option>
+                        <option value="hill">Hill Cipher</option>
+                        <option value="vigenere">Vigenère Cipher</option>
+                        <option value="aes">AES-256</option>
+                        <option value="quantum">BB84 Quantum</option>
+                    </select>
+                </div>
+
+                <div id="no-cipher-msg" style="color:var(--muted);font-style:italic;font-size:12px;margin-bottom:16px;">
+                    Select a cipher above to configure its key.</div>
+
+                <div id="caesar-controls" class="enc-param-wrapper" style="display:none;">
+                    <div class="shift-row">
+                        <div class="shift-badge" id="shift-badge">1</div>
+                        <div style="flex:1;">
+                            <div class="enc-label" style="margin-bottom:6px;">Shift Amount (1–25)</div>
+                            <input type="range" id="caesar-slider" min="1" max="25" value="1">
+                        </div>
+                    </div>
+                    <div class="alpha-strip">
+                        <div>
+                            <div class="alpha-label">Plain</div>
+                            <div class="alpha-letters" style="color:#fff;">A B C D E</div>
+                        </div>
+                        <div style="color:rgba(255,255,255,0.3);font-size:16px;">→</div>
+                        <div>
+                            <div class="alpha-label">Cipher</div>
+                            <div id="example-shift" class="alpha-letters" style="color:var(--green-light);">B C D E F
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="hill-controls" class="enc-param-wrapper" style="display:none;">
+                    <div class="hill-header">
+                        <div>
+                            <div class="enc-label" style="margin-bottom:5px;">Matrix Size</div>
+                            <div id="hill-size-pill" class="hill-size-pill">2 × 2</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+                            <div id="hill-grid-picker"></div>
+                            <span style="color:var(--muted);font-size:9px;">drag to resize</span>
+                        </div>
+                    </div>
+                    <div id="hill-matrix-container"></div>
+                    <div id="hill-validation" class="matrix-valid pending">
+                        <div class="valid-dot"></div><span>Enter matrix values to validate…</span>
+                    </div>
+                </div>
+                <div id="text-key-controls" class="enc-param-wrapper" style="display:none;">
+                    <div class="enc-label">Keyword / Seed</div>
+                    <div class="key-input-wrap">
+                        <svg class="key-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
+                            stroke-width="2" fill="none">
+                            <path
+                                d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                        </svg>
+                        <input type="text" id="text-key-input" class="chat-input key-inp" value="SECRET"
+                            style="width:100%;" oninput="updateKeyMeta()">
+                    </div>
+                    <div class="key-meta">
+                        <span class="key-len" id="key-length-label">6 CHARS</span>
+                        <div class="key-bars" id="key-strength-bars"></div>
+                    </div>
+                </div>
+
+                <div style="border-top:1px solid var(--border); padding-top:16px; margin-top:8px;">
+                    <div class="enc-label" style="margin-bottom:8px;">Example Message (Live Preview)</div>
+                    <textarea id="example-msg-input" class="chat-input" style="width:100%; height:60px; resize:none;"
+                        placeholder="Type a message to preview...">HELLO WORLD</textarea>
+                </div>
+            </div>
+

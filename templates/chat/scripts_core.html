@@ -1,0 +1,239 @@
+<script>
+    const socket = io();
+    const room = "{{ room_code }}";
+    let myUsername = "{{ current_user }}";
+    const isHost = "{{ is_host }}" === "True";
+    const chatBox = document.getElementById('chat-box');
+    const input = document.getElementById('msg-input');
+    const selBox = document.getElementById('encryption-selector');
+
+    const caesarCtrl = document.getElementById('caesar-controls');
+    const caesarSlider = document.getElementById('caesar-slider');
+    const shiftBadge = document.getElementById('shift-badge');
+    const exShift = document.getElementById('example-shift');
+
+    const hillCtrl = document.getElementById('hill-controls');
+    const hillMatrix = document.getElementById('hill-matrix-container');
+
+    const textKeyCtrl = document.getElementById('text-key-controls');
+    const textKeyInp = document.getElementById('text-key-input');
+
+    const exampleInput = document.getElementById('example-msg-input');
+
+    let emojiMsgId = null;
+
+    // State for the Live Example Preview
+    let activePayload = '';
+    let activeOriginal = 'HELLO WORLD';
+    let activeCipherKey = null;
+    let activeCipherType = 'none';
+    let currentDecryptMode = 'computer';
+    // -- Socket ---------------------------------------------------
+    socket.emit('join', { room });
+    function appendMsg(data) {
+        const row = document.createElement('div'); row.className = 'message-row';
+        if (data.id) row.id = 'msg-row-' + data.id;
+        const wrap = document.createElement('div');
+        wrap.className = 'msg-wrap ' + (data.type || 'msg-user-wrap');
+        if (data.id) wrap.id = 'msg-content-' + data.id;
+        const txt = document.createElement('div'); txt.className = 'msg-text';
+        if (data.type === 'msg-system') {
+            txt.textContent = data.msg; wrap.classList.add('msg-system'); wrap.appendChild(txt);
+        } else {
+            txt.innerHTML = `<span style="color:var(--blue-light);font-weight:800;font-size:11px;letter-spacing:1px;text-transform:uppercase;">${data.username}</span><br><span style="font-size:14px;margin-top:2px;display:inline-block;${data.is_bold ? 'font-weight:900;color:var(--red);' : ''}">${data.msg}</span>`;
+            wrap.classList.add('msg-user-wrap');
+
+            const acts = document.createElement('div'); acts.className = 'msg-actions';
+
+            // Add Inspect button directly to messages
+            const inspectBtn = document.createElement('button'); inspectBtn.className = 'action-btn btn-inspect';
+            inspectBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`;
+            inspectBtn.onclick = e => { e.stopPropagation(); openInspectorModal(data.original_msg, data.msg, data.cipher || 'none', data.key || 0); };
+            acts.appendChild(inspectBtn);
+
+            const eBtn = document.createElement('button'); eBtn.className = 'action-btn btn-emoji';
+            eBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`;
+            eBtn.onclick = e => { e.stopPropagation(); emojiMsgId = data.id; const r = eBtn.getBoundingClientRect(); pickerWrap.style.display = 'block'; pickerWrap.style.top = (r.bottom + 5) + 'px'; pickerWrap.style.left = (r.left - 250) + 'px'; };
+            acts.appendChild(eBtn);
+
+            if (data.username === myUsername || isHost) {
+                const dBtn = document.createElement('button'); dBtn.className = 'action-btn btn-trash';
+                dBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+                dBtn.onclick = e => { e.stopPropagation(); socket.emit('delete_message', { room, id: data.id }); };
+                acts.appendChild(dBtn);
+            }
+            wrap.appendChild(txt); wrap.appendChild(acts);
+        }
+        row.appendChild(wrap);
+        const reacts = document.createElement('div'); reacts.className = 'reactions-row';
+        if (data.id) reacts.id = 'reactions-' + data.id;
+        row.appendChild(reacts);
+        chatBox.appendChild(row);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        if (data.reactions) renderReactions(data.id, data.reactions);
+    }
+    function renderReactions(id, map) {
+        const row = document.getElementById('reactions-' + id); if (!row) return;
+        row.innerHTML = '';
+        for (const [em, users] of Object.entries(map)) {
+            if (users.length > 0) {
+                const b = document.createElement('div'); b.className = 'reaction-badge';
+                if (users.includes(myUsername)) b.classList.add('active');
+                b.textContent = `${em} ${users.length}`;
+                b.onclick = () => socket.emit('react_message', { room, id, emoji: em });
+                row.appendChild(b);
+            }
+        }
+    }
+    socket.on('chat_history', msgs => msgs.forEach(appendMsg));
+    socket.on('message', appendMsg);
+    socket.on('reactions_updated', d => renderReactions(d.id, d.reactions));
+    socket.on('message_deleted', d => {
+        const el = document.getElementById('msg-row-' + d.id); if (el) el.remove();
+    });
+
+    // --- NEW HOST LISTENERS ---
+    socket.on('system_alert', d => alert(d.msg));
+
+    socket.on('cipher_forced', d => {
+        if (!isHost) {
+            if (d.cipher) {
+                selBox.value = d.cipher;
+                selBox.disabled = true;
+                selBox.dispatchEvent(new Event('change'));
+                alert("The host has restricted the cipher to: " + d.cipher);
+            } else {
+                selBox.disabled = false;
+                alert("The host has removed the cipher restriction.");
+            }
+        }
+    });
+
+    socket.on('user_kicked', d => {
+        if (d.target === myUsername) {
+            alert("You have been kicked from the room by the host.");
+            window.location.href = '/leave';
+        }
+    });
+
+    socket.on('user_renamed', d => {
+        if (d.old_name === myUsername) {
+            myUsername = d.new_name;
+            alert("The host has renamed you to: " + d.new_name);
+
+            //Tell the bum ahh server to update MY personal session
+            socket.emit('update_my_session_name', { new_name: d.new_name });
+        }
+    });
+    // --------------------------   
+
+    function sendMessage() {
+        if (!input.value.trim()) return;
+        let encVal = 0;
+        if (selBox.value === 'caesar') { encVal = parseInt(caesarSlider.value) || 0; }
+        else if (selBox.value === 'hill') {
+            if (!validateHillMatrix()) { alert('Singular matrix — choose different values.'); return; }
+            const cells = document.querySelectorAll('.hill-cell');
+            let mat = [], row = [];
+            cells.forEach(c => { row.push(parseInt(c.value) || 0); if (row.length === currentHillSize) { mat.push(row); row = []; } });
+            encVal = mat;
+        } else if (['aes', 'vigenere', 'quantum'].includes(selBox.value)) { encVal = textKeyInp.value; }
+
+        let isBold = false;
+        const boldCb = document.getElementById('host-bold');
+        if (boldCb && boldCb.checked) isBold = true;
+
+        socket.send({ msg: input.value, room, encryption: selBox.value, 'encryption-value': encVal, is_bold: isBold });
+        input.value = '';
+    }
+    input.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+
+    // ===========================================================
+    //  Main: initialize decrypt tools
+    // ===========================================================
+    function initDecryptTools(cipher) {
+        const cv = document.getElementById('computer-view-content');
+        const mv = document.getElementById('manual-view-content');
+        cv.innerHTML = '';
+        mv.innerHTML = '';
+        if (cipher === 'caesar') { renderCaesarComputer(cv); renderCaesarManual(mv); }
+        else if (cipher === 'hill') { renderHillComputer(cv); renderHillManual(mv); }
+        else if (cipher === 'vigenere') { renderVigenereComputer(cv); renderVigenereManual(mv); }
+        else if (cipher === 'aes') { renderAesComputer(cv); renderAesManual(mv); }
+        else if (cipher === 'quantum') { renderQuantumComputer(cv); renderQuantumManual(mv); }
+        // Always start in computer mode
+        setDecryptMode('computer');
+    }
+
+    // Initialize plain load
+    updateLiveExample();
+
+    // ===========================================================
+    //  CUSTOM RESIZER LOGIC
+    // ===========================================================
+
+    const resizerX = document.getElementById('resizer-x');
+    const chatCol = document.getElementById('chat-col');
+    let isResizingX = false;
+
+    resizerX.addEventListener('mousedown', (e) => {
+        isResizingX = true;
+        document.body.style.cursor = 'col-resize';
+        resizerX.classList.add('dragging');
+        e.preventDefault();
+    });
+
+    const resizerY = document.getElementById('resizer-y');
+    const encTop = document.getElementById('enc-top');
+    let isResizingY = false;
+
+    resizerY.addEventListener('mousedown', (e) => {
+        isResizingY = true;
+        document.body.style.cursor = 'row-resize';
+        resizerY.classList.add('dragging');
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizingX && !isResizingY) return;
+
+        if (isResizingX) {
+            const containerOffset = chatCol.parentElement.getBoundingClientRect().left;
+            let newWidth = e.clientX - containerOffset;
+
+            if (newWidth < 320) newWidth = 320;
+            const maxWidth = window.innerWidth * 0.75;
+            if (newWidth > maxWidth) newWidth = maxWidth;
+
+            chatCol.style.width = newWidth + 'px';
+            chatCol.style.flex = 'none';
+        }
+
+        if (isResizingY) {
+            const containerOffset = encTop.parentElement.getBoundingClientRect().top;
+            let newHeight = e.clientY - containerOffset;
+
+            const minHeight = window.innerHeight * 0.2;
+            const maxHeight = window.innerHeight * 0.8;
+            if (newHeight < minHeight) newHeight = minHeight;
+            if (newHeight > maxHeight) newHeight = maxHeight;
+
+            encTop.style.height = newHeight + 'px';
+            encTop.style.flex = 'none';
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isResizingX) {
+            isResizingX = false;
+            document.body.style.cursor = 'default';
+            resizerX.classList.remove('dragging');
+        }
+        if (isResizingY) {
+            isResizingY = false;
+            document.body.style.cursor = 'default';
+            resizerY.classList.remove('dragging');
+        }
+    });
+
+</script>

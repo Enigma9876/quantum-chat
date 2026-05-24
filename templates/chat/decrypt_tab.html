@@ -1,0 +1,42 @@
+                    <div id="tab-decrypt" class="tab-pane">
+                        <div id="tool-container-none"
+                            style="display:block;text-align:center;color:var(--muted);font-style:italic;padding-top:16px;">
+                            No tools required for plaintext.</div>
+                        <div id="tool-container-active"
+                            style="display:none;flex-direction:column;flex:1;gap:0;min-height:0;">
+                            <div class="decrypt-mode-bar">
+                                <button id="btn-mode-computer" class="mode-btn active"
+                                    onclick="setDecryptMode('computer')">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor"
+                                        stroke-width="2" fill="none">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" />
+                                        <line x1="8" y1="21" x2="16" y2="21" />
+                                        <line x1="12" y1="17" x2="12" y2="21" />
+                                    </svg>
+                                    Algorithm
+                                </button>
+                                <button id="btn-mode-manual" class="mode-btn" onclick="setDecryptMode('manual')">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor"
+                                        stroke-width="2" fill="none">
+                                        <path
+                                            d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z" />
+                                        <path
+                                            d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+                                        <path
+                                            d="M9.5 14.5v-1.75m0 0c0-.69.56-1.25 1.25-1.25h0c.69 0 1.25.56 1.25 1.25V14.5m-2.5 0V14m2.5.5V14" />
+                                        <path d="M9.5 19a6 6 0 0 0 6 0" />
+                                        <path d="M9 10v-1a1 1 0 0 0-2 0v5" />
+                                        <path d="M7 14c-.83 0-1.5.67-1.5 1.5S6.17 17 7 17" />
+                                    </svg>
+                                    Manual
+                                </button>
+                            </div>
+                            <div id="mode-computer" style="flex:1;overflow-y:auto;min-height:0;padding-bottom:80px;">
+                                <div id="computer-view-content"></div>
+                            </div>
+                            <div id="mode-manual"
+                                style="display:none;flex:1;overflow-y:auto;min-height:0;padding-bottom:80px;">
+                                <div id="manual-view-content"></div>
+                            </div>
+                        </div>
+                    </div>

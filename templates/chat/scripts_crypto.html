@@ -1,0 +1,369 @@
+
+    // -- Math & Cryptography Helpers (JS implementations for preview) --------
+    const mod26 = n => ((n % 26) + 26) % 26;
+    const mod97 = n => ((Math.round(n) % 97) + 97) % 97;
+    function matDet(m) {
+        if (m.length === 1) return m[0][0];
+        if (m.length === 2) return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+        let d = 0;
+        for (let c = 0; c < m.length; c++) {
+            let sub = m.slice(1).map(r => r.filter((_, j) => j !== c));
+            d += (c % 2 === 1 ? -1 : 1) * m[0][c] * matDet(sub);
+        }
+        return d;
+    }
+    function matCofactor(m, r, c) {
+        let sub = m.filter((_, i) => i !== r).map(row => row.filter((_, j) => j !== c));
+        return ((r + c) % 2 === 1 ? -1 : 1) * matDet(sub);
+    }
+    function matAdj(m) {
+        let a = Array(m.length).fill(0).map(() => Array(m.length).fill(0));
+        for (let i = 0; i < m.length; i++) for (let j = 0; j < m.length; j++) a[j][i] = matCofactor(m, i, j);
+        return a;
+    }
+    function modInverse26(x) {
+        for (let i = 1; i < 26; i++) if ((x * i) % 26 === 1) return i;
+        return -1;
+    }
+    function printMat(mat) {
+        return mat.map(r => "[ " + r.map(v => v.toString().padStart(3, ' ')).join(', ') + " ]").join('<br>');
+    }
+    function caesarShift(text, n) {
+        return text.split('').map(c => {
+            const code = c.charCodeAt(0);
+            if (code >= 65 && code <= 90) return String.fromCharCode(((code - 65 - n + 260) % 26) + 65);
+            if (code >= 97 && code <= 122) return String.fromCharCode(((code - 97 - n + 260) % 26) + 97);
+            return c;
+        }).join('');
+    }
+    function vigenereEncrypt(plain, key) {
+        if (!key) return plain;
+        let res = '', j = 0;
+        key = key.toUpperCase().replace(/[^A-Z]/g, '');
+        if (!key.length) return plain;
+        for (let i = 0; i < plain.length; i++) {
+            let c = plain.charCodeAt(i);
+            if (c >= 65 && c <= 90) { res += String.fromCharCode((c - 65 + key.charCodeAt(j % key.length) - 65) % 26 + 65); j++; }
+            else if (c >= 97 && c <= 122) { res += String.fromCharCode((c - 97 + key.charCodeAt(j % key.length) - 65) % 26 + 97); j++; }
+            else res += plain[i];
+        }
+        return res;
+    }
+    function hillEncrypt(plain, K) {
+        let p = plain.toUpperCase().replace(/[^A-Z]/g, '');
+        let n = K.length;
+        if (p.length === 0) return plain;
+        while (p.length % n !== 0) p += 'X';
+        let res = '';
+        for (let i = 0; i < p.length; i += n) {
+            let block = [];
+            for (let j = 0; j < n; j++) block.push(p.charCodeAt(i + j) - 65);
+            for (let r = 0; r < n; r++) {
+                let sum = 0;
+                for (let c = 0; c < n; c++) sum += K[r][c] * block[c];
+                res += String.fromCharCode((sum % 26) + 65);
+            }
+        }
+        return res;
+    }
+    function freqScore(text) {
+        const freq = { A: 8.2, B: 1.5, C: 2.8, D: 4.3, E: 12.7, F: 2.2, G: 2.0, H: 6.1, I: 7.0, J: 0.15, K: 0.77, L: 4.0, M: 2.4, N: 6.7, O: 7.5, P: 1.9, Q: 0.1, R: 6.0, S: 6.3, T: 9.1, U: 2.8, V: 0.98, W: 2.4, X: 0.15, Y: 2.0, Z: 0.07 };
+        let s = 0;
+        text.toUpperCase().split('').forEach(c => { if (freq[c]) s += freq[c]; });
+        return Math.round(s);
+    }
+
+    // -- Live Example Updates --------------------------------------
+    function updateLiveExample() {
+        activeOriginal = exampleInput.value || " ";
+        activeCipherType = selBox.value;
+
+        if (activeCipherType === 'none') {
+            activePayload = activeOriginal;
+            activeCipherKey = null;
+        } else if (activeCipherType === 'caesar') {
+            activeCipherKey = parseInt(caesarSlider.value) || 0;
+            activePayload = caesarShift(activeOriginal, activeCipherKey);
+        } else if (activeCipherType === 'vigenere') {
+            activeCipherKey = textKeyInp.value;
+            activePayload = vigenereEncrypt(activeOriginal, activeCipherKey);
+        } else if (activeCipherType === 'hill') {
+            if (!validateHillMatrix()) {
+                activePayload = "[Singular Matrix - Cannot Encrypt]";
+                activeCipherKey = [];
+            } else {
+                const cells = document.querySelectorAll('.hill-cell');
+                let mat = [], row = [];
+                cells.forEach(c => { row.push(parseInt(c.value) || 0); if (row.length === currentHillSize) { mat.push(row); row = []; } });
+                activeCipherKey = mat;
+                activePayload = hillEncrypt(activeOriginal, activeCipherKey);
+            }
+        } else if (activeCipherType === 'aes') {
+            activeCipherKey = textKeyInp.value;
+            activePayload = "[AES-256 BINARY PAYLOAD SIMULATION]";
+        } else if (activeCipherType === 'quantum') {
+            activeCipherKey = textKeyInp.value;
+            activePayload = "[BB84 QUANTUM PHOTON STREAM]";
+        }
+
+        document.getElementById('sel-payload').textContent = activePayload;
+        refreshInspectorTabs();
+    }
+
+    function refreshInspectorTabs() {
+        ['tool-container-none', 'tool-container-active', 'sol-none', 'sol-dynamic'].forEach(eid => {
+            const el = document.getElementById(eid); if (el) el.style.display = 'none';
+        });
+        document.querySelectorAll('.history-block').forEach(e => e.style.display = 'none');
+
+        if (activeCipherType !== 'none') {
+            document.getElementById('tool-container-active').style.display = 'flex';
+            document.getElementById('sol-dynamic').style.display = 'block';
+
+            document.getElementById('dyn-enc-explanation').innerHTML = getCipherExpl(activeCipherType, activeCipherKey, false);
+            document.getElementById('dyn-dec-explanation').innerHTML = getCipherExpl(activeCipherType, activeCipherKey, true);
+            document.getElementById('dyn-enc-steps').innerHTML = encTable(activeOriginal, activePayload, activeCipherType, activeCipherKey);
+            document.getElementById('dyn-dec-steps').innerHTML = decTable(activeOriginal, activePayload, activeCipherType, activeCipherKey);
+
+            const toolMap = {
+                caesar: 'hist-caesar',
+                hill: 'hist-hill',
+                aes: 'hist-aes',
+                vigenere: 'hist-vigenere',
+                quantum: 'hist-quantum'
+            };
+            if (toolMap[activeCipherType]) {
+                document.getElementById(toolMap[activeCipherType]).style.display = 'block';
+            }
+            initDecryptTools(activeCipherType);
+        } else {
+            document.getElementById('tool-container-none').style.display = 'block';
+            document.getElementById('sol-none').style.display = 'block';
+        }
+    }
+
+    // -- Input Hooks for Live Example ------------------------------
+    exampleInput.addEventListener('input', updateLiveExample);
+    selBox.addEventListener('change', function () {
+        document.getElementById('no-cipher-msg').style.display = 'none';
+        caesarCtrl.style.display = hillCtrl.style.display = textKeyCtrl.style.display = 'none';
+        if (selBox.value === 'caesar') caesarCtrl.style.display = 'flex';
+        else if (selBox.value === 'hill') hillCtrl.style.display = 'flex';
+        else if (['aes', 'vigenere', 'quantum'].includes(selBox.value)) textKeyCtrl.style.display = 'flex';
+        else document.getElementById('no-cipher-msg').style.display = 'block';
+        updateLiveExample();
+    });
+    caesarSlider.addEventListener('input', function () {
+        const v = parseInt(this.value);
+        shiftBadge.textContent = v;
+        this.style.setProperty('--fp', ((v - 1) / 24 * 100).toFixed(1) + '%');
+        exShift.textContent = ['A', 'B', 'C', 'D', 'E'].map(c => { let n = c.charCodeAt(0) + v; if (n > 90) n -= 26; return String.fromCharCode(n); }).join(' ');
+        updateLiveExample();
+    });
+    caesarSlider.style.setProperty('--fp', '0%');
+    textKeyInp.addEventListener('input', updateLiveExample);
+
+    // -- Hill matrix validation ----------------------------------
+    function validateHillMatrix() {
+        const cells = document.querySelectorAll('.hill-cell');
+        if (!cells.length) return true;
+        let mat = [], row = [];
+        cells.forEach(c => { row.push(parseInt(c.value) || 0); if (row.length === currentHillSize) { mat.push(row); row = []; } });
+        const det = mod97(matDet(mat));
+        const valid = det !== 0;
+        const ind = document.getElementById('hill-validation');
+        const con = document.getElementById('hill-matrix-container');
+        ind.className = 'matrix-valid ' + (valid ? 'valid' : 'invalid');
+        if (valid) {
+            ind.innerHTML = `<div class="valid-dot"></div><span>Valid &mdash; det &equiv; <strong>${det}</strong> (mod 97) ✓</span>`;
+            con.style.borderColor = 'rgba(16,185,129,0.4)';
+        } else {
+            ind.innerHTML = `<div class="valid-dot"></div><span>Singular &mdash; det &equiv; 0 &mdash; cannot encrypt</span>`;
+            con.style.borderColor = 'rgba(239,68,68,0.4)';
+        }
+        return valid;
+    }
+
+    // -- Key meta ------------------------------------------------
+    function updateKeyMeta() {
+        const len = textKeyInp.value.length;
+        document.getElementById('key-length-label').textContent = len + ' CHAR' + (len !== 1 ? 'S' : '');
+        const el = document.getElementById('key-strength-bars'); el.innerHTML = '';
+        for (let i = 0; i < 10; i++) {
+            const b = document.createElement('div');
+            b.className = 'key-bar' + (i < len ? ' filled' + (len >= 8 ? ' strong' : '') : '');
+            el.appendChild(b);
+        }
+    }
+    updateKeyMeta();
+
+    // -- Hill grid picker ----------------------------------------
+    let currentHillSize = 2;
+    (function () {
+        const picker = document.getElementById('hill-grid-picker');
+        const pill = document.getElementById('hill-size-pill');
+        let dragging = false, hoverSz = 2;
+        function hl(sz, commit) {
+            [...picker.children].forEach(el => {
+                const lit = parseInt(el.dataset.r) <= sz && parseInt(el.dataset.c) <= sz;
+                el.style.background = lit ? (commit ? 'rgba(59,130,246,0.55)' : 'rgba(59,130,246,0.3)') : 'rgba(255,255,255,0.03)';
+                el.style.borderColor = lit ? 'var(--blue)' : 'rgba(255,255,255,0.12)';
+            });
+            pill.textContent = sz + ' × ' + sz;
+        }
+        for (let r = 1; r <= 4; r++) for (let c = 1; c <= 4; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell'; cell.dataset.r = r; cell.dataset.c = c;
+            cell.addEventListener('mouseenter', () => { hoverSz = Math.max(2, Math.max(r, c)); hl(hoverSz, false); });
+            cell.addEventListener('mousedown', e => { e.preventDefault(); dragging = true; });
+            cell.addEventListener('mouseup', () => { if (!dragging) return; dragging = false; currentHillSize = hoverSz; renderHillMatrix(currentHillSize); hl(currentHillSize, true); updateLiveExample(); });
+            picker.appendChild(cell);
+        }
+        picker.addEventListener('mouseleave', () => { dragging = false; hl(currentHillSize, true); });
+        hl(2, true);
+    })();
+
+    function renderHillMatrix(size) {
+        hillMatrix.style.gridTemplateColumns = `repeat(${size},1fr)`;
+        hillMatrix.innerHTML = '';
+        const def = [3, 3, 2, 5];
+        let cnt = 0;
+        for (let i = 0; i < size; i++) for (let j = 0; j < size; j++) {
+            const inp = document.createElement('input');
+            inp.type = 'number'; inp.className = 'chat-input hill-cell';
+            inp.value = (size === 2) ? (def[cnt] ?? 0) : (i === j ? 1 : 0);
+            inp.addEventListener('input', () => { validateHillMatrix(); updateLiveExample(); });
+            hillMatrix.appendChild(inp); cnt++;
+        }
+        setTimeout(() => { validateHillMatrix(); updateLiveExample(); }, 50);
+    }
+    renderHillMatrix(2);
+
+    // -- Emoji picker --------------------------------------------
+    const pickerWrap = document.createElement('div');
+    pickerWrap.className = 'emoji-picker-container';
+    const emojiPicker = document.createElement('emoji-picker');
+    pickerWrap.appendChild(emojiPicker);
+    document.body.appendChild(pickerWrap);
+    customElements.whenDefined('emoji-picker').then(() => {
+        const chk = setInterval(() => {
+            if (!emojiPicker.shadowRoot) return; clearInterval(chk);
+            const s = document.createElement('style');
+            s.textContent = `:host{--background:#0d1526;--border-color:rgba(255,255,255,0.08);--input-font-color:#fff;--indicator-color:#3b82f6;--button-hover-background:rgba(59,130,246,0.12);--search-background:rgba(0,0,0,0.3);}.nav,.preview{display:none!important;}`;
+            emojiPicker.shadowRoot.appendChild(s);
+        }, 50);
+    });
+    emojiPicker.addEventListener('emoji-click', ev => {
+        if (emojiMsgId) { socket.emit('react_message', { room, id: emojiMsgId, emoji: ev.detail.unicode }); pickerWrap.style.display = 'none'; }
+    });
+    document.addEventListener('click', ev => { if (!pickerWrap.contains(ev.target) && !ev.target.closest('.btn-emoji')) pickerWrap.style.display = 'none'; });
+
+    // -- Modal / specific message pop up logic -------------------
+    function openInspectorModal(orig, cipherText, cipher, key) {
+        const modalBody = document.getElementById('modal-body-content');
+        if (cipher === 'system' || cipher === 'none') {
+            modalBody.innerHTML = `<div style="text-align:center;color:var(--muted);font-style:italic;padding-top:16px;">This message was sent in plaintext. No encryption involved.</div>`;
+        } else {
+            modalBody.innerHTML = `
+                <div style="background:rgba(0,0,0,0.35);padding:10px 12px;border-radius:7px;border:1px solid var(--border);margin-bottom:16px;">
+                    <div style="color:var(--muted);font-size:9px;margin-bottom:5px;font-weight:800;letter-spacing:1px;">INTERCEPTED PAYLOAD</div>
+                    <div style="color:#fff;font-family:var(--mono);word-break:break-all;font-size:13px;">${cipherText}</div>
+                </div>
+                <div class="sol-box" style="border-color:rgba(59,130,246,0.3);">
+                    <div class="sol-title" style="color:var(--blue-light);">1 — Encryption Process</div>
+                    <div class="sol-explain">${getCipherExpl(cipher, key, false)}</div>
+                    <div class="tscroll">${encTable(orig, cipherText, cipher, key)}</div>
+                </div>
+                <div class="sol-box" style="border-color:rgba(139,92,246,0.3);">
+                    <div class="sol-title" style="color:var(--purple-light);">2 — Decryption Process</div>
+                    <div class="sol-explain">${getCipherExpl(cipher, key, true)}</div>
+                    <div class="tscroll">${decTable(orig, cipherText, cipher, key)}</div>
+                </div>
+                <div class="sol-box" style="border-color:rgba(16,185,129,0.3);">
+                    <div class="sol-title" style="color:var(--green-light);">4 — Recovered Plaintext</div>
+                    <div style="color:#fff;font-size:15px;font-weight:bold;font-family:var(--mono);">${orig}</div>
+                </div>
+            `;
+        }
+        document.getElementById('inspector-modal').style.display = 'flex';
+    }
+
+    // -- Tab switching --------------------------------------------
+    function switchTab(id, ev) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        if (ev) ev.target.classList.add('active');
+        else {
+            const btn = document.querySelector(`.tab-btn[onclick*="'${id}'"]`);
+            if (btn) btn.classList.add('active');
+        }
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById('tab-' + id).classList.add('active');
+    }
+
+    // -- Decrypt mode toggle --------------------------------------
+    function setDecryptMode(mode) {
+        currentDecryptMode = mode;
+        document.getElementById('btn-mode-computer').classList.toggle('active', mode === 'computer');
+        document.getElementById('btn-mode-manual').classList.toggle('active', mode === 'manual');
+        document.getElementById('mode-computer').style.display = mode === 'computer' ? 'block' : 'none';
+        document.getElementById('mode-manual').style.display = mode === 'manual' ? 'block' : 'none';
+    }
+
+    // -- Guide tab helpers ----------------------------------------
+    const m = s => `<code style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;font-size:10px;">${s}</code>`;
+    function getCipherExpl(type, key, dec) {
+        if (type === 'caesar') {
+            const s = parseInt(key) || 0;
+            return dec ? `Each ciphertext letter is shifted <strong>${s}</strong> positions backward. ${m('P=(C−' + s + '+26) mod 26')}` : `Each letter is shifted <strong>${s}</strong> positions forward. ${m('C=(P+' + s + ') mod 26')}`;
+        } else if (type === 'vigenere') {
+            const k = String(key).toUpperCase();
+            return dec ? `Subtract each keyword letter of <strong>"${k}"</strong> from the ciphertext. ${m('P[i]=(C[i]−K[i mod ' + k.length + ']+26) mod 26')}` : `Pair each letter with keyword <strong>"${k}"</strong>. ${m('C[i]=(P[i]+K[i mod ' + k.length + ']) mod 26')}`;
+        } else if (type === 'hill') {
+            const n = Array.isArray(key) ? key.length : 2;
+            return dec ? `Multiply ciphertext blocks by the <strong>inverse matrix K⁻¹</strong> mod 26. ${m('[P]=[C]×K⁻¹ (mod 26)')}` : `Multiply plaintext blocks of ${n} by the <strong>key matrix K</strong> mod 26. ${m('[C]=[P]×K (mod 26)')}`;
+        } else if (type === 'aes') {
+            return dec ? `AES applies 14 inverse rounds: <strong>InvShiftRows→InvSubBytes→AddRoundKey→InvMixColumns</strong>. Without the 256-bit key, recovery is infeasible.` : `AES-256 expands the key into 14 round sub-keys. Each round: <strong>SubBytes, ShiftRows, MixColumns, AddRoundKey</strong>.`;
+        } else if (type === 'quantum') {
+            return dec ? `Decryption uses the agreed-upon basis sift. Any eavesdropper introduces ~25% error, alerting the parties.` : `BB84 transmits each bit as a polarized photon in a randomly chosen basis (+/×). Matching bases form the shared key.`;
+        }
+        return '';
+    }
+    function buildTable(rows, hdrs) {
+        if (!rows || !rows.length) return `<div style="color:var(--muted);padding:10px;font-size:11px;">Not enough characters.</div>`;
+        return `<table class="sol-table"><thead><tr>${hdrs.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+    }
+    function encTable(plain, cipher, type, key) {
+        let rows = [], pC = plain.replace(/[^a-zA-Z]/g, '').toUpperCase(), cC = cipher.replace(/[^a-zA-Z]/g, '').toUpperCase(), L = 18;
+        if (type === 'caesar') {
+            const s = parseInt(key) || 0;
+            for (let i = 0; i < Math.min(pC.length, L); i++) { const pv = pC[i].charCodeAt(0) - 65, cv = (pv + s) % 26; rows.push(`<tr><td style="color:#fff;">${pC[i]}(${pv})</td><td class="op-cell">+${s} mod 26=${cv}</td><td class="enc-cell">${String.fromCharCode(cv + 65)}(${cv})</td></tr>`); }
+            return buildTable(rows, ['PLAIN', 'OP', 'CIPHER']);
+        } else if (type === 'vigenere') {
+            const k = String(key).toUpperCase();
+            for (let i = 0; i < Math.min(pC.length, L); i++) { const kc = k[i % k.length], kv = kc.charCodeAt(0) - 65, pv = pC[i].charCodeAt(0) - 65, cv = (pv + kv) % 26; rows.push(`<tr><td style="color:#fff;">${pC[i]}(${pv})</td><td class="op-cell">+${kc}(${kv})=${cv}</td><td class="enc-cell">${String.fromCharCode(cv + 65)}(${cv})</td></tr>`); }
+            return buildTable(rows, ['PLAIN', 'KEY+SHIFT', 'CIPHER']);
+        } else if (type === 'hill') {
+            const n = Array.isArray(key) ? key.length : 2;
+            for (let i = 0; i < pC.length; i += n) { rows.push(`<tr><td style="color:#fff;">[${pC.substring(i, i + n).padEnd(n, 'A').split('').join(',')}]</td><td class="op-cell">×Key mod 26</td><td class="enc-cell">[${cC.substring(i, i + n).padEnd(n, '?').split('').join(',')}]</td></tr>`); }
+            return buildTable(rows, [`PLAIN(×${n})`, 'OP', `CIPHER(×${n})`]);
+        }
+        return `<div style="color:var(--muted);padding:10px;font-size:11px;font-style:italic;">[Block-level cipher — character trace not applicable]</div>`;
+    }
+    function decTable(plain, cipher, type, key) {
+        let rows = [], pC = plain.replace(/[^a-zA-Z]/g, '').toUpperCase(), cC = cipher.replace(/[^a-zA-Z]/g, '').toUpperCase(), L = 18;
+        if (type === 'caesar') {
+            const s = parseInt(key) || 0;
+            for (let i = 0; i < Math.min(cC.length, L); i++) { const cv = cC[i].charCodeAt(0) - 65, pv = ((cv - s) % 26 + 26) % 26; rows.push(`<tr><td style="color:#fff;">${cC[i]}(${cv})</td><td class="op-cell">(${cv}−${s}+26) mod 26=${pv}</td><td class="hi-cell">${String.fromCharCode(pv + 65)}(${pv})</td></tr>`); }
+            return buildTable(rows, ['CIPHER', 'REVERSE', 'PLAIN']);
+        } else if (type === 'vigenere') {
+            const k = String(key).toUpperCase();
+            for (let i = 0; i < Math.min(cC.length, L); i++) { const kc = k[i % k.length], kv = kc.charCodeAt(0) - 65, cv = cC[i].charCodeAt(0) - 65, pv = ((cv - kv) % 26 + 26) % 26; rows.push(`<tr><td style="color:#fff;">${cC[i]}(${cv})</td><td class="op-cell">−${kc}(${kv})=${pv}</td><td class="hi-cell">${String.fromCharCode(pv + 65)}(${pv})</td></tr>`); }
+            return buildTable(rows, ['CIPHER', 'KEY−SHIFT', 'PLAIN']);
+        } else if (type === 'hill') {
+            const n = Array.isArray(key) ? key.length : 2;
+            for (let i = 0; i < cC.length; i += n) { rows.push(`<tr><td style="color:#fff;">[${cC.substring(i, i + n).padEnd(n, 'A').split('').join(',')}]</td><td class="op-cell">×K⁻¹ mod 26</td><td class="hi-cell">[${pC.substring(i, i + n).padEnd(n, '?').split('').join(',')}]</td></tr>`); }
+            return buildTable(rows, [`CIPHER(×${n})`, 'INV MATRIX', `PLAIN(×${n})`]);
+        }
+        return `<div style="color:var(--muted);padding:10px;font-size:11px;font-style:italic;">[Block-level — requires key for reversal]</div>`;
+    }
+
