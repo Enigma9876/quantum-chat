@@ -1,34 +1,1303 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="home-page">
-    <div class="home-inner">
-        <div class="home-badge"><span class="home-badge-dot"></span>Cryptographic Learning Platform</div>
-        <h1 class="home-title">Master the Art of<br><span>Encryption</span></h1>
-        <p class="home-sub">From classical Caesar shifts to quantum BB84 photon streams — learn, experiment, and communicate with real cryptographic protocols.</p>
-        <div class="module-row">
-            <a href="/classroom" class="module-card" style="--card-accent:var(--blue-light);--card-icon-bg:rgba(59,130,246,0.1);--card-icon-border:rgba(59,130,246,0.2);">
-                <div class="card-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--blue-light)" stroke-width="1.8" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-                <div class="card-label">Module 01</div>
-                <h3 class="card-title">Classroom</h3>
-                <p class="card-desc">Guided, step-by-step cryptographic lessons. Build understanding from first principles with interactive exercises.</p>
-                <div class="card-footer"><span class="card-tag">Structured</span><span class="card-arrow">→</span></div>
-            </a>
-            <a href="/lab" class="module-card" style="--card-accent:var(--purple-light);--card-icon-bg:rgba(139,92,246,0.1);--card-icon-border:rgba(139,92,246,0.2);">
-                <div class="card-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--purple-light)" stroke-width="1.8" fill="none"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>
-                <div class="card-label">Module 02</div>
-                <h3 class="card-title">The Lab</h3>
-                <p class="card-desc">Open sandbox to freely experiment with cipher algorithms. Encrypt, break, and analyze without constraints.</p>
-                <div class="card-footer"><span class="card-tag" style="background:rgba(139,92,246,0.1);color:var(--purple-light);">Freeform</span><span class="card-arrow">→</span></div>
-            </a>
-            <a href="/local" class="module-card" style="--card-accent:var(--green-light);--card-icon-bg:rgba(16,185,129,0.1);--card-icon-border:rgba(16,185,129,0.25);">
-                <div class="card-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--green-light)" stroke-width="1.8" fill="none"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>
-                <div class="card-label">Module 03</div>
-                <h3 class="card-title">Secure Room</h3>
-                <p class="card-desc">Host or join a live encrypted chat room. Communicate across devices using real cipher protocols in real time.</p>
-                <div class="card-footer"><span class="card-tag" style="background:rgba(16,185,129,0.1);color:var(--green-light);">Live</span><span class="card-arrow">→</span></div>
-            </a>
+
+<style>
+
+    /* ── SCROLL & OVERFLOW FIX ───────────────────────────────────── */
+
+    html {
+
+        overflow-y: scroll !important;
+
+        overflow-x: hidden !important;
+
+        height: auto !important;
+
+    }
+
+    body {
+
+        overflow-y: auto !important;
+
+        overflow-x: hidden !important;
+
+        height: auto !important;
+
+        min-height: 100vh !important;
+
+        background-color: #0d1117;
+
+    }
+
+    .home-page {
+
+        overflow: visible !important;
+
+        overflow-x: visible !important;
+
+        overflow-y: visible !important;
+
+        height: auto !important;
+
+        min-height: unset !important;
+
+        max-height: unset !important;
+
+        position: relative !important;
+
+        max-width: 100% !important;
+
+    }
+
+    /* ── Navbar overrides ────────────────────────────────────────── */
+
+    nav, .navbar, .nav-bar, header nav, .site-nav, .topbar {
+
+        min-height: 80px !important;
+
+        font-size: 1.28rem !important;
+
+        padding-left: 48px !important;
+
+        padding-right: 48px !important;
+
+        position: relative;
+
+        z-index: 10;
+
+    }
+
+    nav a, .navbar a, .nav-bar a, .topbar a {
+
+        font-size: 1.28rem !important;
+
+        padding: 0 24px !important;
+
+    }
+
+    nav .logo, .nav-brand, .nav-logo {
+        font-size: 2.2rem !important; 
+    }
+
+    /* Hide Classroom link */
+
+    nav a[href*="classroom"],
+
+    .navbar a[href*="classroom"],
+
+    nav a[href="/classroom"],
+
+    .navbar a[href="/classroom"] {
+
+        display: none !important;
+
+    }
+
+    /* De-highlight "Online Room" / any active nav link on this page */
+
+    nav a[href*="local"], .navbar a[href*="local"],
+
+    nav a.active,         .navbar a.active,
+
+    nav a.current,        .navbar a.current {
+
+        color: rgba(255,255,255,0.72) !important;
+
+        border-bottom: none !important;
+
+        border-color: transparent !important;
+
+        background: none !important;
+
+        box-shadow: none !important;
+
+        font-weight: inherit !important;
+
+        text-decoration: none !important;
+
+    }
+
+    nav a[href*="local"]:hover, .navbar a[href*="local"]:hover {
+
+        color: #fff !important;
+
+    }
+
+
+
+    /* ── Canvas — fixed to viewport, never affects layout ───────── */
+
+    #bgCanvas {
+
+        position: fixed;          
+        top: 0; left: 0;
+
+        width: 100%;
+
+        height: 100vh;            
+        pointer-events: none;
+
+        z-index: 0;
+
+    }
+
+
+
+    /* Wrapper — no longer needs to be a positioning context for canvas */
+
+    .page-wrap {
+
+        position: relative;
+
+        z-index: 0;
+
+    }
+
+
+
+    /* ── Dot grid (fixed, always visible) ───────────────────────── */
+
+    .bg-grid {
+
+        position: fixed; inset: 0;
+
+        background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+
+        background-size: 40px 40px;
+
+        pointer-events: none;
+
+        z-index: 0;
+
+    }
+
+    /* ── Grain ───────────────────────────────────────────────────── */
+
+    .bg-noise {
+
+        position: fixed; inset: 0;
+
+        pointer-events: none;
+
+        z-index: 0;
+
+        opacity: 0.055;
+
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+        background-repeat: repeat;
+
+        background-size: 180px 180px;
+
+    }
+
+    /* ── Cipher rain ─────────────────────────────────────────────── */
+
+    .bg-cipher-stream {
+
+        position: fixed;
+
+        inset: 0;
+
+        pointer-events: none;
+
+        z-index: 0;
+
+        opacity: 0.13;
+
+        overflow: hidden;
+
+    }
+
+    .cipher-col {
+
+        position: absolute; top: -100%;
+
+        font-family: monospace;
+
+        font-size: 13px;
+
+        white-space: pre;
+
+        line-height: 1.8;
+
+        animation: fallDown linear infinite;
+
+        letter-spacing: 3px;
+
+        pointer-events: none;
+
+    }
+
+    @keyframes fallDown {
+
+        from { transform: translateY(0); }
+
+        to   { transform: translateY(200vh); }
+
+    }
+
+    /* ── Vignette ────────────────────────────────────────────────── */
+
+    .bg-vignette {
+
+        position: fixed; inset: 0;
+
+        pointer-events: none;
+
+        z-index: 0;
+
+        background: radial-gradient(ellipse 85% 85% at 50% 50%, transparent 50%, rgba(0,0,0,0.6) 100%);
+
+    }
+
+    /* ── Segments ────────────────────────────────────────────────── */
+
+    .home-inner { position: relative; z-index: 1; height: auto; }
+
+    .segment {
+
+        position: relative;
+
+        width: 100vw !important;
+
+        max-width: 100vw !important;
+
+        margin-left: calc(-50vw + 50%) !important;
+
+        margin-right: calc(-50vw + 50%) !important;
+
+    }
+
+    .segment-hero {
+
+        min-height: 100vh;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        margin-top: -80px;
+
+        padding-top: 80px;
+
+    }
+
+    .segment-modules {
+
+        background-color: rgba(30, 27, 75, 0.5);
+
+        border-top: 1px solid rgba(255,255,255,0.07);
+
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+
+        padding: 140px 0;
+
+    }
+
+    .segment-faq {
+
+        background-color: rgba(10, 18, 35, 0.55);
+
+        padding: 120px 0 140px;
+
+    }
+
+    .content-container {
+
+        max-width: 1200px;
+
+        margin: 0 auto;
+
+        padding: 0 40px;
+
+        width: 100%;
+
+    }
+
+    /* ── Hero ────────────────────────────────────────────────────── */
+
+    .home-hero {
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        text-align: center;
+
+        gap: 40px;
+
+    }
+
+    .home-title {
+
+        font-size: clamp(3.2rem, 7vw, 6.5rem) !important;
+
+        font-weight: 900 !important;
+
+        letter-spacing: -0.03em;
+
+        line-height: 1.1;
+
+        margin: 0;
+
+    }
+
+    .home-title span {
+
+        background: linear-gradient(135deg, var(--blue-light,#60a5fa) 0%, var(--purple-light,#a78bfa) 100%);
+
+        -webkit-background-clip: text;
+
+        -webkit-text-fill-color: transparent;
+
+        background-clip: text;
+
+    }
+
+    .home-sub {
+
+        font-size: clamp(1.1rem, 2vw, 1.3rem) !important;
+
+        max-width: 850px;
+
+        line-height: 1.85;
+
+        color: var(--muted-2, rgba(255,255,255,0.75));
+
+        margin: 0;
+
+        text-align: center;
+
+        position: relative;
+
+        z-index: 1;
+
+    }
+
+    /* ── Module cards (SLEEK, MINIMALIST, ANIMATED) ────────────── */
+
+    .module-row {
+
+        display: flex;
+
+        gap: 40px;
+
+        justify-content: center;
+
+        flex-wrap: wrap;
+
+        position: relative;
+
+        z-index: 1;
+
+        perspective: 1000px;
+
+    }
+
+    .module-card {
+
+        font-size: 1.05rem !important;
+
+        max-width: 550px;
+
+        flex: 1 1 450px;
+
+        padding: 36px 44px;
+
+        background: #0a0e14;
+
+        border: 1px solid rgba(255,255,255,0.05);
+
+        /* Changed the shape to an asymmetrical cyber-cut */
+
+        border-radius: 24px 6px 24px 6px; 
+
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.02);
+
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        text-decoration: none;
+
+        color: inherit;
+
+        display: block;
+
+        position: relative;
+
+        overflow: hidden;
+
+    }
+
+
+
+    /* Ambient background glow inside the card */
+
+    .module-card::after {
+
+        content: '';
+
+        position: absolute;
+
+        inset: 0;
+
+        background: radial-gradient(circle at 50% 0%, var(--card-icon-bg), transparent 70%);
+
+        opacity: 0.3;
+
+        transition: opacity 0.4s ease;
+
+        z-index: 0;
+
+    }
+
+
+
+    /* Sweeping light reflection */
+
+    .module-card::before {
+
+        content: '';
+
+        position: absolute;
+
+        top: 0; left: -100%;
+
+        width: 50%; height: 100%;
+
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+
+        transform: skewX(-20deg);
+
+        z-index: 2;
+
+        transition: none;
+
+    }
+
+
+
+    .module-card > * {
+
+        position: relative;
+
+        z-index: 1;
+
+    }
+
+
+
+    .module-card:hover {
+
+        transform: translateY(-8px) scale(1.02);
+
+        border-color: var(--card-accent);
+
+        box-shadow:
+
+            0 20px 40px rgba(0,0,0,0.6),
+
+            0 0 30px var(--card-icon-bg),
+
+            inset 0 0 20px var(--card-icon-bg);
+
+    }
+
+
+
+    .module-card:hover::after {
+
+        opacity: 0.8;
+
+    }
+
+
+
+    .module-card:hover::before {
+
+        animation: cardShine 0.8s ease-out forwards;
+
+    }
+
+
+
+    .module-card:active {
+
+        transform: translateY(-2px) scale(0.98);
+
+        transition: all 0.1s ease;
+
+    }
+
+
+
+    @keyframes cardShine {
+
+        100% { left: 200%; }
+
+    }
+
+
+
+    /* Text interactions */
+
+    .module-card .card-title { font-size: 1.8rem !important; margin: 0 0 12px 0; font-weight: 800; color: #fff; transition: text-shadow 0.3s ease;}
+
+    .module-card:hover .card-title { text-shadow: 0 0 15px var(--card-accent); }
+
+    
+
+    .module-card .card-desc  { font-size: 1.1rem !important; line-height: 1.6; color: rgba(255,255,255,0.65); margin-bottom: 28px; transition: color 0.3s ease;}
+
+    .module-card:hover .card-desc { color: rgba(255,255,255,0.9); }
+
+
+
+    /* Pushed the arrow all the way to the right since the tag is gone */
+
+    .card-footer { display: flex; justify-content: flex-end; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; transition: border-color 0.3s ease;}
+
+    .module-card:hover .card-footer { border-color: rgba(255,255,255,0.15); }
+
+    
+
+    .card-arrow { font-size: 1.4rem; color: rgba(255,255,255,0.3); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+    .module-card:hover .card-arrow { color: #fff; transform: translateX(8px) scale(1.2); text-shadow: 0 0 10px #fff; }
+
+    /* ── FAQ ─────────────────────────────────────────────────────── */
+
+    .faq-section { max-width: 950px; margin: 0 auto; position: relative; z-index: 1; }
+
+    .faq-heading { font-size: 2.2rem; font-weight: 800; text-align: center; margin-bottom: 60px; letter-spacing: -0.02em; color: #fff; }
+
+    .faq-heading span {
+
+        background: linear-gradient(135deg, var(--blue-light,#60a5fa), var(--purple-light,#a78bfa));
+
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+
+    }
+
+    .faq-item { border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; margin-bottom: 16px; background: rgba(255,255,255,0.02); transition: border-color 0.2s, background 0.2s; }
+
+    .faq-item:hover { border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); }
+
+    .faq-item.open  { border-color: rgba(59,130,246,0.5); background: rgba(255,255,255,0.05); }
+
+    .faq-q { width: 100%; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 24px 30px; gap: 20px; font-size: 1.15rem; font-weight: 700; color: #fff; text-align: left; }
+
+    .faq-q:hover { color: var(--blue-light,#60a5fa); }
+
+    .faq-item.open .faq-q { color: var(--blue-light,#60a5fa); }
+
+    .faq-chevron { flex-shrink: 0; width: 22px; height: 22px; stroke: currentColor; fill: none; transition: transform 0.3s ease; opacity: 0.6; }
+
+    .faq-item.open .faq-chevron { transform: rotate(180deg); opacity: 1; }
+
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; padding: 0 30px; font-size: 1.05rem; line-height: 1.85; color: rgba(255,255,255,0.65); }
+
+    .faq-item.open .faq-a { max-height: 400px; padding: 0 30px 28px; }
+
+    /* ── Footer ──────────────────────────────────────────────────── */
+
+    .site-footer {
+
+        position: relative; z-index: 1;
+
+        border-top: 1px solid rgba(255,255,255,0.08);
+
+        background-color: #090d14;
+
+        padding: 80px 0 60px;
+
+        width: 100vw !important;
+
+        margin-left: calc(-50vw + 50%) !important;
+
+    }
+
+    .footer-content-wrapper { max-width: 1400px; margin: 0 auto; padding: 0 48px; }
+
+    .footer-columns { display: grid; grid-template-columns: 2.5fr repeat(4, 1fr); gap: 60px; }
+
+    .footer-brand-name {
+
+        font-size: 1.25rem; font-weight: 900; margin-bottom: 14px;
+
+        background: linear-gradient(135deg, var(--blue-light,#60a5fa), var(--purple-light,#a78bfa));
+
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+
+    }
+
+    .footer-brand-tagline { font-size: 0.9rem; color: rgba(255,255,255,0.45); line-height: 1.75; max-width: 300px; }
+
+    .footer-col-heading { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 24px; }
+
+    .footer-col-subheading { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin: 32px 0 16px; }
+
+    .footer-link { display: block; font-size: 0.95rem; color: rgba(255,255,255,0.6); text-decoration: none; margin-bottom: 12px; transition: color 0.2s; cursor: pointer; }
+
+    .footer-link:hover { color: #fff; }
+
+    .footer-text { display: block; font-size: 0.95rem; color: rgba(255,255,255,0.6); margin-bottom: 12px; cursor: default; }
+
+    @media (max-width: 1024px) { .footer-columns { grid-template-columns: 1fr 1fr; gap: 40px; } }
+
+    @media (max-width: 768px)  { .footer-columns { grid-template-columns: 1fr; } .segment-hero { padding-top: 100px; min-height: 80vh; } }
+
+</style>
+
+<div class="bg-grid"></div>
+
+<div class="bg-noise"></div>
+
+<div class="bg-cipher-stream" id="cipherStream"></div>
+
+<div class="bg-vignette"></div>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="page-wrap">
+
+    <div class="home-page">
+
+        <div class="home-inner">
+
+            <div class="segment segment-hero">
+
+                <div class="content-container">
+
+                    <div class="home-hero">
+
+                        <h1 class="home-title"><span>Insightful Encryptions</span></h1>
+
+                        <p class="home-sub">
+
+                            Explore the mathematics behind real cryptographic protocols by building, breaking, and sending encrypted messages live.
+
+                            Choose from Caesar shifts, Hill cipher matrices, the Vigenère keyword cipher, AES-256 round transformations,
+
+                            and BB84 quantum photon streams whose interception is detectable by the laws of physics.
+
+                            Configure your key, watch the ciphertext update in real time, and step through every encryption operation character by character.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="segment segment-modules">
+
+                <div class="content-container">
+
+                    <div class="module-row">
+
+                        <a href="/lab" class="module-card" style="--card-accent:var(--purple-light);--card-icon-bg:rgba(139,92,246,0.15);">
+
+                            <h3 class="card-title">The Lab</h3>
+
+                            <p class="card-desc">An open sandbox to freely experiment with cipher algorithms. Configure keys, trace mathematical steps, and break codes without constraints.</p>
+
+                            <div class="card-footer">
+
+                                <span class="card-arrow">→</span>
+
+                            </div>
+
+                        </a>
+
+                        <a href="/local" class="module-card" style="--card-accent:var(--green-light);--card-icon-bg:rgba(16,185,129,0.15);">
+
+                            <h3 class="card-title">Online Room</h3>
+
+                            <p class="card-desc">Host or join a live encrypted chat room. Communicate across devices using real cipher protocols where messages are encrypted locally.</p>
+
+                            <div class="card-footer">
+
+                                <span class="card-arrow">→</span>
+
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="segment segment-faq">
+
+                <div class="content-container">
+
+                    <div class="faq-section">
+
+                        <h2 class="faq-heading">Frequently Asked <span>Questions</span></h2>
+
+                        <div class="faq-item">
+
+                            <button class="faq-q" onclick="toggleFaq(this)">What is Insightful Encryptions?<svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg></button>
+
+                            <div class="faq-a">Insightful Encryptions is an interactive cryptographic learning platform where you can experiment with real cipher algorithms, send encrypted messages live across devices, and step through the full mathematical process of encryption and decryption at the character level.</div>
+
+                        </div>
+
+                        <div class="faq-item">
+
+                            <button class="faq-q" onclick="toggleFaq(this)">Do I need any prior knowledge to get started?<svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg></button>
+
+                            <div class="faq-a">No prior knowledge is required. Each cipher in the Lab comes with a built-in history guide, a live example preview, and a character-by-character breakdown table so you can understand exactly what is happening to your message at every step.</div>
+
+                        </div>
+
+                        <div class="faq-item">
+
+                            <button class="faq-q" onclick="toggleFaq(this)">What cipher algorithms are available?<svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg></button>
+
+                            <div class="faq-a">The platform supports Caesar shift, Hill matrix cipher, Vigenère keyword cipher, AES-256, and BB84 Quantum Key Distribution. Each one includes a live ciphertext preview, a Guide tab with history and mathematics, and an interactive Decrypt Tools tab with both an automated algorithm view and a manual walkthrough mode.</div>
+
+                        </div>
+
+                        <div class="faq-item">
+
+                            <button class="faq-q" onclick="toggleFaq(this)">How does the Online Room work?<svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg></button>
+
+                            <div class="faq-a">You host a room and share its code with anyone you want to communicate with. Each participant picks their own cipher and configures their key. Messages are encrypted locally on your device before they are ever transmitted. Anyone in the room can tap the inspect icon on any message to see the full encryption and decryption breakdown for that specific payload.</div>
+
+                        </div>
+
+                        <div class="faq-item">
+
+                            <button class="faq-q" onclick="toggleFaq(this)">Can the host control what cipher everyone uses?<svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg></button>
+
+                            <div class="faq-a">Yes. The host has a control panel that can force all participants to use a specific cipher, mute individual users or the entire room, kick participants, and rename users. Forced cipher restrictions lock the cipher selector for everyone except the host.</div>
+
+                        </div>
+
+                        <div class="faq-item">
+
+                            <button class="faq-q" onclick="toggleFaq(this)">Are my messages or keys stored anywhere?<svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg></button>
+
+                            <div class="faq-a">Messages exist only for the lifetime of the active room session in memory on the server. No message history or cryptographic keys are written to any permanent storage. When all users leave a room the session data is discarded.</div>
+
+                        </div>
+
+                        <div class="faq-item">
+
+                            <button class="faq-q" onclick="toggleFaq(this)">What is the difference between the Algorithm and Manual decrypt views?<svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2.2"><polyline points="6 9 12 15 18 9"/></svg></button>
+
+                            <div class="faq-a">The Algorithm view runs an animated step-by-step visualization of how a computer would break or reverse the cipher. The Manual view lets you work through each mathematical step yourself by entering answers and getting immediate feedback on whether your reasoning is correct.</div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
+
     </div>
-</div>
+
+    <footer class="site-footer">
+
+        <div class="footer-content-wrapper">
+
+            <div class="footer-columns">
+
+                <div>
+
+                    <div class="footer-brand-name">Insightful Encryptions</div>
+
+                    <div class="footer-brand-tagline">A cryptographic learning platform for exploring real cipher algorithms from first principles.</div>
+
+                </div>
+
+                <div>
+
+                    <div class="footer-col-heading">Platform</div>
+
+                    <a href="/" class="footer-link">Home</a>
+
+                    <a href="/lab" class="footer-link">The Lab</a>
+
+                    <a href="/local" class="footer-link">Online Room</a>
+
+                </div>
+
+                <div>
+
+                    <div class="footer-col-heading">Ciphers</div>
+
+                    <span class="footer-text">Caesar Shift</span>
+
+                    <span class="footer-text">Hill Matrix</span>
+
+                    <span class="footer-text">Vigenère</span>
+
+                    <span class="footer-text">AES-256</span>
+
+                    <span class="footer-text">BB84 Quantum</span>
+
+                </div>
+
+                <div>
+
+                    <div class="footer-col-heading">Tools</div>
+
+                    <span class="footer-text">Live Preview</span>
+
+                    <span class="footer-text">Brute Force Scanner</span>
+
+                    <span class="footer-text">Matrix Inverter</span>
+
+                    <span class="footer-text">Frequency Analyzer</span>
+
+                    <span class="footer-text">Kasiski Attack</span>
+
+                    <span class="footer-text">Message Inspector</span>
+
+                </div>
+
+                <div>
+
+                    <div class="footer-col-heading">Learn</div>
+
+                    <span class="footer-text">Cipher Guides</span>
+
+                    <span class="footer-text">Step-by-Step Math</span>
+
+                    <span class="footer-text">Live Rooms</span>
+
+                    <div class="footer-col-subheading">Support</div>
+
+                    <a href="#" class="footer-link" onclick="document.querySelector('.faq-section').scrollIntoView({behavior:'smooth'});return false;">FAQs</a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</div><script>
+
+/* ── Overflow fix ────────────────────────────────────────────────── */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.documentElement.style.setProperty('overflow-y', 'auto', 'important');
+
+    document.body.style.setProperty('overflow-y', 'auto', 'important');
+
+    document.body.style.setProperty('height', 'auto', 'important');
+
+    const hp = document.querySelector('.home-page');
+
+    if (hp) { hp.style.setProperty('overflow', 'visible', 'important'); hp.style.setProperty('height', 'auto', 'important'); hp.style.setProperty('max-width', '100%', 'important'); }
+
+});
+
+/* ── FAQ accordion ───────────────────────────────────────────────── */
+
+function toggleFaq(btn) {
+
+    const item = btn.closest('.faq-item');
+
+    const isOpen = item.classList.contains('open');
+
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+
+    if (!isOpen) item.classList.add('open');
+
+}
+
+/* ── Cipher rain ─────────────────────────────────────────────────── */
+
+(function () {
+
+    const stream = document.getElementById('cipherStream');
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';
+
+    const colCount = Math.floor(window.innerWidth / 36);
+
+    for (let i = 0; i < colCount; i++) {
+
+        const col = document.createElement('div');
+
+        col.className = 'cipher-col';
+
+        col.style.left = (i * 36 + Math.random() * 16) + 'px';
+
+        const dur = 12 + Math.random() * 20;
+
+        col.style.animationDuration = dur + 's';
+
+        col.style.animationDelay = -(Math.random() * dur) + 's';
+
+        col.style.color = Math.random() > 0.5 ? '#60a5fa' : '#a78bfa';
+
+        let text = '';
+
+        for (let r = 0; r < 52; r++) text += chars[Math.floor(Math.random() * chars.length)] + '\n';
+
+        col.textContent = text;
+
+        stream.appendChild(col);
+
+    }
+
+})();
+
+/* ── Canvas: fixed element, document-space particles ────────────── */
+
+/* Canvas stays position:fixed (viewport-sized, no layout impact).  */
+
+/* BUT every particle stores a docY fraction of the full document   */
+
+/* height. Each frame: screenY = docY * docH - scrollY.            */
+
+/* Result: particles are anchored to the page and you scroll past   */
+
+/* them — they do NOT follow the viewport.                          */
+
+(function () {
+
+    const canvas = document.getElementById('bgCanvas');
+
+    const ctx    = canvas.getContext('2d');
+
+
+
+    const PAL = {
+
+        orbs:      [[59,130,246],[139,92,246],[16,185,129],[167,139,250]],
+
+        line:      [96,165,250],
+
+        streak:    [96,165,250],
+
+        starCol:   [255,255,255],
+
+        orbAlpha:  [0.32, 0.14],
+
+        lineAlpha: 0.32,
+
+        starAlpha: 0.75,
+
+    };
+
+
+
+    // Orbs: x is viewport-fraction, docFrac is fraction of document height.
+
+    // They drift slowly via angle animation but stay anchored to their doc position.
+
+    const orbState = [
+
+        { x: 0.12, docFrac: 0.08,  r: 0.40, speed: 0.00017, angle: 0.62 },
+
+        { x: 0.82, docFrac: 0.40,  r: 0.36, speed: 0.00013, angle: 2.10 },
+
+        { x: 0.48, docFrac: 0.68,  r: 0.28, speed: 0.00021, angle: 4.80 },
+
+        { x: 0.88, docFrac: 0.88,  r: 0.22, speed: 0.00025, angle: 1.40 },
+
+    ];
+
+
+
+    // Stars: docFrac = Y position as fraction of document height.
+
+    // vdoc = drift speed in doc-fraction units per frame.
+
+    const STAR_COUNT = 80;
+
+    const stars = Array.from({length: STAR_COUNT}, () => ({
+
+        x:       Math.random(),
+
+        docFrac: Math.random(),
+
+        r:       0.5 + Math.random() * 1.5,
+
+        a:       Math.random(),
+
+        da:      (Math.random() - 0.5) * 0.006,
+
+        vx:      (Math.random() - 0.5) * 0.00014,
+
+        vdoc:    (Math.random() - 0.5) * 0.00006,
+
+    }));
+
+
+
+    // Nodes: same doc-space treatment.
+
+    const NODE_COUNT = 26;
+
+    const nodes = Array.from({length: NODE_COUNT}, () => ({
+
+        x:       Math.random(),
+
+        docFrac: Math.random(),
+
+        vx:      (Math.random() - 0.5) * 0.00020,
+
+        vdoc:    (Math.random() - 0.5) * 0.00008,
+
+    }));
+
+    const CONNECT_DIST = 0.20;
+
+
+
+    let t = 0;
+
+
+
+    function resize() {
+
+        canvas.width  = window.innerWidth;
+
+        canvas.height = window.innerHeight;
+
+    }
+
+    resize();
+
+    window.addEventListener('resize', resize);
+
+
+
+    function draw() {
+
+        const W       = canvas.width;
+
+        const H       = canvas.height;
+
+        const scrollY = window.scrollY;
+
+        const docH    = document.documentElement.scrollHeight;
+
+
+
+        ctx.clearRect(0, 0, W, H);
+
+
+
+        // ── Orbs ──────────────────────────────────────────────────
+
+        // docY → screenY by subtracting scrollY. Skip if entirely off-screen.
+
+        orbState.forEach((o, oi) => {
+
+            o.angle += o.speed * 1000 / 60;
+
+            const cx  = (o.x + Math.cos(o.angle) * 0.07) * W;
+
+            const cy  = (o.docFrac + Math.sin(o.angle * 0.7) * 0.04) * docH - scrollY;
+
+            const rad = o.r * Math.min(W, H);
+
+            if (cy < -rad || cy > H + rad) return;
+
+            const [r, g, b] = PAL.orbs[oi % PAL.orbs.length];
+
+            const [a0, a1]  = PAL.orbAlpha;
+
+            const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+
+            gr.addColorStop(0,   `rgba(${r},${g},${b},${a0})`);
+
+            gr.addColorStop(0.4, `rgba(${r},${g},${b},${a1})`);
+
+            gr.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+
+            ctx.beginPath();
+
+            ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+
+            ctx.fillStyle = gr;
+
+            ctx.fill();
+
+        });
+
+
+
+        // ── Constellation ─────────────────────────────────────────
+
+        const [lr, lg, lb] = PAL.line;
+
+        nodes.forEach(n => {
+
+            n.x       += n.vx;
+
+            n.docFrac += n.vdoc;
+
+            if (n.x < 0 || n.x > 1) n.vx   *= -1;
+
+            if (n.docFrac < 0 || n.docFrac > 1) n.vdoc *= -1;
+
+        });
+
+        const cDist = CONNECT_DIST * W;
+
+        for (let i = 0; i < nodes.length; i++) {
+
+            const syi = nodes[i].docFrac * docH - scrollY;
+
+            for (let j = i + 1; j < nodes.length; j++) {
+
+                const syj = nodes[j].docFrac * docH - scrollY;
+
+                // skip pairs where both endpoints are off-screen
+
+                if ((syi < -50 && syj < -50) || (syi > H + 50 && syj > H + 50)) continue;
+
+                const dx   = (nodes[i].x - nodes[j].x) * W;
+
+                const dy   = syi - syj;
+
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < cDist) {
+
+                    const alpha = (1 - dist / cDist) * PAL.lineAlpha;
+
+                    ctx.beginPath();
+
+                    ctx.moveTo(nodes[i].x * W, syi);
+
+                    ctx.lineTo(nodes[j].x * W, syj);
+
+                    ctx.strokeStyle = `rgba(${lr},${lg},${lb},${alpha})`;
+
+                    ctx.lineWidth   = 1.1;
+
+                    ctx.stroke();
+
+                }
+
+            }
+
+        }
+
+        nodes.forEach(n => {
+
+            const sy = n.docFrac * docH - scrollY;
+
+            if (sy < -4 || sy > H + 4) return;
+
+            ctx.beginPath();
+
+            ctx.arc(n.x * W, sy, 1.6, 0, Math.PI * 2);
+
+            ctx.fillStyle = `rgba(${lr},${lg},${lb},${PAL.lineAlpha * 1.6})`;
+
+            ctx.fill();
+
+        });
+
+
+
+        // ── Stars ─────────────────────────────────────────────────
+
+        const [sr, sg, sb] = PAL.starCol;
+
+        stars.forEach(s => {
+
+            s.a       += s.da;
+
+            if (s.a <= 0 || s.a >= 1) s.da *= -1;
+
+            s.x       += s.vx;
+
+            s.docFrac += s.vdoc;
+
+            if (s.x < 0) s.x = 1; if (s.x > 1) s.x = 0;
+
+            if (s.docFrac < 0) s.docFrac = 1; if (s.docFrac > 1) s.docFrac = 0;
+
+            const sy = s.docFrac * docH - scrollY;
+
+            if (sy < -2 || sy > H + 2) return;
+
+            ctx.beginPath();
+
+            ctx.arc(s.x * W, sy, s.r, 0, Math.PI * 2);
+
+            ctx.fillStyle = `rgba(${sr},${sg},${sb},${s.a * PAL.starAlpha})`;
+
+            ctx.fill();
+
+        });
+
+
+
+        // ── Ether streaks (viewport-relative is fine — purely decorative) ──
+
+        const [er, eg, eb] = PAL.streak;
+
+        for (let i = 0; i < 3; i++) {
+
+            const progress = ((t * 0.00020 + i / 3) % 1);
+
+            const sy  = H * ((i + 0.5) / 3);
+
+            const sx  = progress * (W + 360) - 180;
+
+            const len = 150 + i * 50;
+
+            const sg2 = ctx.createLinearGradient(sx - len, sy, sx + len, sy);
+
+            sg2.addColorStop(0,   `rgba(${er},${eg},${eb},0)`);
+
+            sg2.addColorStop(0.5, `rgba(${er},${eg},${eb},0.22)`);
+
+            sg2.addColorStop(1,   `rgba(${er},${eg},${eb},0)`);
+
+            ctx.beginPath();
+
+            ctx.moveTo(sx - len, sy);
+
+            ctx.lineTo(sx + len, sy);
+
+            ctx.strokeStyle = sg2;
+
+            ctx.lineWidth   = 1.5;
+
+            ctx.stroke();
+
+        }
+
+
+
+        t++;
+
+        requestAnimationFrame(draw);
+
+    }
+
+    draw();
+
+})();
+
+</script>
+
 {% endblock %}

@@ -1,74 +1,508 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="connect-page">
-    <div class="connect-left">
-        <div class="connect-brand">
+<style>
+    /* ── SCROLL & OVERFLOW FIX ───────────────────────────────────── */
+    html {
+        overflow-y: scroll !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+    }
+    body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        background-color: #0d1117;
+    }
+
+    /* ── Navbar overrides (Matching Homepage exactly) ────────────── */
+    nav, .navbar, .nav-bar, header nav, .site-nav, .topbar {
+        min-height: 80px !important;
+        font-size: 1.28rem !important;
+        padding-left: 48px !important;
+        padding-right: 48px !important;
+        position: relative !important;
+        z-index: 10;
+    }
+    nav a, .navbar a, .nav-bar a, .topbar a {
+        font-size: 1.28rem !important;
+        padding: 0 24px !important;
+    }
+    nav .logo, .nav-brand, .nav-logo, .topbar-logo {
+        font-size: 2.2rem !important; 
+    }
+    /* Hide Classroom link */
+    nav a[href*="classroom"],
+    .navbar a[href*="classroom"],
+    nav a[href="/classroom"],
+    .navbar a[href="/classroom"],
+    .topbar a[href*="classroom"] {
+        display: none !important;
+    }
+
+    /* ── Canvas & Background Elements ────────────────────────────── */
+    #bgCanvas {
+        position: fixed;          
+        top: 0; left: 0;
+        width: 100%;
+        height: 100vh;            
+        pointer-events: none;
+        z-index: 0;
+    }
+    .bg-grid {
+        position: fixed; inset: 0;
+        background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+        z-index: 0;
+    }
+    .bg-noise {
+        position: fixed; inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.055;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        background-repeat: repeat;
+        background-size: 180px 180px;
+    }
+    .bg-cipher-stream {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.13;
+        overflow: hidden;
+    }
+    .cipher-col {
+        position: absolute; top: -100%;
+        font-family: monospace;
+        font-size: 13px;
+        white-space: pre;
+        line-height: 1.8;
+        animation: fallDown linear infinite;
+        letter-spacing: 3px;
+        pointer-events: none;
+    }
+    @keyframes fallDown {
+        from { transform: translateY(0); }
+        to   { transform: translateY(200vh); }
+    }
+    .bg-vignette {
+        position: fixed; inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background: radial-gradient(ellipse 85% 85% at 50% 50%, transparent 50%, rgba(0,0,0,0.6) 100%);
+    }
+
+    /* ── CONNECT PAGE REWORK ─────────────────────────────────────── */
+    .page-wrap {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 80px); /* Account for 80px navbar */
+        padding: 40px 20px;
+    }
+
+    .connect-glass-card {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        max-width: 1000px;
+        background: #0a0e14;
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 24px 6px 24px 6px; 
+        box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.02);
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Ambient internal glow */
+    .connect-glass-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% 50%, rgba(16,185,129,0.05), transparent 60%),
+                    radial-gradient(circle at 70% 50%, rgba(59,130,246,0.05), transparent 60%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .connect-left, .connect-right {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        padding: 60px 50px;
+    }
+
+    .connect-left {
+        background: rgba(255,255,255,0.01);
+        border-right: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .connect-brand-logo { 
+        font-size: 11px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; margin-bottom: 40px; 
+    }
+    .connect-brand-logo::before { 
+        content: ''; display: block; width: 28px; height: 2px; background: linear-gradient(90deg, var(--green-light), var(--blue-light)); 
+    }
+    
+    .connect-brand-title { 
+        font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -1px; color: #fff; margin: 0 0 16px 0; 
+    }
+    .connect-brand-title em { 
+        font-style: normal; background: linear-gradient(135deg, var(--green-light), var(--blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+    }
+    
+    .connect-brand-sub { 
+        font-size: 1.05rem; color: rgba(255,255,255,0.65); line-height: 1.6; margin: 0 0 40px 0; max-width: 320px; 
+    }
+
+    .connect-features { display: flex; flex-direction: column; gap: 20px; }
+    .connect-feature { display: flex; align-items: flex-start; gap: 16px; }
+    .connect-feature-icon { 
+        width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); 
+    }
+    .connect-feature-text h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 800; color: #fff; }
+    .connect-feature-text p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+    /* Right side form area */
+    .connect-right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+    }
+    
+    .connect-form-wrap { width: 100%; max-width: 380px; }
+    .connect-form-title { font-size: 1.8rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin: 0 0 8px 0; }
+    .connect-form-sub { font-size: 1rem; color: rgba(255,255,255,0.5); margin: 0 0 36px 0; line-height: 1.5; }
+    
+    .field-group { margin-bottom: 24px; }
+    .field-label { display: block; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    
+    .field-input { 
+        width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 15px; border-radius: 12px; font-family: var(--sans); transition: all 0.3s ease; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .field-input:focus { 
+        border-color: var(--blue-light); background: rgba(59,130,246,0.05); box-shadow: 0 0 0 3px rgba(59,130,246,0.15), inset 0 2px 4px rgba(0,0,0,0.2); 
+    }
+    .field-input::placeholder { color: rgba(255,255,255,0.2); }
+    .field-input.code-input { font-family: var(--mono); font-size: 24px; letter-spacing: 12px; text-align: center; text-transform: uppercase; color: var(--blue-light); font-weight: bold; }
+    
+    .field-warning { font-size: 12px; color: var(--red); margin-top: 8px; font-weight: 600; min-height: 18px; display: block; }
+    
+    .btn-host-new { 
+        width: 100%; padding: 16px; background: linear-gradient(135deg, var(--green) 0%, #059669 100%); color: #fff; font-size: 14px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(16,185,129,0.2);
+    }
+    .btn-host-new:hover { 
+        transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16,185,129,0.4), inset 0 0 0 1px rgba(255,255,255,0.2); background: linear-gradient(135deg, var(--green-light), var(--green));
+    }
+    .btn-host-new:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+    
+    .divider-row { display: flex; align-items: center; gap: 14px; margin: 32px 0; color: rgba(255,255,255,0.3); font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+    .divider-row::before, .divider-row::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.05); }
+    
+    .join-row { display: flex; gap: 12px; }
+    .join-row .field-input { flex: 1; }
+    .btn-join-new { 
+        padding: 0 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-join-new:hover { 
+        background: rgba(59,130,246,0.15); border-color: var(--blue-light); color: var(--blue-light); box-shadow: 0 0 15px rgba(59,130,246,0.2); transform: translateY(-1px);
+    }
+    .btn-join-new:disabled { opacity: 0.4; cursor: not-allowed; }
+    
+    .back-link { display: block; text-align: center; margin-top: 32px; font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: none; font-weight: 700; transition: color 0.3s ease; }
+    .back-link:hover { color: var(--blue-light); }
+
+    /* Responsive adjustments */
+    @media (max-width: 850px) {
+        .connect-glass-card { flex-direction: column; }
+        .connect-left { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 40px 30px; }
+        .connect-right { padding: 40px 30px; }
+    }
+</style>
+
+<div class="bg-grid"></div>
+<div class="bg-noise"></div>
+<div class="bg-cipher-stream" id="cipherStream"></div>
+<div class="bg-vignette"></div>
+<canvas id="bgCanvas"></canvas>
+
+<div class="page-wrap">
+    <div class="connect-glass-card">
+        <div class="connect-left">
             <div class="connect-brand-logo">Insightful Encryptions</div>
             <h2 class="connect-brand-title">Start a<br><em>Secure Session</em></h2>
             <p class="connect-brand-sub">Create or join an encrypted communication room. All traffic is processed through your chosen cipher in real time.</p>
+            
             <div class="connect-features">
                 <div class="connect-feature">
-                    <div class="connect-feature-icon"><svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--green)" stroke-width="2" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-                    <div class="connect-feature-text"><h4>End-to-End Ciphers</h4><p>Caesar, Hill, Vigenère, AES-256, or BB84 Quantum</p></div>
+                    <div class="connect-feature-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--green-light)" stroke-width="2" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div class="connect-feature-text">
+                        <h4>End-to-End Ciphers</h4>
+                        <p>Caesar, Hill, Vigenère, AES-256, or BB84 Quantum</p>
+                    </div>
                 </div>
                 <div class="connect-feature">
-                    <div class="connect-feature-icon"><svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--green)" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-                    <div class="connect-feature-text"><h4>Cross-Device</h4><p>Connect from any device on the local network</p></div>
+                    <div class="connect-feature-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--green-light)" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    </div>
+                    <div class="connect-feature-text">
+                        <h4>Cross-Device</h4>
+                        <p>Connect from any device on the local network</p>
+                    </div>
                 </div>
                 <div class="connect-feature">
-                    <div class="connect-feature-icon"><svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--green)" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-                    <div class="connect-feature-text"><h4>Live Inspector</h4><p>Click any message to analyze its cipher payload</p></div>
+                    <div class="connect-feature-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--green-light)" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div class="connect-feature-text">
+                        <h4>Live Inspector</h4>
+                        <p>Click any message to analyze its cipher payload</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="connect-right">
-        <div class="connect-form-wrap">
-            <h2 class="connect-form-title">Join the Network</h2>
-            <p class="connect-form-sub">Set your identity, then host a new room or enter a room code.</p>
-            <form method="post" id="local-form">
-                <div class="field-group">
-                    <label class="field-label" for="username_input">Your Alias</label>
-                    <input type="text" id="username_input" name="username" class="field-input" placeholder="e.g. CipherAgent" maxlength="24" required autocomplete="off">
-                    <span id="username_warning" class="field-warning"></span>
-                </div>
-                <button type="submit" formaction="/host" id="btn-host" class="btn-host-new">
-                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-                    Host New Room
-                </button>
-                <div class="divider-row">or join existing</div>
-                <div class="field-group" style="margin-bottom:0;">
-                    <label class="field-label" for="room_code_box">Room Code</label>
-                    <div class="join-row">
-                        <input type="text" name="room_code" id="room_code_box" class="field-input code-input" placeholder="----" maxlength="4">
-                        <button type="submit" formaction="/join" id="btn-join" class="btn-join-new">Join →</button>
+
+        <div class="connect-right">
+            <div class="connect-form-wrap">
+                <h2 class="connect-form-title">Join the Network</h2>
+                <p class="connect-form-sub">Set your identity, then host a new room or enter a room code.</p>
+                
+                <form method="post" id="local-form">
+                    <div class="field-group">
+                        <label class="field-label" for="username_input">Your Alias</label>
+                        <input type="text" id="username_input" name="username" class="field-input" placeholder="e.g. CipherAgent" maxlength="24" required autocomplete="off">
+                        <span id="username_warning" class="field-warning"></span>
                     </div>
-                </div>
-            </form>
-            <a href="/" class="back-link">← Back to main menu</a>
+                    
+                    <button type="submit" formaction="/host" id="btn-host" class="btn-host-new">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.2" fill="none" style="margin-top:-2px;"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                        Host New Room
+                    </button>
+                    
+                    <div class="divider-row">or join existing</div>
+                    
+                    <div class="field-group" style="margin-bottom:0;">
+                        <label class="field-label" for="room_code_box">Room Code</label>
+                        <div class="join-row">
+                            <input type="text" name="room_code" id="room_code_box" class="field-input code-input" placeholder="----" maxlength="4">
+                            <button type="submit" formaction="/join" id="btn-join" class="btn-join-new">Join →</button>
+                        </div>
+                    </div>
+                </form>
+                <a href="/" class="back-link">← Back to main menu</a>
+            </div>
         </div>
     </div>
 </div>
+
 <script>
+    // Existing Form Logic
     const usernameInput = document.getElementById('username_input');
     const warningDiv = document.getElementById('username_warning');
     const hostBtn = document.getElementById('btn-host');
     const joinBtn = document.getElementById('btn-join');
+    
     usernameInput.addEventListener('input', function() {
         fetch('/api/usernames').then(r => r.json()).then(taken => {
             if (taken.includes(usernameInput.value.trim())) {
                 warningDiv.textContent = 'Alias already in use on network.';
                 hostBtn.disabled = joinBtn.disabled = true;
                 usernameInput.style.borderColor = 'var(--red)';
+                usernameInput.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.15)';
             } else {
                 warningDiv.textContent = '';
                 hostBtn.disabled = joinBtn.disabled = false;
                 usernameInput.style.borderColor = '';
+                usernameInput.style.boxShadow = '';
             }
         });
     });
+    
     document.getElementById('btn-host').addEventListener('click', () => document.getElementById('room_code_box').required = false);
     document.getElementById('btn-join').addEventListener('click', () => document.getElementById('room_code_box').required = true);
+
+    /* ── Cipher rain (From Homepage) ─────────────────────────────────── */
+    (function () {
+        const stream = document.getElementById('cipherStream');
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';
+        const colCount = Math.floor(window.innerWidth / 36);
+        for (let i = 0; i < colCount; i++) {
+            const col = document.createElement('div');
+            col.className = 'cipher-col';
+            col.style.left = (i * 36 + Math.random() * 16) + 'px';
+            const dur = 12 + Math.random() * 20;
+            col.style.animationDuration = dur + 's';
+            col.style.animationDelay = -(Math.random() * dur) + 's';
+            col.style.color = Math.random() > 0.5 ? '#60a5fa' : '#a78bfa';
+            let text = '';
+            for (let r = 0; r < 52; r++) text += chars[Math.floor(Math.random() * chars.length)] + '\n';
+            col.textContent = text;
+            stream.appendChild(col);
+        }
+    })();
+
+    /* ── Canvas Background Particles (From Homepage) ─────────────────── */
+    (function () {
+        const canvas = document.getElementById('bgCanvas');
+        const ctx    = canvas.getContext('2d');
+
+        const PAL = {
+            orbs:      [[59,130,246],[139,92,246],[16,185,129],[167,139,250]],
+            line:      [96,165,250],
+            streak:    [96,165,250],
+            starCol:   [255,255,255],
+            orbAlpha:  [0.32, 0.14],
+            lineAlpha: 0.32,
+            starAlpha: 0.75,
+        };
+
+        const orbState = [
+            { x: 0.12, docFrac: 0.08,  r: 0.40, speed: 0.00017, angle: 0.62 },
+            { x: 0.82, docFrac: 0.40,  r: 0.36, speed: 0.00013, angle: 2.10 },
+            { x: 0.48, docFrac: 0.68,  r: 0.28, speed: 0.00021, angle: 4.80 },
+            { x: 0.88, docFrac: 0.88,  r: 0.22, speed: 0.00025, angle: 1.40 },
+        ];
+
+        const STAR_COUNT = 80;
+        const stars = Array.from({length: STAR_COUNT}, () => ({
+            x:       Math.random(),
+            docFrac: Math.random(),
+            r:       0.5 + Math.random() * 1.5,
+            a:       Math.random(),
+            da:      (Math.random() - 0.5) * 0.006,
+            vx:      (Math.random() - 0.5) * 0.00014,
+            vdoc:    (Math.random() - 0.5) * 0.00006,
+        }));
+
+        const NODE_COUNT = 26;
+        const nodes = Array.from({length: NODE_COUNT}, () => ({
+            x:       Math.random(),
+            docFrac: Math.random(),
+            vx:      (Math.random() - 0.5) * 0.00020,
+            vdoc:    (Math.random() - 0.5) * 0.00008,
+        }));
+        const CONNECT_DIST = 0.20;
+
+        let t = 0;
+
+        function resize() {
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        function draw() {
+            const W       = canvas.width;
+            const H       = canvas.height;
+            const scrollY = window.scrollY;
+            const docH    = Math.max(document.documentElement.scrollHeight, window.innerHeight);
+
+            ctx.clearRect(0, 0, W, H);
+
+            orbState.forEach((o, oi) => {
+                o.angle += o.speed * 1000 / 60;
+                const cx  = (o.x + Math.cos(o.angle) * 0.07) * W;
+                const cy  = (o.docFrac + Math.sin(o.angle * 0.7) * 0.04) * docH - scrollY;
+                const rad = o.r * Math.min(W, H);
+                if (cy < -rad || cy > H + rad) return;
+                const [r, g, b] = PAL.orbs[oi % PAL.orbs.length];
+                const [a0, a1]  = PAL.orbAlpha;
+                const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+                gr.addColorStop(0,   `rgba(${r},${g},${b},${a0})`);
+                gr.addColorStop(0.4, `rgba(${r},${g},${b},${a1})`);
+                gr.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+                ctx.beginPath();
+                ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+                ctx.fillStyle = gr;
+                ctx.fill();
+            });
+
+            const [lr, lg, lb] = PAL.line;
+            nodes.forEach(n => {
+                n.x       += n.vx;
+                n.docFrac += n.vdoc;
+                if (n.x < 0 || n.x > 1) n.vx   *= -1;
+                if (n.docFrac < 0 || n.docFrac > 1) n.vdoc *= -1;
+            });
+            const cDist = CONNECT_DIST * W;
+            for (let i = 0; i < nodes.length; i++) {
+                const syi = nodes[i].docFrac * docH - scrollY;
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const syj = nodes[j].docFrac * docH - scrollY;
+                    if ((syi < -50 && syj < -50) || (syi > H + 50 && syj > H + 50)) continue;
+                    const dx   = (nodes[i].x - nodes[j].x) * W;
+                    const dy   = syi - syj;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < cDist) {
+                        const alpha = (1 - dist / cDist) * PAL.lineAlpha;
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x * W, syi);
+                        ctx.lineTo(nodes[j].x * W, syj);
+                        ctx.strokeStyle = `rgba(${lr},${lg},${lb},${alpha})`;
+                        ctx.lineWidth   = 1.1;
+                        ctx.stroke();
+                    }
+                }
+            }
+            nodes.forEach(n => {
+                const sy = n.docFrac * docH - scrollY;
+                if (sy < -4 || sy > H + 4) return;
+                ctx.beginPath();
+                ctx.arc(n.x * W, sy, 1.6, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${lr},${lg},${lb},${PAL.lineAlpha * 1.6})`;
+                ctx.fill();
+            });
+
+            const [sr, sg, sb] = PAL.starCol;
+            stars.forEach(s => {
+                s.a       += s.da;
+                if (s.a <= 0 || s.a >= 1) s.da *= -1;
+                s.x       += s.vx;
+                s.docFrac += s.vdoc;
+                if (s.x < 0) s.x = 1; if (s.x > 1) s.x = 0;
+                if (s.docFrac < 0) s.docFrac = 1; if (s.docFrac > 1) s.docFrac = 0;
+                const sy = s.docFrac * docH - scrollY;
+                if (sy < -2 || sy > H + 2) return;
+                ctx.beginPath();
+                ctx.arc(s.x * W, sy, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${sr},${sg},${sb},${s.a * PAL.starAlpha})`;
+                ctx.fill();
+            });
+
+            const [er, eg, eb] = PAL.streak;
+            for (let i = 0; i < 3; i++) {
+                const progress = ((t * 0.00020 + i / 3) % 1);
+                const sy  = H * ((i + 0.5) / 3);
+                const sx  = progress * (W + 360) - 180;
+                const len = 150 + i * 50;
+                const sg2 = ctx.createLinearGradient(sx - len, sy, sx + len, sy);
+                sg2.addColorStop(0,   `rgba(${er},${eg},${eb},0)`);
+                sg2.addColorStop(0.5, `rgba(${er},${eg},${eb},0.22)`);
+                sg2.addColorStop(1,   `rgba(${er},${eg},${eb},0)`);
+                ctx.beginPath();
+                ctx.moveTo(sx - len, sy);
+                ctx.lineTo(sx + len, sy);
+                ctx.strokeStyle = sg2;
+                ctx.lineWidth   = 1.5;
+                ctx.stroke();
+            }
+
+            t++;
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
 </script>
 {% endblock %}
