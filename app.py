@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import threading
 import webbrowser
 import uuid
 from crypto import manager
 from room_manager import RoomManager
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'insightful_secret_key'
@@ -12,6 +13,17 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 encryption_manager = manager.CryptoManager()
 rm = RoomManager()
 socket_users = {}
+
+@app.route('/favicon.ico')
+def favicon():
+   
+    target_dir = os.path.join(app.root_path, '..', 'static')
+    
+    return send_from_directory(
+        target_dir,
+        'favicon.ico',
+        mimetype='image/vnd.microsoft.icon'
+    )
 
 # -- Routes -------------------------------------------------------------------
 @app.route('/')
