@@ -292,18 +292,12 @@
     <nav class="topbar">
         <a href="/" class="topbar-logo">Insightful Encryptions</a>
         <div class="topbar-nav">
-            {% if page == 'home' %}
-                <a href="/" class="topbar-link active">Home</a>
-                <a href="/classroom" class="topbar-link">Classroom</a>
-                <a href="/lab" class="topbar-link">Lab</a>
-                <a href="/local" class="topbar-link">Online Room</a>
-            {% elif page == 'local' %}
-                <a href="/" class="topbar-link">Home</a>
-                <a href="/classroom" class="topbar-link">Classroom</a>
-                <a href="/lab" class="topbar-link">Lab</a>
-                <a href="/local" class="topbar-link active">Online Room</a>
-            {% elif page == 'chat' %}
+            {% if page == 'chat' %}
                 <a href="/leave" class="btn-disconnect">Disconnect</a>
+            {% else %}
+                <a href="/" class="topbar-link {{ 'active' if page == 'home' else '' }}">Home</a>
+                <a href="/lab" class="topbar-link {{ 'active' if page == 'lab' else '' }}">Lab</a>
+                <a href="/local" class="topbar-link {{ 'active' if page == 'local' else '' }}">Online Room</a>
             {% endif %}
         </div>
     </nav>
