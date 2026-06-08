@@ -136,7 +136,7 @@
         if (selBox.value === 'caesar') { encVal = parseInt(caesarSlider.value) || 0; }
         else if (selBox.value === 'affine') { encVal = [parseInt(affineA.value) || 1, parseInt(affineB.value) || 0]; }
         else if (selBox.value === 'hill') {
-            if (!validateHillMatrix()) { alert('Singular matrix — choose different values.'); return; }
+            if (!validateHillMatrix()) { alert('Singular matrix, choose different values.'); return; }
             const cells = document.querySelectorAll('.hill-cell');
             let mat = [], row = [];
             cells.forEach(c => { row.push(parseInt(c.value) || 0); if (row.length === currentHillSize) { mat.push(row); row = []; } });
