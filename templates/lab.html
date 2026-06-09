@@ -375,7 +375,7 @@
 
             <!-- CIPHERTEXT OUTPUT -->
             <div class="lab-section-hdr"><span>Ciphertext Output</span></div>
-            <div class="lab-output" id="lab-ciphertext">—</div>
+            <div class="lab-output" id="lab-ciphertext">, </div>
         </div>
     </div>
 
@@ -387,7 +387,7 @@
         <!-- LIVE PREVIEW -->
         <div class="lab-preview-box">
             <div class="lab-preview-label">Live Cipher Preview</div>
-            <div class="lab-preview-text" id="lab-preview-text">—</div>
+            <div class="lab-preview-text" id="lab-preview-text">, </div>
         </div>
 
         <!-- TAB NAVIGATION -->
@@ -411,13 +411,13 @@
                     <p>Historically utilized by Julius Caesar to protect messages of military significance, this substitution cipher replaces each letter in the plaintext with a letter a fixed number of positions down the alphabet. It is one of the oldest and simplest known encryption techniques, dating back to 58 BC during the Gallic Wars.</p>
 
                     <h4>How the Shift Works</h4>
-                    <p>Imagine the alphabet written on a wheel. If your shift key is <strong>3</strong>, you spin the wheel forward by 3 spaces. 'A' becomes 'D', 'B' becomes 'E', and so on. When you reach the end of the alphabet, it simply wraps back around to the beginning—so 'X' becomes 'A', 'Y' becomes 'B', and 'Z' becomes 'C'.</p>
+                    <p>Imagine the alphabet written on a wheel. If your shift key is <strong>3</strong>, you spin the wheel forward by 3 spaces. 'A' becomes 'D', 'B' becomes 'E', and so on. When you reach the end of the alphabet, it simply wraps back around to the beginning, so 'X' becomes 'A', 'Y' becomes 'B', and 'Z' becomes 'C'.</p>
 
                     <h4>The Math</h4>
                     <p>Mathematically, this is expressed using modular arithmetic: <code>C = (P + shift) mod 26</code>. The "mod 26" is the mathematical mechanism that handles the looping of the 26 letters. To decrypt, we simply reverse the process: <code>P = (C − shift + 26) mod 26</code>.</p>
 
                     <h4>Weakness</h4>
-                    <p>The Caesar cipher has only <strong>25 possible keys</strong>, making it extremely vulnerable to brute force attacks. An attacker can simply try all 25 shifts and find the correct one in seconds. It is also trivially broken by frequency analysis—since the letter distribution in English is well-known, the most common ciphertext letter likely maps to 'E'.</p>
+                    <p>The Caesar cipher has only <strong>25 possible keys</strong>, making it extremely vulnerable to brute force attacks. An attacker can simply try all 25 shifts and find the correct one in seconds. It is also trivially broken by frequency analysis, since the letter distribution in English is well-known, the most common ciphertext letter likely maps to 'E'.</p>
                 </div>
 
                 <!-- AFFINE GUIDE -->
@@ -438,13 +438,13 @@
                 <!-- HILL GUIDE -->
                 <div id="lab-guide-hill" class="lab-guide-section">
                     <h3>Lester S. Hill's Matrix Cipher</h3>
-                    <p>Invented in 1929, the Hill cipher was the first polygraphic substitution cipher based on linear algebra. Instead of encrypting one letter at a time, it encrypts groups of letters simultaneously using matrix multiplication—a revolutionary concept for its time.</p>
+                    <p>Invented in 1929, the Hill cipher was the first polygraphic substitution cipher based on linear algebra. Instead of encrypting one letter at a time, it encrypts groups of letters simultaneously using matrix multiplication, a revolutionary concept for its time.</p>
 
                     <h4>How It Works</h4>
                     <p>Letters are converted to numbers (A=0, B=1, …, Z=25) and grouped into blocks matching the matrix size. Each block is multiplied by the <strong>Key Matrix</strong>, and the results are taken modulo 26 to produce ciphertext letters. A 2×2 matrix encrypts pairs, a 3×3 encrypts triplets, and so on.</p>
 
                     <h4>What is a Determinant?</h4>
-                    <p>The <strong>determinant</strong> is a special number calculated directly from the Key Matrix. Think of the determinant as the matrix's gatekeeper—it tells us crucial information about whether the encryption can actually be reversed (decrypted).</p>
+                    <p>The <strong>determinant</strong> is a special number calculated directly from the Key Matrix. Think of the determinant as the matrix's gatekeeper, it tells us crucial information about whether the encryption can actually be reversed (decrypted).</p>
 
                     <h4>Rules for Decryption</h4>
                     <p>To decrypt a Hill Cipher, the receiver must calculate the <em>inverse</em> of the Key Matrix. For this mathematical magic to work in our 26-letter alphabet:</p>
@@ -457,7 +457,7 @@
                 <!-- VIGENÈRE GUIDE -->
                 <div id="lab-guide-vigenere" class="lab-guide-section">
                     <h3>Le Chiffre Indéchiffrable</h3>
-                    <p>For over <strong>300 years</strong>, the Vigenère cipher was considered entirely unbreakable—earning the French nickname "Le Chiffre Indéchiffrable" (the indecipherable cipher). It was ultimately defeated in 1863 by Friedrich Kasiski through brilliant pattern analysis.</p>
+                    <p>For over <strong>300 years</strong>, the Vigenère cipher was considered entirely unbreakable, earning the French nickname "Le Chiffre Indéchiffrable" (the indecipherable cipher). It was ultimately defeated in 1863 by Friedrich Kasiski through brilliant pattern analysis.</p>
 
                     <h4>The Keyword System</h4>
                     <p>Unlike the Caesar cipher's single shift, Vigenère uses a keyword that repeats over the plaintext. Each letter of the keyword provides a different shift value, creating a polyalphabetic cipher. For example, with keyword "KEY": K shifts by 10, E shifts by 4, Y shifts by 24, then the pattern repeats.</p>
@@ -475,7 +475,7 @@
                     <p>Adopted by NIST in 2001, the Rijndael cipher (now known as AES) is the definitive global standard for symmetric-key encryption. It replaced the aging DES standard and is used in everything from HTTPS to disk encryption to government classified communications.</p>
 
                     <h4>Key Strength</h4>
-                    <p>AES-256 uses <strong>256-bit keys</strong>, providing a keyspace of 2²⁵⁶ possible keys. This number is astronomically large—more than the number of atoms in the observable universe. It would take billions of years for all of today's supercomputers combined to brute force a single AES-256 key.</p>
+                    <p>AES-256 uses <strong>256-bit keys</strong>, providing a keyspace of 2²⁵⁶ possible keys. This number is astronomically large, more than the number of atoms in the observable universe. It would take billions of years for all of today's supercomputers combined to brute force a single AES-256 key.</p>
 
                     <h4>The 14 Rounds</h4>
                     <p>AES-256 processes data through <strong>14 rounds of transformation</strong>. Each round applies four operations to a 4×4 byte state matrix:</p>
@@ -491,22 +491,22 @@
                 <!-- QUANTUM GUIDE -->
                 <div id="lab-guide-quantum" class="lab-guide-section">
                     <h3>BB84 Quantum Key Distribution</h3>
-                    <p>Developed in 1984 by Charles Bennett and Gilles Brassard, BB84 was the first quantum cryptography protocol. It doesn't encrypt data directly—instead, it provides a method for two parties to securely generate a shared secret key using the laws of quantum physics.</p>
+                    <p>Developed in 1984 by Charles Bennett and Gilles Brassard, BB84 was the first quantum cryptography protocol. It doesn't encrypt data directly, instead, it provides a method for two parties to securely generate a shared secret key using the laws of quantum physics.</p>
 
                     <h4>Quantum Superposition</h4>
                     <p>In BB84, each bit of the key is encoded as the polarization of a single photon. Photons are sent in randomly chosen <strong>bases</strong>: rectilinear (+) using horizontal/vertical polarization, or diagonal (×) using 45°/135° polarization. A photon exists in a superposition of states until it is measured.</p>
 
                     <h4>Measurement Disturbs the State</h4>
-                    <p>This is the core quantum principle that makes BB84 secure: <strong>measuring a quantum state alters it</strong>. If an eavesdropper (Eve) tries to intercept photons, she must measure them—but if she guesses the wrong basis, she irreversibly changes the photon's state. This introduces detectable errors.</p>
+                    <p>This is the core quantum principle that makes BB84 secure: <strong>measuring a quantum state alters it</strong>. If an eavesdropper (Eve) tries to intercept photons, she must measure them, but if she guesses the wrong basis, she irreversibly changes the photon's state. This introduces detectable errors.</p>
 
                     <h4>The Sifting Process</h4>
-                    <p>After transmission, Alice and Bob publicly compare which bases they used (but not the bit values). They keep only the bits where their bases matched—this is the <strong>sifted key</strong>. Roughly 50% of bits survive sifting.</p>
+                    <p>After transmission, Alice and Bob publicly compare which bases they used (but not the bit values). They keep only the bits where their bases matched, this is the <strong>sifted key</strong>. Roughly 50% of bits survive sifting.</p>
 
                     <h4>Eavesdrop Detection</h4>
                     <p>Alice and Bob sacrifice a portion of their sifted key to check for errors. In a clean channel, error rate is ~0%. If Eve intercepted, the error rate spikes to ~25%. If errors exceed a threshold, they discard the key and start over.</p>
 
                     <h4>One-Time Pad</h4>
-                    <p>The final shared key is used with a <strong>one-time pad</strong> (XOR) cipher—the only encryption method that is mathematically proven to be perfectly secure, provided the key is truly random and used only once.</p>
+                    <p>The final shared key is used with a <strong>one-time pad</strong> (XOR) cipher, the only encryption method that is mathematically proven to be perfectly secure, provided the key is truly random and used only once.</p>
                 </div>
             </div>
 
@@ -1014,8 +1014,8 @@
         }
 
         labCiphertext = result;
-        elPreview.textContent = result || '—';
-        elCipherOut.textContent = result || '—';
+        elPreview.textContent = result || ', ';
+        elCipherOut.textContent = result || ', ';
     }
 
     // ===========================================================
@@ -1033,8 +1033,8 @@
     // ===========================================================
     function labSwap() {
         elPlain.value = labCiphertext || '';
-        elCipherOut.textContent = '—';
-        elPreview.textContent = '—';
+        elCipherOut.textContent = ', ';
+        elPreview.textContent = ', ';
         labCiphertext = '';
         labUpdatePreview();
     }

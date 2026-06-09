@@ -4,7 +4,7 @@ def handle_host_action(data):
     action = data['action']
     username = session.get('username')
     
-    # Master validation
+    # master validation
     if not rm.is_host(room, username):
         return
         
