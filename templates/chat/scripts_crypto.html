@@ -291,17 +291,17 @@
                     <div style="color:#fff;font-family:var(--mono);word-break:break-all;font-size:13px;">${cipherText}</div>
                 </div>
                 <div class="sol-box" style="border-color:rgba(59,130,246,0.3);">
-                    <div class="sol-title" style="color:var(--blue-light);">1 — Encryption Process</div>
+                    <div class="sol-title" style="color:var(--blue-light);">1, Encryption Process</div>
                     <div class="sol-explain">${getCipherExpl(cipher, key, false)}</div>
                     <div class="tscroll">${encTable(orig, cipherText, cipher, key)}</div>
                 </div>
                 <div class="sol-box" style="border-color:rgba(139,92,246,0.3);">
-                    <div class="sol-title" style="color:var(--purple-light);">2 — Decryption Process</div>
+                    <div class="sol-title" style="color:var(--purple-light);">2, Decryption Process</div>
                     <div class="sol-explain">${getCipherExpl(cipher, key, true)}</div>
                     <div class="tscroll">${decTable(orig, cipherText, cipher, key)}</div>
                 </div>
                 <div class="sol-box" style="border-color:rgba(16,185,129,0.3);">
-                    <div class="sol-title" style="color:var(--green-light);">4 — Recovered Plaintext</div>
+                    <div class="sol-title" style="color:var(--green-light);">4, Recovered Plaintext</div>
                     <div style="color:#fff;font-size:15px;font-weight:bold;font-family:var(--mono);">${orig}</div>
                 </div>
             `;
@@ -377,7 +377,7 @@
             for (let i = 0; i < pC.length; i += n) { rows.push(`<tr><td style="color:#fff;">[${pC.substring(i, i + n).padEnd(n, 'A').split('').join(',')}]</td><td class="op-cell">×Key mod 26</td><td class="enc-cell">[${cC.substring(i, i + n).padEnd(n, '?').split('').join(',')}]</td></tr>`); }
             return buildTable(rows, [`PLAIN(×${n})`, 'OP', `CIPHER(×${n})`]);
         }
-        return `<div style="color:var(--muted);padding:10px;font-size:11px;font-style:italic;">[Block-level cipher — character trace not applicable]</div>`;
+        return `<div style="color:var(--muted);padding:10px;font-size:11px;font-style:italic;">[Block-level cipher, character trace not applicable]</div>`;
     }
     function decTable(plain, cipher, type, key) {
         let rows = [], pC = plain.replace(/[^a-zA-Z]/g, '').toUpperCase(), cC = cipher.replace(/[^a-zA-Z]/g, '').toUpperCase(), L = 18;
@@ -399,6 +399,6 @@
             for (let i = 0; i < cC.length; i += n) { rows.push(`<tr><td style="color:#fff;">[${cC.substring(i, i + n).padEnd(n, 'A').split('').join(',')}]</td><td class="op-cell">×K⁻¹ mod 26</td><td class="hi-cell">[${pC.substring(i, i + n).padEnd(n, '?').split('').join(',')}]</td></tr>`); }
             return buildTable(rows, [`CIPHER(×${n})`, 'INV MATRIX', `PLAIN(×${n})`]);
         }
-        return `<div style="color:var(--muted);padding:10px;font-size:11px;font-style:italic;">[Block-level — requires key for reversal]</div>`;
+        return `<div style="color:var(--muted);padding:10px;font-size:11px;font-style:italic;">[Block-level, requires key for reversal]</div>`;
     }
 

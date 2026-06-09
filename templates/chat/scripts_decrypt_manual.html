@@ -1,11 +1,11 @@
     // ===========================================================
-    //  DECRYPT TAB — MANUAL WALKTHROUGH VIEWS
+    //  DECRYPT TAB, MANUAL WALKTHROUGH VIEWS
     // ===========================================================
 
     function renderCaesarManual(container) {
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('MANUAL DECRYPTION — CAESAR SHIFT', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
+                ${algoHeader('MANUAL DECRYPTION, CAESAR SHIFT', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div style="color:var(--muted);font-size:10px;">Try each reverse shift until the plaintext makes sense.</div>
                     <div>
@@ -41,7 +41,7 @@
     function renderAffineManual(container) {
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('MANUAL DECRYPTION — AFFINE CIPHER', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
+                ${algoHeader('MANUAL DECRYPTION, AFFINE CIPHER', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div style="color:var(--muted);font-size:10px;">Solve for the multiplier (A) and shift (B) to reverse the encryption.</div>
                     <div class="step-box" style="margin-top:10px;">
@@ -79,7 +79,7 @@
         let hs = { matrix: K, size: K.length, det: null, detInv: null };
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('MANUAL DECRYPTION — HILL MATRIX', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
+                ${algoHeader('MANUAL DECRYPTION, HILL MATRIX', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div style="color:var(--muted);font-size:10px;">Work through each mathematical step to invert the key matrix.</div>
                     <div class="mat-disp" style="margin-bottom:4px;">${printMat(K).replace(/ /g, '&nbsp;')}</div>
@@ -93,7 +93,7 @@
         const rawDet = matDet(K);
         const container = document.getElementById('hill-manual-steps');
         container.innerHTML = `<div class="step-box anim-in">
-            <div class="step-title">Step 1 — Compute det(K) mod 26</div>
+            <div class="step-title">Step 1, Compute det(K) mod 26</div>
             <div style="color:var(--muted-2);font-size:11px;margin-bottom:8px;">${K.length === 2 ? `Formula: (${K[0][0]}×${K[1][1]}) − (${K[0][1]}×${K[1][0]}) = ${rawDet}. Now take mod 26.` : 'Compute determinant, then take mod 26.'}</div>
             <div class="prompt-line">
                 <span class="prompt-sym">$</span>
@@ -112,7 +112,7 @@
             document.getElementById('hm-fb1').innerHTML = `<div class="fb-ok">✓ det ≡ ${correct} (mod 26)</div>`;
             document.getElementById('hm-inp1').disabled = true;
             document.getElementById('hill-manual-steps').innerHTML += `<div class="step-box anim-in">
-                <div class="step-title">Step 2 — Modular Inverse: find X where (${correct}×X) mod 26 = 1</div>
+                <div class="step-title">Step 2, Modular Inverse: find X where (${correct}×X) mod 26 = 1</div>
                 <div class="prompt-line">
                     <span class="prompt-sym">$</span>
                     <span style="color:var(--muted-2);font-size:11px;">X =</span>
@@ -133,7 +133,7 @@
             document.getElementById('hm-fb2').innerHTML = `<div class="fb-ok">✓ det⁻¹ = ${correct}  (${det}×${correct}=${det * correct} mod 26=1)</div>`;
             document.getElementById('hm-inp2').disabled = true;
             document.getElementById('hill-manual-steps').innerHTML += `<div class="step-box anim-in" style="border-color:rgba(16,185,129,0.3);">
-                <div class="step-title" style="color:var(--green-light);">Steps 3–5 — Adjugate → K⁻¹ → Decrypt</div>
+                <div class="step-title" style="color:var(--green-light);">Steps 3–5, Adjugate → K⁻¹ → Decrypt</div>
                 <div style="color:var(--muted);font-size:10px;margin-bottom:4px;">K⁻¹ = ${correct} × adj(K) mod 26:</div>
                 <div class="mat-disp" style="color:var(--green-light);">${printMat(invM).replace(/ /g, '&nbsp;')}</div>
                 <div class="algo-success" style="margin-top:8px;">✓ PLAINTEXT: "${activeOriginal}"</div>
@@ -149,10 +149,10 @@
         const reps = Object.entries(tri).filter(([, v]) => v.length > 1);
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('MANUAL DECRYPTION — VIGENÈRE', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
+                ${algoHeader('MANUAL DECRYPTION, VIGENÈRE', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div class="step-box">
-                        <div class="step-title">Step 1 — Kasiski: Find key length</div>
+                        <div class="step-title">Step 1, Kasiski: Find key length</div>
                         ${reps.length ? `<div style="color:var(--muted-2);font-size:11px;">Trigram <span style="color:var(--blue-light);">"${reps[0][0]}"</span> repeats at [${reps[0][1].join(', ')}]<br>Gap = ${reps[0][1][1] - reps[0][1][0]} → factors include key length</div>` : `<div style="color:var(--muted-2);font-size:11px;">Text too short for Kasiski. Estimate key length by other means.</div>`}
                         <div class="prompt-line" style="margin-top:8px;">
                             <span class="prompt-sym">$</span><span style="color:var(--muted-2);font-size:11px;">key_length =</span>
@@ -163,7 +163,7 @@
                     </div>
                     <div id="vig-manual-step2" style="display:none;">
                         <div class="step-box anim-in">
-                            <div class="step-title">Step 2 — Enter the decoded keyword</div>
+                            <div class="step-title">Step 2, Enter the decoded keyword</div>
                             <div style="color:var(--muted-2);font-size:11px;margin-bottom:8px;">Frequency-analyze each column (most frequent letter → shift → key letter)</div>
                             <div class="prompt-line">
                                 <span class="prompt-sym">$</span><span style="color:var(--muted-2);font-size:11px;">keyword =</span>
@@ -195,10 +195,10 @@
     function renderAesManual(container) {
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('AES-256 — MANUAL NOTE', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
+                ${algoHeader('AES-256, MANUAL NOTE', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div style="color:var(--muted-2);font-size:12px;line-height:1.8;">
-                        AES-256 has no practical manual decryption path — it is designed to be computationally infeasible without the key.<br><br>
+                        AES-256 has no practical manual decryption path, it is designed to be computationally infeasible without the key.<br><br>
                         <span style="color:var(--blue-light);">Best approach:</span> Use the Algorithm view to observe how each round transforms the state, or check the Guide tab for the full mathematical breakdown.
                     </div>
                     <a href="https://www.nist.gov/publications/advanced-encryption-standard-aes" target="_blank" class="calc-link">→ NIST AES Specification</a>
@@ -210,7 +210,7 @@
         let score = 0, attempts = 0;
         container.innerHTML = `
             <div class="manual-terminal anim-in">
-                ${algoHeader('BB84 — INTERACTIVE EAVESDROP', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
+                ${algoHeader('BB84, INTERACTIVE EAVESDROP', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
                     <div style="color:var(--muted-2);font-size:11px;line-height:1.7;">A photon is sent in a random basis. Choose your measurement basis. Wrong choice = state collapse = detected.</div>
                     <div style="margin:10px 0;padding:10px;background:rgba(0,0,0,0.3);border-radius:6px;border:1px solid var(--border);text-align:center;">
@@ -234,7 +234,7 @@
         window._qManualAttempts = (window._qManualAttempts || 0) + 1;
         const hit = Math.random() > 0.5;
         if (hit) { window._qManualScore = (window._qManualScore || 0) + 1; document.getElementById('q-manual-fb').innerHTML = `<div class="fb-ok">✓ Basis matched! Bit intercepted undetected.</div>`; }
-        else document.getElementById('q-manual-fb').innerHTML = `<div class="fb-err">✗ Wrong basis — photon collapsed. Error rate spiked. Alice & Bob will notice ~25% error.</div>`;
+        else document.getElementById('q-manual-fb').innerHTML = `<div class="fb-err">✗ Wrong basis, photon collapsed. Error rate spiked. Alice & Bob will notice ~25% error.</div>`;
         document.getElementById('q-attempts').textContent = window._qManualAttempts;
         document.getElementById('q-score').textContent = window._qManualScore;
         const symbols = ['↕', '↔', '↗', '↘'];
