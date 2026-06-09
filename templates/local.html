@@ -1,8 +1,7 @@
 {% extends "base.html" %}
-
 {% block content %}
 <style>
-    /* ── SCROLL & OVERFLOW FIX ───────────────────────────────────── */
+    /* ── RESET & SCROLL ──────────────────────────────────────────── */
     html {
         overflow-y: scroll !important;
         overflow-x: hidden !important;
@@ -13,10 +12,11 @@
         overflow-x: hidden !important;
         height: auto !important;
         min-height: 100vh !important;
-        background-color: #0d1117;
+        background: #04080f;
+        font-family: 'Syne', 'DM Sans', system-ui, sans-serif;
     }
 
-    /* ── Navbar overrides (Matching Homepage exactly) ────────────── */
+    /* ── NAV OVERRIDES ───────────────────────────────────────────── */
     nav, .navbar, .nav-bar, header nav, .site-nav, .topbar {
         min-height: 80px !important;
         font-size: 1.28rem !important;
@@ -29,480 +29,795 @@
         font-size: 1.28rem !important;
         padding: 0 24px !important;
     }
-    nav .logo, .nav-brand, .nav-logo, .topbar-logo {
-        font-size: 2.2rem !important; 
-    }
-    /* Hide Classroom link */
+    nav .logo, .nav-brand, .nav-logo, .topbar-logo { font-size: 2.2rem !important; }
     nav a[href*="classroom"],
     .navbar a[href*="classroom"],
     nav a[href="/classroom"],
     .navbar a[href="/classroom"],
-    .topbar a[href*="classroom"] {
-        display: none !important;
+    .topbar a[href*="classroom"] { display: none !important; }
+
+    /* ── FONT IMPORT ─────────────────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+    /* ── CSS CUSTOM PROPERTIES ───────────────────────────────────── */
+    :root {
+        --ink:        #04080f;
+        --paper:      #0b1118;
+        --surface:    #10181f;
+        --lift:       #182028;
+        --border:     rgba(255,255,255,0.055);
+        --border-md:  rgba(255,255,255,0.10);
+        --border-hi:  rgba(0,255,180,0.28);
+
+        --jade:       #00ffb4;
+        --jade-dim:   #00c48a;
+        --jade-muted: rgba(0,255,180,0.12);
+        --electric:   #4d9eff;
+        --electric-dim: rgba(77,158,255,0.12);
+        --gold:       #ffd166;
+        --rose:       #ff5e7a;
+
+        --text-hi:    #eef2f7;
+        --text-md:    #8899aa;
+        --text-lo:    #3d4f5e;
+
+        --mono: 'JetBrains Mono', 'Fira Code', monospace;
+        --display: 'Syne', system-ui, sans-serif;
+        --body: 'DM Sans', system-ui, sans-serif;
+
+        --rad-sm: 6px;
+        --rad-md: 12px;
+        --rad-lg: 20px;
     }
 
-    /* ── Canvas & Background Elements ────────────────────────────── */
+    /* ── FIXED BACKGROUND LAYERS ─────────────────────────────────── */
     #bgCanvas {
-        position: fixed;          
+        position: fixed;
         top: 0; left: 0;
-        width: 100%;
-        height: 100vh;            
+        width: 100%; height: 100vh;
         pointer-events: none;
         z-index: 0;
     }
-    .bg-grid {
+    .bg-dot-grid {
         position: fixed; inset: 0;
-        background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
-        background-size: 40px 40px;
+        background-image: radial-gradient(circle, rgba(0,255,180,0.06) 1px, transparent 1px);
+        background-size: 38px 38px;
         pointer-events: none;
         z-index: 0;
-    }
-    .bg-noise {
-        position: fixed; inset: 0;
-        pointer-events: none;
-        z-index: 0;
-        opacity: 0.055;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        background-repeat: repeat;
-        background-size: 180px 180px;
+        mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
     }
     .bg-cipher-stream {
-        position: fixed;
-        inset: 0;
+        position: fixed; inset: 0;
         pointer-events: none;
         z-index: 0;
-        opacity: 0.13;
+        opacity: 0.09;
         overflow: hidden;
     }
     .cipher-col {
         position: absolute; top: -100%;
-        font-family: monospace;
-        font-size: 13px;
+        font-family: var(--mono);
+        font-size: 12px;
         white-space: pre;
-        line-height: 1.8;
+        line-height: 1.9;
         animation: fallDown linear infinite;
-        letter-spacing: 3px;
+        letter-spacing: 2px;
         pointer-events: none;
     }
     @keyframes fallDown {
         from { transform: translateY(0); }
         to   { transform: translateY(200vh); }
     }
+    .bg-noise {
+        position: fixed; inset: 0;
+        pointer-events: none; z-index: 0;
+        opacity: 0.04;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        background-size: 160px 160px;
+    }
     .bg-vignette {
         position: fixed; inset: 0;
-        pointer-events: none;
-        z-index: 0;
-        background: radial-gradient(ellipse 85% 85% at 50% 50%, transparent 50%, rgba(0,0,0,0.6) 100%);
+        pointer-events: none; z-index: 0;
+        background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 40%, rgba(4,8,15,0.75) 100%);
     }
 
-    /* ── CONNECT PAGE REWORK ─────────────────────────────────────── */
+    /* ── PAGE LAYOUT ─────────────────────────────────────────────── */
     .page-wrap {
-        position: relative;
-        z-index: 1;
+        position: relative; z-index: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: calc(100vh - 80px); /* Account for 80px navbar */
+        min-height: calc(100vh - 80px);
         padding: 40px 20px;
     }
 
-    .connect-glass-card {
+    /* ── MAIN CARD ───────────────────────────────────────────────── */
+    .glass-card {
         display: flex;
         flex-direction: row;
         width: 100%;
-        max-width: 1000px;
-        background: #0a0e14;
-        border: 1px solid rgba(255,255,255,0.05);
-        border-radius: 24px 6px 24px 6px; 
-        box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.02);
+        max-width: 1040px;
+        background: var(--paper);
+        border: 1px solid var(--border-md);
+        border-radius: 4px 24px 4px 24px;
+        box-shadow:
+            0 0 0 1px rgba(0,255,180,0.04),
+            0 24px 64px rgba(0,0,0,0.7),
+            0 8px 24px rgba(0,0,0,0.5);
         overflow: hidden;
         position: relative;
     }
 
-    /* Ambient internal glow */
-    .connect-glass-card::after {
+    /* Jade top-edge shimmer */
+    .glass-card::before {
         content: '';
         position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at 30% 50%, rgba(16,185,129,0.05), transparent 60%),
-                    radial-gradient(circle at 70% 50%, rgba(59,130,246,0.05), transparent 60%);
-        pointer-events: none;
-        z-index: 0;
+        top: 0; left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(0,255,180,0.5) 30%,
+            rgba(77,158,255,0.4) 70%,
+            transparent 100%);
+        z-index: 2;
     }
 
-    .connect-left, .connect-right {
-        position: relative;
-        z-index: 1;
-        flex: 1;
-        padding: 60px 50px;
+    /* Ambient internal glow */
+    .glass-card::after {
+        content: '';
+        position: absolute; inset: 0;
+        background:
+            radial-gradient(circle at 15% 50%, rgba(0,255,180,0.04), transparent 55%),
+            radial-gradient(circle at 85% 50%, rgba(77,158,255,0.04), transparent 55%);
+        pointer-events: none; z-index: 0;
     }
 
-    .connect-left {
-        background: rgba(255,255,255,0.01);
-        border-right: 1px solid rgba(255,255,255,0.05);
+    /* ── LEFT PANEL ──────────────────────────────────────────────── */
+    .card-left {
+        width: 44%;
+        flex-shrink: 0;
+        position: relative; z-index: 1;
+        padding: 56px 52px;
+        border-right: 1px solid var(--border);
         display: flex;
         flex-direction: column;
         justify-content: center;
+        background: linear-gradient(135deg, rgba(0,255,180,0.018) 0%, transparent 60%);
+        overflow: hidden;
     }
 
-    .connect-brand-logo { 
-        font-size: 11px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; margin-bottom: 40px; 
-    }
-    .connect-brand-logo::before { 
-        content: ''; display: block; width: 28px; height: 2px; background: linear-gradient(90deg, var(--green-light), var(--blue-light)); 
-    }
-    
-    .connect-brand-title { 
-        font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -1px; color: #fff; margin: 0 0 16px 0; 
-    }
-    .connect-brand-title em { 
-        font-style: normal; background: linear-gradient(135deg, var(--green-light), var(--blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-    }
-    
-    .connect-brand-sub { 
-        font-size: 1.05rem; color: rgba(255,255,255,0.65); line-height: 1.6; margin: 0 0 40px 0; max-width: 320px; 
+    /* Corner geometry accent */
+    .card-left::after {
+        content: '';
+        position: absolute;
+        bottom: -60px; right: -60px;
+        width: 220px; height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(77,158,255,0.06), transparent 65%);
+        pointer-events: none;
     }
 
-    .connect-features { display: flex; flex-direction: column; gap: 20px; }
-    .connect-feature { display: flex; align-items: flex-start; gap: 16px; }
-    .connect-feature-icon { 
-        width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); 
+    /* Eyebrow / sub-brand label */
+    .left-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 36px;
     }
-    .connect-feature-text h4 { margin: 0 0 4px 0; font-size: 14px; font-weight: 800; color: #fff; }
-    .connect-feature-text p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+    .left-eyebrow-line {
+        width: 32px; height: 1px;
+        background: linear-gradient(90deg, var(--jade), transparent);
+    }
+    .left-eyebrow-text {
+        font-family: var(--mono);
+        font-size: 10px; font-weight: 500;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--jade-dim);
+    }
+    .left-eyebrow-dot {
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: var(--jade);
+        box-shadow: 0 0 8px var(--jade);
+        animation: blink 2.8s ease infinite;
+    }
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0.3; }
+    }
 
-    /* Right side form area */
-    .connect-right {
+    /* Title */
+    .left-title {
+        font-family: var(--display);
+        font-size: clamp(1.9rem, 3.2vw, 2.55rem);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        color: var(--text-hi);
+        margin: 0 0 16px;
+    }
+    .left-title .jade-grad {
+        background: linear-gradient(110deg, var(--jade) 0%, var(--electric) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Sub */
+    .left-sub {
+        font-family: var(--body);
+        font-size: 0.92rem;
+        font-weight: 300;
+        color: var(--text-md);
+        line-height: 1.7;
+        margin: 0 0 44px;
+        max-width: 300px;
+    }
+
+    /* Feature list */
+    .features { display: flex; flex-direction: column; gap: 14px; }
+    .feature {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 14px 16px;
+        border-radius: var(--rad-md);
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.013);
+        transition: border-color 0.2s, background 0.2s;
+    }
+    .feature:hover {
+        border-color: var(--border-md);
+        background: rgba(255,255,255,0.028);
+    }
+    .feature-icon {
+        width: 34px; height: 34px;
+        border-radius: 9px;
+        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(0,255,180,0.08);
+        border: 1px solid rgba(0,255,180,0.18);
+    }
+    .feature-icon svg { display: block; }
+    .feature-text { flex: 1; }
+    .feature-text h4 {
+        margin: 0 0 3px;
+        font-family: var(--display);
+        font-size: 13px; font-weight: 700;
+        color: var(--text-hi);
+        letter-spacing: -0.01em;
+    }
+    .feature-text p {
+        margin: 0;
+        font-family: var(--body);
+        font-size: 12px; font-weight: 300;
+        color: var(--text-md);
+        line-height: 1.45;
+    }
+
+    /* ── RIGHT PANEL ─────────────────────────────────────────────── */
+    .card-right {
+        flex: 1;
+        position: relative; z-index: 1;
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 56px 52px;
         background: transparent;
     }
-    
-    .connect-form-wrap { width: 100%; max-width: 380px; }
-    .connect-form-title { font-size: 1.8rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin: 0 0 8px 0; }
-    .connect-form-sub { font-size: 1rem; color: rgba(255,255,255,0.5); margin: 0 0 36px 0; line-height: 1.5; }
-    
-    .field-group { margin-bottom: 24px; }
-    .field-label { display: block; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-    
-    .field-input { 
-        width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 15px; border-radius: 12px; font-family: var(--sans); transition: all 0.3s ease; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .field-input:focus { 
-        border-color: var(--blue-light); background: rgba(59,130,246,0.05); box-shadow: 0 0 0 3px rgba(59,130,246,0.15), inset 0 2px 4px rgba(0,0,0,0.2); 
-    }
-    .field-input::placeholder { color: rgba(255,255,255,0.2); }
-    .field-input.code-input { font-family: var(--mono); font-size: 24px; letter-spacing: 12px; text-align: center; text-transform: uppercase; color: var(--blue-light); font-weight: bold; }
-    
-    .field-warning { font-size: 12px; color: var(--red); margin-top: 8px; font-weight: 600; min-height: 18px; display: block; }
-    
-    .btn-host-new { 
-        width: 100%; padding: 16px; background: linear-gradient(135deg, var(--green) 0%, #059669 100%); color: #fff; font-size: 14px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(16,185,129,0.2);
-    }
-    .btn-host-new:hover { 
-        transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16,185,129,0.4), inset 0 0 0 1px rgba(255,255,255,0.2); background: linear-gradient(135deg, var(--green-light), var(--green));
-    }
-    .btn-host-new:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
-    
-    .divider-row { display: flex; align-items: center; gap: 14px; margin: 32px 0; color: rgba(255,255,255,0.3); font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-    .divider-row::before, .divider-row::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.05); }
-    
-    .join-row { display: flex; gap: 12px; }
-    .join-row .field-input { flex: 1; }
-    .btn-join-new { 
-        padding: 0 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; flex-shrink: 0;
-    }
-    .btn-join-new:hover { 
-        background: rgba(59,130,246,0.15); border-color: var(--blue-light); color: var(--blue-light); box-shadow: 0 0 15px rgba(59,130,246,0.2); transform: translateY(-1px);
-    }
-    .btn-join-new:disabled { opacity: 0.4; cursor: not-allowed; }
-    
-    .back-link { display: block; text-align: center; margin-top: 32px; font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: none; font-weight: 700; transition: color 0.3s ease; }
-    .back-link:hover { color: var(--blue-light); }
 
-    /* Responsive adjustments */
-    @media (max-width: 850px) {
-        .connect-glass-card { flex-direction: column; }
-        .connect-left { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 40px 30px; }
-        .connect-right { padding: 40px 30px; }
+    .form-wrap { width: 100%; max-width: 370px; }
+
+    /* Form header */
+    .form-headline {
+        font-family: var(--display);
+        font-size: 1.7rem; font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--text-hi);
+        margin: 0 0 6px;
+    }
+    .form-sub {
+        font-family: var(--body);
+        font-size: 0.88rem; font-weight: 300;
+        color: var(--text-md);
+        margin: 0 0 36px;
+        line-height: 1.55;
+    }
+
+    /* Fields */
+    .fgroup { margin-bottom: 22px; }
+    .flabel {
+        display: block;
+        font-family: var(--mono);
+        font-size: 9.5px; font-weight: 500;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--text-lo);
+        margin-bottom: 8px;
+    }
+    .finput {
+        width: 100%;
+        padding: 13px 16px;
+        background: var(--surface);
+        border: 1px solid var(--border-md);
+        color: var(--text-hi);
+        font-family: var(--body);
+        font-size: 14px; font-weight: 400;
+        border-radius: var(--rad-md);
+        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        outline: none;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.25);
+    }
+    .finput:focus {
+        border-color: var(--jade-dim);
+        background: rgba(0,255,180,0.04);
+        box-shadow: 0 0 0 3px rgba(0,255,180,0.1), inset 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .finput::placeholder { color: var(--text-lo); }
+    .finput.code-style {
+        font-family: var(--mono);
+        font-size: 22px; font-weight: 700;
+        letter-spacing: 0.45em;
+        text-align: center;
+        text-transform: uppercase;
+        color: var(--electric);
+    }
+    .finput.code-style::placeholder { color: var(--text-lo); letter-spacing: 0.45em; }
+
+    .fwarn {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--rose);
+        margin-top: 6px;
+        min-height: 16px;
+        display: block;
+        letter-spacing: 0.02em;
+    }
+
+    /* ── HOST BUTTON ─────────────────────────────────────────────── */
+    .btn-host {
+        width: 100%;
+        padding: 15px 20px;
+        background: linear-gradient(135deg, var(--jade-dim) 0%, #008c64 100%);
+        color: #032e1e;
+        font-family: var(--display);
+        font-size: 13px; font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        border: none;
+        border-radius: var(--rad-md);
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+        box-shadow: 0 4px 18px rgba(0,196,138,0.22);
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-host::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.14), transparent);
+        opacity: 0; transition: opacity 0.2s;
+    }
+    .btn-host:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(0,255,180,0.3);
+    }
+    .btn-host:hover::before { opacity: 1; }
+    .btn-host:active { transform: translateY(0); }
+    .btn-host:disabled {
+        opacity: 0.35; cursor: not-allowed;
+        transform: none; box-shadow: none;
+    }
+
+    /* ── DIVIDER ─────────────────────────────────────────────────── */
+    .or-divider {
+        display: flex; align-items: center; gap: 14px;
+        margin: 28px 0;
+        color: var(--text-lo);
+        font-family: var(--mono);
+        font-size: 9px; font-weight: 500;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+    }
+    .or-divider::before, .or-divider::after {
+        content: ''; flex: 1; height: 1px;
+        background: var(--border);
+    }
+
+    /* ── JOIN ROW ────────────────────────────────────────────────── */
+    .join-row { display: flex; gap: 10px; align-items: flex-end; }
+    .join-row .finput { flex: 1; }
+    .btn-join {
+        padding: 13px 22px;
+        background: transparent;
+        border: 1px solid var(--border-md);
+        color: var(--text-md);
+        font-family: var(--display);
+        font-size: 12px; font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-radius: var(--rad-md);
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+    .btn-join:hover {
+        background: var(--electric-dim);
+        border-color: rgba(77,158,255,0.4);
+        color: var(--electric);
+        transform: translateY(-1px);
+    }
+    .btn-join:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    /* ── BACK LINK ───────────────────────────────────────────────── */
+    .back-link {
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        margin-top: 28px;
+        font-family: var(--mono);
+        font-size: 11px; font-weight: 400;
+        letter-spacing: 0.06em;
+        color: var(--text-lo);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--jade-dim); }
+    .back-link svg { transition: transform 0.2s; }
+    .back-link:hover svg { transform: translateX(-3px); }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────────── */
+    @media (max-width: 860px) {
+        .glass-card { flex-direction: column; border-radius: 12px; }
+        .card-left {
+            width: 100%; border-right: none;
+            border-bottom: 1px solid var(--border);
+            padding: 44px 36px;
+        }
+        .card-right { padding: 44px 36px; }
+        .left-title { font-size: 1.75rem; }
+    }
+    @media (max-width: 520px) {
+        .card-left, .card-right { padding: 32px 24px; }
+        .join-row { flex-direction: column; }
+        .btn-join { width: 100%; }
     }
 </style>
 
-<div class="bg-grid"></div>
+<!-- ── Background layers ── -->
+<div class="bg-dot-grid"></div>
 <div class="bg-noise"></div>
 <div class="bg-cipher-stream" id="cipherStream"></div>
 <div class="bg-vignette"></div>
 <canvas id="bgCanvas"></canvas>
 
+<!-- ── Page content ── -->
 <div class="page-wrap">
-    <div class="connect-glass-card">
-        <div class="connect-left">
-            <div class="connect-brand-logo">Insightful Encryptions</div>
-            <h2 class="connect-brand-title">Start a<br><em>Secure Session</em></h2>
-            <p class="connect-brand-sub">Create or join an encrypted communication room. All traffic is processed through your chosen cipher in real time.</p>
-            
-            <div class="connect-features">
-                <div class="connect-feature">
-                    <div class="connect-feature-icon">
-                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--green-light)" stroke-width="2" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <div class="glass-card">
+
+        <!-- LEFT: Brand / Feature panel -->
+        <div class="card-left">
+            <div class="left-eyebrow">
+                <span class="left-eyebrow-line"></span>
+                <span class="left-eyebrow-text">Secure Session</span>
+                <span class="left-eyebrow-dot"></span>
+            </div>
+
+            <h2 class="left-title">
+                Start an<br>
+                <span class="jade-grad">Encrypted Room</span>
+            </h2>
+            <p class="left-sub">
+                Create or join an obfuscated chat session. Every message passes through your chosen cipher before it hits the wire.
+            </p>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 20 20" width="16" height="16" stroke="var(--jade)" stroke-width="1.6" fill="none">
+                            <path d="M10 18s7-3.5 7-8.75V4.5l-7-2.5-7 2.5v4.75C3 14.5 10 18 10 18z"/>
+                        </svg>
                     </div>
-                    <div class="connect-feature-text">
-                        <h4>End-to-End Ciphers</h4>
+                    <div class="feature-text">
+                        <h4>Multiple Cipher Modes</h4>
                         <p>Caesar, Hill, Vigenère, AES-256, or BB84 Quantum</p>
                     </div>
                 </div>
-                <div class="connect-feature">
-                    <div class="connect-feature-icon">
-                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--green-light)" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 20 20" width="16" height="16" stroke="var(--jade)" stroke-width="1.6" fill="none">
+                            <circle cx="10" cy="10" r="8"/>
+                            <path d="M2 10h16M10 2a12 12 0 0 1 3.2 8A12 12 0 0 1 10 18A12 12 0 0 1 6.8 10A12 12 0 0 1 10 2z"/>
+                        </svg>
                     </div>
-                    <div class="connect-feature-text">
-                        <h4>Cross-Device</h4>
-                        <p>Connect from any device on the local network</p>
+                    <div class="feature-text">
+                        <h4>Cross-Device Sync</h4>
+                        <p>Any device on the network can join with a 4-char code</p>
                     </div>
                 </div>
-                <div class="connect-feature">
-                    <div class="connect-feature-icon">
-                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--green-light)" stroke-width="2" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 20 20" width="16" height="16" stroke="var(--jade)" stroke-width="1.6" fill="none">
+                            <path d="M3 6h14M3 10h10M3 14h7"/>
+                            <circle cx="16" cy="14" r="3"/>
+                            <path d="M15 14h2M16 13v2"/>
+                        </svg>
                     </div>
-                    <div class="connect-feature-text">
-                        <h4>Live Inspector</h4>
-                        <p>Click any message to analyze its cipher payload</p>
+                    <div class="feature-text">
+                        <h4>Live Cipher Inspector</h4>
+                        <p>Tap any message to step through its encryption process</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="connect-right">
-            <div class="connect-form-wrap">
-                <h2 class="connect-form-title">Join the Network</h2>
-                <p class="connect-form-sub">Set your identity, then host a new room or enter a room code.</p>
-                
+        <!-- RIGHT: Form panel -->
+        <div class="card-right">
+            <div class="form-wrap">
+                <h2 class="form-headline">Join the Network</h2>
+                <p class="form-sub">Set your alias, then host a fresh room or enter a code to join one already running.</p>
+
                 <form method="post" id="local-form">
-                    <div class="field-group">
-                        <label class="field-label" for="username_input">Your Alias</label>
-                        <input type="text" id="username_input" name="username" class="field-input" placeholder="e.g. CipherAgent" maxlength="24" required autocomplete="off">
-                        <span id="username_warning" class="field-warning"></span>
+                    <div class="fgroup">
+                        <label class="flabel" for="username_input">Your Alias</label>
+                        <input
+                            type="text"
+                            id="username_input"
+                            name="username"
+                            class="finput"
+                            placeholder="e.g. CipherAgent"
+                            maxlength="24"
+                            required
+                            autocomplete="off"
+                        >
+                        <span id="username_warning" class="fwarn"></span>
                     </div>
-                    
-                    <button type="submit" formaction="/host" id="btn-host" class="btn-host-new">
-                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.2" fill="none" style="margin-top:-2px;"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+
+                    <button type="submit" formaction="/host" id="btn-host" class="btn-host">
+                        <svg viewBox="0 0 20 20" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                            <rect x="2" y="2" width="16" height="7" rx="1.5"/>
+                            <rect x="2" y="11" width="16" height="7" rx="1.5"/>
+                            <circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/>
+                            <circle cx="5.5" cy="14.5" r="1" fill="currentColor" stroke="none"/>
+                        </svg>
                         Host New Room
                     </button>
-                    
-                    <div class="divider-row">or join existing</div>
-                    
-                    <div class="field-group" style="margin-bottom:0;">
-                        <label class="field-label" for="room_code_box">Room Code</label>
+
+                    <div class="or-divider">or join existing</div>
+
+                    <div class="fgroup" style="margin-bottom:0">
+                        <label class="flabel" for="room_code_box">Room Code</label>
                         <div class="join-row">
-                            <input type="text" name="room_code" id="room_code_box" class="field-input code-input" placeholder="----" maxlength="4">
-                            <button type="submit" formaction="/join" id="btn-join" class="btn-join-new">Join →</button>
+                            <input
+                                type="text"
+                                name="room_code"
+                                id="room_code_box"
+                                class="finput code-style"
+                                placeholder="· · · ·"
+                                maxlength="4"
+                            >
+                            <button type="submit" formaction="/join" id="btn-join" class="btn-join">
+                                Enter →
+                            </button>
                         </div>
                     </div>
                 </form>
-                <a href="/" class="back-link">← Back to main menu</a>
+
+                <a href="/" class="back-link">
+                    <svg viewBox="0 0 16 16" width="12" height="12" stroke="currentColor" stroke-width="1.8" fill="none">
+                        <path d="M10 3L5 8l5 5"/>
+                    </svg>
+                    Back to main menu
+                </a>
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
-    // Existing Form Logic
-    const usernameInput = document.getElementById('username_input');
-    const warningDiv = document.getElementById('username_warning');
-    const hostBtn = document.getElementById('btn-host');
-    const joinBtn = document.getElementById('btn-join');
-    
-    usernameInput.addEventListener('input', function() {
-        fetch('/api/usernames').then(r => r.json()).then(taken => {
-            if (taken.includes(usernameInput.value.trim())) {
-                warningDiv.textContent = 'Alias already in use on network.';
+/* ── Form validation ──────────────────────────────────────────── */
+const usernameInput  = document.getElementById('username_input');
+const warningDiv     = document.getElementById('username_warning');
+const hostBtn        = document.getElementById('btn-host');
+const joinBtn        = document.getElementById('btn-join');
+const finputEl       = usernameInput;
+
+usernameInput.addEventListener('input', function () {
+    const val = usernameInput.value.trim();
+    if (!val) {
+        warningDiv.textContent = '';
+        hostBtn.disabled = joinBtn.disabled = false;
+        finputEl.style.borderColor = '';
+        finputEl.style.boxShadow   = '';
+        return;
+    }
+    fetch('/api/usernames')
+        .then(r => r.json())
+        .then(taken => {
+            if (taken.includes(val)) {
+                warningDiv.textContent = '⚡ Alias already active on this network';
                 hostBtn.disabled = joinBtn.disabled = true;
-                usernameInput.style.borderColor = 'var(--red)';
-                usernameInput.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.15)';
+                finputEl.style.borderColor = 'rgba(255,94,122,0.6)';
+                finputEl.style.boxShadow   = '0 0 0 3px rgba(255,94,122,0.14)';
             } else {
                 warningDiv.textContent = '';
                 hostBtn.disabled = joinBtn.disabled = false;
-                usernameInput.style.borderColor = '';
-                usernameInput.style.boxShadow = '';
+                finputEl.style.borderColor = '';
+                finputEl.style.boxShadow   = '';
             }
         });
-    });
-    
-    document.getElementById('btn-host').addEventListener('click', () => document.getElementById('room_code_box').required = false);
-    document.getElementById('btn-join').addEventListener('click', () => document.getElementById('room_code_box').required = true);
+});
 
-    /* ── Cipher rain (From Homepage) ─────────────────────────────────── */
-    (function () {
-        const stream = document.getElementById('cipherStream');
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';
-        const colCount = Math.floor(window.innerWidth / 36);
-        for (let i = 0; i < colCount; i++) {
-            const col = document.createElement('div');
-            col.className = 'cipher-col';
-            col.style.left = (i * 36 + Math.random() * 16) + 'px';
-            const dur = 12 + Math.random() * 20;
-            col.style.animationDuration = dur + 's';
-            col.style.animationDelay = -(Math.random() * dur) + 's';
-            col.style.color = Math.random() > 0.5 ? '#60a5fa' : '#a78bfa';
-            let text = '';
-            for (let r = 0; r < 52; r++) text += chars[Math.floor(Math.random() * chars.length)] + '\n';
-            col.textContent = text;
-            stream.appendChild(col);
-        }
-    })();
+document.getElementById('btn-host').addEventListener('click', () => {
+    document.getElementById('room_code_box').required = false;
+});
+document.getElementById('btn-join').addEventListener('click', () => {
+    document.getElementById('room_code_box').required = true;
+});
 
-    /* ── Canvas Background Particles (From Homepage) ─────────────────── */
-    (function () {
-        const canvas = document.getElementById('bgCanvas');
-        const ctx    = canvas.getContext('2d');
+/* ── Cipher rain ──────────────────────────────────────────────── */
+(function () {
+    const stream   = document.getElementById('cipherStream');
+    const chars    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789Δ∑Ψ∂≡≠';
+    const colCount = Math.floor(window.innerWidth / 34);
+    const palette  = ['#00c48a', '#00ffb4', '#4d9eff', '#a78bfa'];
+    for (let i = 0; i < colCount; i++) {
+        const col = document.createElement('div');
+        col.className = 'cipher-col';
+        col.style.left = (i * 34 + Math.random() * 12) + 'px';
+        const dur = 14 + Math.random() * 22;
+        col.style.animationDuration = dur + 's';
+        col.style.animationDelay   = -(Math.random() * dur) + 's';
+        col.style.color = palette[Math.floor(Math.random() * palette.length)];
+        let text = '';
+        for (let r = 0; r < 55; r++) text += chars[Math.floor(Math.random() * chars.length)] + '\n';
+        col.textContent = text;
+        stream.appendChild(col);
+    }
+})();
 
-        const PAL = {
-            orbs:      [[59,130,246],[139,92,246],[16,185,129],[167,139,250]],
-            line:      [96,165,250],
-            streak:    [96,165,250],
-            starCol:   [255,255,255],
-            orbAlpha:  [0.32, 0.14],
-            lineAlpha: 0.32,
-            starAlpha: 0.75,
-        };
+/* ── Canvas background: orbs + network nodes + streaks ───────── */
+(function () {
+    const canvas = document.getElementById('bgCanvas');
+    const ctx    = canvas.getContext('2d');
 
-        const orbState = [
-            { x: 0.12, docFrac: 0.08,  r: 0.40, speed: 0.00017, angle: 0.62 },
-            { x: 0.82, docFrac: 0.40,  r: 0.36, speed: 0.00013, angle: 2.10 },
-            { x: 0.48, docFrac: 0.68,  r: 0.28, speed: 0.00021, angle: 4.80 },
-            { x: 0.88, docFrac: 0.88,  r: 0.22, speed: 0.00025, angle: 1.40 },
-        ];
+    const ORB_DEFS = [
+        { x: 0.10, docFrac: 0.12, r: 0.38, speed: 0.00016, angle: 0.7,  rgb: [0,255,180],   a: [0.28,0.10] },
+        { x: 0.80, docFrac: 0.38, r: 0.34, speed: 0.00012, angle: 2.2,  rgb: [77,158,255],  a: [0.26,0.09] },
+        { x: 0.50, docFrac: 0.70, r: 0.26, speed: 0.00020, angle: 4.9,  rgb: [0,196,138],   a: [0.20,0.07] },
+        { x: 0.88, docFrac: 0.86, r: 0.20, speed: 0.00024, angle: 1.5,  rgb: [167,139,250],a: [0.20,0.07] },
+    ];
 
-        const STAR_COUNT = 80;
-        const stars = Array.from({length: STAR_COUNT}, () => ({
-            x:       Math.random(),
-            docFrac: Math.random(),
-            r:       0.5 + Math.random() * 1.5,
-            a:       Math.random(),
-            da:      (Math.random() - 0.5) * 0.006,
-            vx:      (Math.random() - 0.5) * 0.00014,
-            vdoc:    (Math.random() - 0.5) * 0.00006,
-        }));
+    const NODE_COUNT   = 28;
+    const CONNECT_DIST = 0.22;
+    const STAR_COUNT   = 70;
 
-        const NODE_COUNT = 26;
-        const nodes = Array.from({length: NODE_COUNT}, () => ({
-            x:       Math.random(),
-            docFrac: Math.random(),
-            vx:      (Math.random() - 0.5) * 0.00020,
-            vdoc:    (Math.random() - 0.5) * 0.00008,
-        }));
-        const CONNECT_DIST = 0.20;
+    const nodes = Array.from({ length: NODE_COUNT }, () => ({
+        x:       Math.random(),
+        docFrac: Math.random(),
+        vx:      (Math.random() - 0.5) * 0.00018,
+        vdoc:    (Math.random() - 0.5) * 0.00007,
+    }));
+    const stars = Array.from({ length: STAR_COUNT }, () => ({
+        x:       Math.random(),
+        docFrac: Math.random(),
+        r:       0.4 + Math.random() * 1.4,
+        a:       Math.random(),
+        da:      (Math.random() - 0.5) * 0.005,
+        vx:      (Math.random() - 0.5) * 0.00012,
+        vdoc:    (Math.random() - 0.5) * 0.00005,
+    }));
 
-        let t = 0;
+    let t = 0;
 
-        function resize() {
-            canvas.width  = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resize();
-        window.addEventListener('resize', resize);
+    function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
 
-        function draw() {
-            const W       = canvas.width;
-            const H       = canvas.height;
-            const scrollY = window.scrollY;
-            const docH    = Math.max(document.documentElement.scrollHeight, window.innerHeight);
+    function draw() {
+        const W     = canvas.width;
+        const H     = canvas.height;
+        const sY    = window.scrollY;
+        const docH  = Math.max(document.documentElement.scrollHeight, H);
+        ctx.clearRect(0, 0, W, H);
 
-            ctx.clearRect(0, 0, W, H);
+        /* Orbs */
+        ORB_DEFS.forEach(o => {
+            o.angle += o.speed * 60;
+            const cx  = (o.x + Math.cos(o.angle) * 0.07) * W;
+            const cy  = (o.docFrac + Math.sin(o.angle * 0.72) * 0.042) * docH - sY;
+            const rad = o.r * Math.min(W, H);
+            if (cy < -rad || cy > H + rad) return;
+            const [r, g, b] = o.rgb;
+            const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+            gr.addColorStop(0,   `rgba(${r},${g},${b},${o.a[0]})`);
+            gr.addColorStop(0.45,`rgba(${r},${g},${b},${o.a[1]})`);
+            gr.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+            ctx.beginPath();
+            ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+            ctx.fillStyle = gr;
+            ctx.fill();
+        });
 
-            orbState.forEach((o, oi) => {
-                o.angle += o.speed * 1000 / 60;
-                const cx  = (o.x + Math.cos(o.angle) * 0.07) * W;
-                const cy  = (o.docFrac + Math.sin(o.angle * 0.7) * 0.04) * docH - scrollY;
-                const rad = o.r * Math.min(W, H);
-                if (cy < -rad || cy > H + rad) return;
-                const [r, g, b] = PAL.orbs[oi % PAL.orbs.length];
-                const [a0, a1]  = PAL.orbAlpha;
-                const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
-                gr.addColorStop(0,   `rgba(${r},${g},${b},${a0})`);
-                gr.addColorStop(0.4, `rgba(${r},${g},${b},${a1})`);
-                gr.addColorStop(1,   `rgba(${r},${g},${b},0)`);
-                ctx.beginPath();
-                ctx.arc(cx, cy, rad, 0, Math.PI * 2);
-                ctx.fillStyle = gr;
-                ctx.fill();
-            });
-
-            const [lr, lg, lb] = PAL.line;
-            nodes.forEach(n => {
-                n.x       += n.vx;
-                n.docFrac += n.vdoc;
-                if (n.x < 0 || n.x > 1) n.vx   *= -1;
-                if (n.docFrac < 0 || n.docFrac > 1) n.vdoc *= -1;
-            });
-            const cDist = CONNECT_DIST * W;
-            for (let i = 0; i < nodes.length; i++) {
-                const syi = nodes[i].docFrac * docH - scrollY;
-                for (let j = i + 1; j < nodes.length; j++) {
-                    const syj = nodes[j].docFrac * docH - scrollY;
-                    if ((syi < -50 && syj < -50) || (syi > H + 50 && syj > H + 50)) continue;
-                    const dx   = (nodes[i].x - nodes[j].x) * W;
-                    const dy   = syi - syj;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < cDist) {
-                        const alpha = (1 - dist / cDist) * PAL.lineAlpha;
-                        ctx.beginPath();
-                        ctx.moveTo(nodes[i].x * W, syi);
-                        ctx.lineTo(nodes[j].x * W, syj);
-                        ctx.strokeStyle = `rgba(${lr},${lg},${lb},${alpha})`;
-                        ctx.lineWidth   = 1.1;
-                        ctx.stroke();
-                    }
+        /* Network */
+        nodes.forEach(n => {
+            n.x       += n.vx;
+            n.docFrac += n.vdoc;
+            if (n.x < 0 || n.x > 1) n.vx   *= -1;
+            if (n.docFrac < 0 || n.docFrac > 1) n.vdoc *= -1;
+        });
+        const cDist = CONNECT_DIST * W;
+        for (let i = 0; i < nodes.length; i++) {
+            const syi = nodes[i].docFrac * docH - sY;
+            for (let j = i + 1; j < nodes.length; j++) {
+                const syj = nodes[j].docFrac * docH - sY;
+                if (syi < -50 && syj < -50) continue;
+                if (syi > H + 50 && syj > H + 50) continue;
+                const dx   = (nodes[i].x - nodes[j].x) * W;
+                const dy   = syi - syj;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < cDist) {
+                    const alpha = (1 - dist / cDist) * 0.28;
+                    ctx.beginPath();
+                    ctx.moveTo(nodes[i].x * W, syi);
+                    ctx.lineTo(nodes[j].x * W, syj);
+                    ctx.strokeStyle = `rgba(0,255,180,${alpha})`;
+                    ctx.lineWidth   = 0.8;
+                    ctx.stroke();
                 }
             }
-            nodes.forEach(n => {
-                const sy = n.docFrac * docH - scrollY;
-                if (sy < -4 || sy > H + 4) return;
-                ctx.beginPath();
-                ctx.arc(n.x * W, sy, 1.6, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${lr},${lg},${lb},${PAL.lineAlpha * 1.6})`;
-                ctx.fill();
-            });
-
-            const [sr, sg, sb] = PAL.starCol;
-            stars.forEach(s => {
-                s.a       += s.da;
-                if (s.a <= 0 || s.a >= 1) s.da *= -1;
-                s.x       += s.vx;
-                s.docFrac += s.vdoc;
-                if (s.x < 0) s.x = 1; if (s.x > 1) s.x = 0;
-                if (s.docFrac < 0) s.docFrac = 1; if (s.docFrac > 1) s.docFrac = 0;
-                const sy = s.docFrac * docH - scrollY;
-                if (sy < -2 || sy > H + 2) return;
-                ctx.beginPath();
-                ctx.arc(s.x * W, sy, s.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${sr},${sg},${sb},${s.a * PAL.starAlpha})`;
-                ctx.fill();
-            });
-
-            const [er, eg, eb] = PAL.streak;
-            for (let i = 0; i < 3; i++) {
-                const progress = ((t * 0.00020 + i / 3) % 1);
-                const sy  = H * ((i + 0.5) / 3);
-                const sx  = progress * (W + 360) - 180;
-                const len = 150 + i * 50;
-                const sg2 = ctx.createLinearGradient(sx - len, sy, sx + len, sy);
-                sg2.addColorStop(0,   `rgba(${er},${eg},${eb},0)`);
-                sg2.addColorStop(0.5, `rgba(${er},${eg},${eb},0.22)`);
-                sg2.addColorStop(1,   `rgba(${er},${eg},${eb},0)`);
-                ctx.beginPath();
-                ctx.moveTo(sx - len, sy);
-                ctx.lineTo(sx + len, sy);
-                ctx.strokeStyle = sg2;
-                ctx.lineWidth   = 1.5;
-                ctx.stroke();
-            }
-
-            t++;
-            requestAnimationFrame(draw);
         }
-        draw();
-    })();
+        nodes.forEach(n => {
+            const sy = n.docFrac * docH - sY;
+            if (sy < -4 || sy > H + 4) return;
+            ctx.beginPath();
+            ctx.arc(n.x * W, sy, 1.4, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(0,255,180,0.45)`;
+            ctx.fill();
+        });
+
+        /* Stars */
+        stars.forEach(s => {
+            s.a       += s.da;
+            if (s.a <= 0 || s.a >= 1) s.da *= -1;
+            s.x       += s.vx;
+            s.docFrac += s.vdoc;
+            if (s.x < 0) s.x = 1; if (s.x > 1) s.x = 0;
+            if (s.docFrac < 0) s.docFrac = 1; if (s.docFrac > 1) s.docFrac = 0;
+            const sy = s.docFrac * docH - sY;
+            if (sy < -2 || sy > H + 2) return;
+            ctx.beginPath();
+            ctx.arc(s.x * W, sy, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255,255,255,${s.a * 0.6})`;
+            ctx.fill();
+        });
+
+        /* Horizontal streaks */
+        for (let i = 0; i < 4; i++) {
+            const progress = ((t * 0.00018 + i / 4) % 1);
+            const sy  = H * ((i + 0.5) / 4);
+            const sx  = progress * (W + 400) - 200;
+            const len = 120 + i * 45;
+            const gr2 = ctx.createLinearGradient(sx - len, sy, sx + len, sy);
+            const col = i % 2 === 0 ? '0,255,180' : '77,158,255';
+            gr2.addColorStop(0,   `rgba(${col},0)`);
+            gr2.addColorStop(0.5, `rgba(${col},0.18)`);
+            gr2.addColorStop(1,   `rgba(${col},0)`);
+            ctx.beginPath();
+            ctx.moveTo(sx - len, sy);
+            ctx.lineTo(sx + len, sy);
+            ctx.strokeStyle = gr2;
+            ctx.lineWidth   = 1;
+            ctx.stroke();
+        }
+
+        t++;
+        requestAnimationFrame(draw);
+    }
+    draw();
+})();
 </script>
 {% endblock %}

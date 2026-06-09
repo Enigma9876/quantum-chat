@@ -2,48 +2,54 @@
             <div class="host-panel"
                 style="margin: 16px 16px 0; padding: 12px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; flex-shrink: 0;">
                 
-                <!-- Top Row: Title and Bold Toggle -->
+                <!-- Top Row: Title and Collapse Toggle -->
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 8px; gap: 8px;">
                     <div style="font-size: 10px; font-weight: 800; color: var(--red); text-transform: uppercase; letter-spacing: 1px;">
                         Host Controls
                     </div>
-                    <label style="font-size: 11px; color: #fff; display: flex; align-items: center; gap: 4px;">
+                    <button id="host-controls-toggle" onclick="toggleHostControls()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0;width:20px;height:20px;display:flex;align-items:center;justify-content:center;transition:transform 0.2s;" title="Toggle controls">
+                        ▼
+                    </button>                </div>
+
+                <!-- Collapsible Content -->
+                <div id="host-controls-content" style="display:block;transition:max-height 0.3s ease;overflow:hidden;\">
+                    <!-- Bold Message Toggle -->
+                    <label style="font-size: 11px; color: #fff; display: flex; align-items: center; gap: 4px; margin-bottom: 8px;">
                         <input type="checkbox" id="host-bold"> Bold Message
                     </label>
-                </div>
 
-                <!-- Middle Row: Global Settings -->
-                <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px;">
-                    <select id="host-force-cipher" class="chat-input"
-                        style="width: auto; flex: 1; min-width: 140px; padding: 6px; font-size: 11px;"
-                        onchange="socket.emit('host_action', {room, action: 'force_cipher', cipher: this.value})">
-                        <option value="">No Cipher Restriction</option>
-                        <option value="none">Force: Plaintext</option>
-                        <option value="caesar">Force: Caesar</option>
-                        <option value="affine">Force: Affine</option>
-                        <option value="hill">Force: Hill</option>
-                        <option value="vigenere">Force: Vigenère</option>
-                        <option value="aes">Force: AES-256</option>
-                        <option value="quantum">Force: BB84 Quantum</option>
-                    </select>
+                    <!-- Middle Row: Global Settings -->
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px;">
+                        <select id="host-force-cipher"
+                            onchange="socket.emit('host_action', {room, action: 'force_cipher', cipher: this.value})">
+                            <option value="">No Cipher Restriction</option>
+                            <option value="none">Force: Plaintext</option>
+                            <option value="caesar">Force: Caesar</option>
+                            <option value="affine">Force: Affine</option>
+                            <option value="hill">Force: Hill</option>
+                            <option value="vigenere">Force: Vigenère</option>
+                            <option value="aes">Force: AES-256</option>
+                            <option value="quantum">Force: BB84 Quantum</option>
+                        </select>
 
-                    <button class="ctrl-btn" style="border-color: var(--red); color: var(--red); flex-shrink: 0;"
-                        onclick="socket.emit('host_action', {room, action: 'toggle_global_mute'})">Toggle Global
-                        Mute</button>
-                </div>
+                        <button class="ctrl-btn" style="border-color: var(--red); color: var(--red); flex-shrink: 0;"
+                            onclick="socket.emit('host_action', {room, action: 'toggle_global_mute'})">Toggle Global
+                            Mute</button>
+                    </div>
 
-                <!-- Bottom Row: User Management -->
-                <div style="display: flex; gap: 4px; align-items: center; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 6px; flex-wrap: wrap;">
-                    <input type="text" id="host-target" class="chat-input" placeholder="Target Username"
-                        style="flex: 1; min-width: 110px; padding: 4px 8px; font-size: 11px;">
-                    <button class="ctrl-btn" style="flex-shrink: 0;"
-                        onclick="socket.emit('host_action', {room, action: 'kick', target: document.getElementById('host-target').value})">Kick</button>
-                    <button class="ctrl-btn" style="flex-shrink: 0;"
-                        onclick="socket.emit('host_action', {room, action: 'toggle_user_mute', target: document.getElementById('host-target').value})">Mute/Unmute</button>
-                    <input type="text" id="host-rename" class="chat-input" placeholder="New Name"
-                        style="flex: 1; min-width: 80px; padding: 4px 8px; font-size: 11px;">
-                    <button class="ctrl-btn" style="flex-shrink: 0;"
-                        onclick="socket.emit('host_action', {room, action: 'rename', target: document.getElementById('host-target').value, new_name: document.getElementById('host-rename').value})">Rename</button>
+                    <!-- Bottom Row: User Management -->
+                    <div style="display: flex; gap: 4px; align-items: center; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 6px; flex-wrap: wrap;">
+                        <input type="text" id="host-target" class="chat-input" placeholder="Target Username"
+                            style="flex: 1; min-width: 110px; padding: 4px 8px; font-size: 11px;">
+                        <button class="ctrl-btn" style="flex-shrink: 0;"
+                            onclick="socket.emit('host_action', {room, action: 'kick', target: document.getElementById('host-target').value})">Kick</button>
+                        <button class="ctrl-btn" style="flex-shrink: 0;"
+                            onclick="socket.emit('host_action', {room, action: 'toggle_user_mute', target: document.getElementById('host-target').value})">Mute/Unmute</button>
+                        <input type="text" id="host-rename" class="chat-input" placeholder="New Name"
+                            style="flex: 1; min-width: 80px; padding: 4px 8px; font-size: 11px;">
+                        <button class="ctrl-btn" style="flex-shrink: 0;"
+                            onclick="socket.emit('host_action', {room, action: 'rename', target: document.getElementById('host-target').value, new_name: document.getElementById('host-rename').value})">Rename</button>
+                    </div>
                 </div>
             </div>
             {% endif %}

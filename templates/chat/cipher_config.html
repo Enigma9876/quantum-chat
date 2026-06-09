@@ -1,7 +1,7 @@
         <div class="enc-panel">
             <div class="enc-panel-top" id="enc-top">
-                <div class="panel-hdr">
-                    <span>Cipher Configuration</span>
+                <div style="margin-bottom:12px;">
+                    <div style="font-size:12px;font-weight:600;margin-bottom:10px;">Cipher Configuration</div>
                     <select id="encryption-selector">
                         <option value="none">Plaintext (None)</option>
                         <option value="caesar">Caesar Cipher</option>
@@ -41,7 +41,7 @@
                     <div style="display:flex; gap:10px; margin-bottom:10px;">
                         <div style="flex:1;">
                             <div class="enc-label" style="margin-bottom:6px;">Multiplier (A)</div>
-                            <select id="affine-a" class="chat-input" style="width:100%; padding:4px;">
+                            <select id="affine-a" style="width:100%; padding:4px; background: var(--bg-3); border: 1px solid var(--border-md); color: var(--text); font-size: 12px; border-radius: var(--radius-sm); outline: none; cursor: pointer; font-family: inherit;">
                                 <option value="1">1</option>
                                 <option value="3">3</option>
                                 <option value="5" selected>5</option>

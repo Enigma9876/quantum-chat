@@ -25,6 +25,49 @@
 
     let emojiMsgId = null;
 
+    // Copy room code to clipboard
+    function copyRoomCode(btn) {
+        const code = btn.getAttribute('data-code') || btn.textContent;
+        navigator.clipboard.writeText(code).then(() => {
+            const originalHTML = btn.innerHTML;
+            const originalColor = btn.style.color;
+            
+            // Trigger animation
+            btn.style.animation = 'none';
+            setTimeout(() => {
+                btn.style.animation = 'btn-copy-click 0.4s ease';
+            }, 10);
+            
+            btn.innerHTML = '✓';
+            btn.style.color = 'var(--green-light)';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.color = originalColor;
+                btn.style.animation = 'none';
+            }, 2000);
+        }).catch(err => console.error('Failed to copy:', err));
+    }
+
+    // Close welcome guide
+    function closeWelcomeGuide() {
+        const guide = document.getElementById('welcome-guide');
+        guide.style.display = 'none';
+    }
+
+    // Toggle host controls
+    function toggleHostControls() {
+        const toggle = document.getElementById('host-controls-toggle');
+        const content = document.getElementById('host-controls-content');
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            toggle.style.transform = 'rotate(0deg)';
+        } else {
+            content.style.display = 'none';
+            toggle.style.transform = 'rotate(-90deg)';
+        }
+    }
+
     // State for the Live Example Preview
     let activePayload = '';
     let activeOriginal = 'HELLO WORLD';

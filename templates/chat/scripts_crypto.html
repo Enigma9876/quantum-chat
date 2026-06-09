@@ -101,7 +101,7 @@
         } else if (activeCipherType === 'hill') {
             if (!validateHillMatrix()) {
                 activePayload = "[Singular Matrix - Cannot Encrypt]";
-                activeCipherKey = [];
+                activeCipherKey = null;
             } else {
                 const cells = document.querySelectorAll('.hill-cell');
                 let mat = [], row = [];
@@ -128,6 +128,12 @@
         document.querySelectorAll('.history-block').forEach(e => e.style.display = 'none');
 
         if (activeCipherType !== 'none') {
+            if (activeCipherType === 'hill' && activeCipherKey === null) {
+                document.getElementById('tool-container-none').style.display = 'block';
+                document.getElementById('sol-none').style.display = 'block';
+                return;
+            }
+
             document.getElementById('tool-container-active').style.display = 'flex';
             document.getElementById('sol-dynamic').style.display = 'block';
 
@@ -337,6 +343,7 @@
             const k = String(key).toUpperCase();
             return dec ? `Subtract each keyword letter of <strong>"${k}"</strong> from the ciphertext. ${m('P[i]=(C[i]−K[i mod ' + k.length + ']+26) mod 26')}` : `Pair each letter with keyword <strong>"${k}"</strong>. ${m('C[i]=(P[i]+K[i mod ' + k.length + ']) mod 26')}`;
         } else if (type === 'hill') {
+            if (!key) return `Matrix is singular — cannot encrypt. Ensure the matrix determinant is non-zero (mod 97).`;
             const n = Array.isArray(key) ? key.length : 2;
             return dec ? `Multiply ciphertext blocks by the <strong>inverse matrix K⁻¹</strong> mod 26. ${m('[P]=[C]×K⁻¹ (mod 26)')}` : `Multiply plaintext blocks of ${n} by the <strong>key matrix K</strong> mod 26. ${m('[C]=[P]×K (mod 26)')}`;
         } else if (type === 'aes') {
@@ -365,7 +372,8 @@
             for (let i = 0; i < Math.min(pC.length, L); i++) { const kc = k[i % k.length], kv = kc.charCodeAt(0) - 65, pv = pC[i].charCodeAt(0) - 65, cv = (pv + kv) % 26; rows.push(`<tr><td style="color:#fff;">${pC[i]}(${pv})</td><td class="op-cell">+${kc}(${kv})=${cv}</td><td class="enc-cell">${String.fromCharCode(cv + 65)}(${cv})</td></tr>`); }
             return buildTable(rows, ['PLAIN', 'KEY+SHIFT', 'CIPHER']);
         } else if (type === 'hill') {
-            const n = Array.isArray(key) ? key.length : 2;
+            if (!key || !Array.isArray(key)) return `<div style="color:var(--muted);padding:10px;font-size:11px;">Matrix is invalid — cannot display encryption process.</div>`;
+            const n = key.length;
             for (let i = 0; i < pC.length; i += n) { rows.push(`<tr><td style="color:#fff;">[${pC.substring(i, i + n).padEnd(n, 'A').split('').join(',')}]</td><td class="op-cell">×Key mod 26</td><td class="enc-cell">[${cC.substring(i, i + n).padEnd(n, '?').split('').join(',')}]</td></tr>`); }
             return buildTable(rows, [`PLAIN(×${n})`, 'OP', `CIPHER(×${n})`]);
         }
@@ -386,7 +394,8 @@
             for (let i = 0; i < Math.min(cC.length, L); i++) { const kc = k[i % k.length], kv = kc.charCodeAt(0) - 65, cv = cC[i].charCodeAt(0) - 65, pv = ((cv - kv) % 26 + 26) % 26; rows.push(`<tr><td style="color:#fff;">${cC[i]}(${cv})</td><td class="op-cell">−${kc}(${kv})=${pv}</td><td class="hi-cell">${String.fromCharCode(pv + 65)}(${pv})</td></tr>`); }
             return buildTable(rows, ['CIPHER', 'KEY−SHIFT', 'PLAIN']);
         } else if (type === 'hill') {
-            const n = Array.isArray(key) ? key.length : 2;
+            if (!key || !Array.isArray(key)) return `<div style="color:var(--muted);padding:10px;font-size:11px;">Matrix is invalid — cannot display decryption process.</div>`;
+            const n = key.length;
             for (let i = 0; i < cC.length; i += n) { rows.push(`<tr><td style="color:#fff;">[${cC.substring(i, i + n).padEnd(n, 'A').split('').join(',')}]</td><td class="op-cell">×K⁻¹ mod 26</td><td class="hi-cell">[${pC.substring(i, i + n).padEnd(n, '?').split('').join(',')}]</td></tr>`); }
             return buildTable(rows, [`CIPHER(×${n})`, 'INV MATRIX', `PLAIN(×${n})`]);
         }

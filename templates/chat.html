@@ -4,19 +4,30 @@
 <div class="chat-page">
     <div class="chat-topbar-ext">
         <div class="room-badge">
-            <span class="room-badge-live">Live</span>
             <span style="color:var(--muted);font-size:13px;font-weight:600;">Room</span>
-            <span class="room-code-display">{{ room_code }}</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span class="room-code-display">{{ room_code }}</span>
+                <button class="btn-copy-room" onclick="copyRoomCode(this)" data-code="{{ room_code }}" title="Copy room code">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 17c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"/>
+                        <path d="M16 4c1.657 0 3 1.343 3 3v5m0 7v1c0 1.657-1.343 3-3 3h-7c-1.657 0-3-1.343-3-3v-7m10-10h-7c-1.657 0-3 1.343-3 3v5"/>
+                        <rect x="9" y="9" width="7" height="7" rx="0"/>
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
     <div class="chat-body">
 
         <div class="chat-col" id="chat-col">
-            <div class="room-quick-guide">
+            <div class="room-quick-guide" id="welcome-guide" style="position:relative;">
+                <button class="btn-close-guide" onclick="closeWelcomeGuide()" title="Close guide" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--muted-2);cursor:pointer;font-size:18px;padding:0;width:20px;height:20px;display:flex;align-items:center;justify-content:center;">
+                    ✕
+                </button>
                 <strong>Welcome to the Secure Room!</strong><br>
                 <span style="color:var(--muted-2);">1. Select a cipher on the right and configure its key.<br>
                     2. Type a message - it will be encrypted locally before sending.<br>
-                    3. Click the 🔍 icon next to any sent message to reveal its mathematical secrets.</span>
+                    3. Click the inspector icon next to any sent message to reveal its mathematical secrets.</span>
             </div>
 
             {% include 'chat/host_panel.html' %}
