@@ -7,10 +7,25 @@
     .lab-page {
         height: 100vh;
         display: flex;
-        padding-top: 56px;
+        padding-top: 80px;
         background: var(--bg);
         overflow: hidden;
     }
+
+    /* === NAV OVERRIDES === */
+    nav, .navbar, .nav-bar, header nav, .site-nav, .topbar {
+        min-height: 80px !important;
+        font-size: 1.28rem !important;
+        padding-left: 48px !important;
+        padding-right: 48px !important;
+        position: relative !important;
+        z-index: 10;
+    }
+    nav a, .navbar a, .nav-bar a, .topbar a {
+        font-size: 1.28rem !important;
+        padding: 0 24px !important;
+    }
+    nav .logo, .nav-brand, .nav-logo, .topbar-logo { font-size: 2.2rem !important; }
 
     /* === LEFT PANEL === */
     .lab-config {
@@ -281,6 +296,50 @@
         margin-bottom: 0.25rem;
     }
 
+    /* === SHARED GUIDE STYLES (from chat/guide_tab.html include) === */
+    #tab-guide { display: block !important; }
+    #tab-guide .history-block {
+        display: none;
+        animation: fadeIn 0.25s ease both;
+    }
+    #tab-guide .history-block h3 {
+        color: #fff;
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+        font-weight: 800;
+    }
+    #tab-guide .history-block h4 {
+        color: var(--blue-light);
+        font-size: 0.75rem;
+        margin: 0.75rem 0 0.25rem 0;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+    #tab-guide .history-block p {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        color: var(--muted-2);
+        font-size: 0.8125rem;
+        line-height: 1.6;
+    }
+    #tab-guide .history-block ol {
+        margin-top: 0.5rem;
+        padding-left: 1rem;
+        color: var(--muted-2);
+    }
+    #tab-guide .history-block ol li {
+        margin-bottom: 0.25rem;
+        font-size: 0.8125rem;
+    }
+    #tab-guide #sol-none {
+        display: block;
+        text-align: center;
+        color: var(--muted);
+        font-style: italic;
+        padding-top: 1rem;
+    }
+    #tab-guide #sol-dynamic { display: none; }
+
     /* === DECRYPT MODE BAR (reuse base) === */
     .lab-decrypt-container {
         flex: 1;
@@ -400,114 +459,7 @@
 
             <!-- ===== GUIDE TAB ===== -->
             <div id="lab-tab-guide" class="lab-tab-pane active">
-                <!-- None selected -->
-                <div id="lab-guide-none" class="lab-guide-section active" style="text-align:center;color:var(--muted);font-style:italic;padding-top:1rem;">
-                    Plaintext involves no cryptographic operations. Select a cipher to see its guide.
-                </div>
-
-                <!-- CAESAR GUIDE -->
-                <div id="lab-guide-caesar" class="lab-guide-section">
-                    <h3>Julius Caesar's Cipher</h3>
-                    <p>Historically utilized by Julius Caesar to protect messages of military significance, this substitution cipher replaces each letter in the plaintext with a letter a fixed number of positions down the alphabet. It is one of the oldest and simplest known encryption techniques, dating back to 58 BC during the Gallic Wars.</p>
-
-                    <h4>How the Shift Works</h4>
-                    <p>Imagine the alphabet written on a wheel. If your shift key is <strong>3</strong>, you spin the wheel forward by 3 spaces. 'A' becomes 'D', 'B' becomes 'E', and so on. When you reach the end of the alphabet, it simply wraps back around to the beginning, so 'X' becomes 'A', 'Y' becomes 'B', and 'Z' becomes 'C'.</p>
-
-                    <h4>The Math</h4>
-                    <p>Mathematically, this is expressed using modular arithmetic: <code>C = (P + shift) mod 26</code>. The "mod 26" is the mathematical mechanism that handles the looping of the 26 letters. To decrypt, we simply reverse the process: <code>P = (C − shift + 26) mod 26</code>.</p>
-
-                    <h4>Weakness</h4>
-                    <p>The Caesar cipher has only <strong>25 possible keys</strong>, making it extremely vulnerable to brute force attacks. An attacker can simply try all 25 shifts and find the correct one in seconds. It is also trivially broken by frequency analysis, since the letter distribution in English is well-known, the most common ciphertext letter likely maps to 'E'.</p>
-                </div>
-
-                <!-- AFFINE GUIDE -->
-                <div id="lab-guide-affine" class="lab-guide-section">
-                    <h3>The Affine Cipher</h3>
-                    <p>The Affine cipher is a type of monoalphabetic substitution cipher, where each letter in an alphabet is mapped to its numeric equivalent, encrypted using a simple mathematical function, and converted back to a letter. It generalizes the Caesar cipher by adding a multiplication step before the shift.</p>
-
-                    <h4>The Math</h4>
-                    <p>The encryption function is <code>E(x) = (A × x + B) mod 26</code>. The multiplier 'A' must be coprime with 26 for the cipher to be reversible. Valid values for A are: 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25.</p>
-
-                    <h4>Why Coprime?</h4>
-                    <p>If A shares a common factor with 26, multiple plaintext letters would map to the same ciphertext letter, making decryption impossible. The coprime requirement ensures a one-to-one mapping.</p>
-
-                    <h4>Decryption</h4>
-                    <p>The decryption formula is <code>D(y) = A⁻¹ × (y − B) mod 26</code>, where A⁻¹ is the modular multiplicative inverse of A modulo 26. For example, if A = 5, then A⁻¹ = 21, because (5 × 21) mod 26 = 1.</p>
-                </div>
-
-                <!-- HILL GUIDE -->
-                <div id="lab-guide-hill" class="lab-guide-section">
-                    <h3>Lester S. Hill's Matrix Cipher</h3>
-                    <p>Invented in 1929, the Hill cipher was the first polygraphic substitution cipher based on linear algebra. Instead of encrypting one letter at a time, it encrypts groups of letters simultaneously using matrix multiplication, a revolutionary concept for its time.</p>
-
-                    <h4>How It Works</h4>
-                    <p>Letters are converted to numbers (A=0, B=1, …, Z=25) and grouped into blocks matching the matrix size. Each block is multiplied by the <strong>Key Matrix</strong>, and the results are taken modulo 26 to produce ciphertext letters. A 2×2 matrix encrypts pairs, a 3×3 encrypts triplets, and so on.</p>
-
-                    <h4>What is a Determinant?</h4>
-                    <p>The <strong>determinant</strong> is a special number calculated directly from the Key Matrix. Think of the determinant as the matrix's gatekeeper, it tells us crucial information about whether the encryption can actually be reversed (decrypted).</p>
-
-                    <h4>Rules for Decryption</h4>
-                    <p>To decrypt a Hill Cipher, the receiver must calculate the <em>inverse</em> of the Key Matrix. For this mathematical magic to work in our 26-letter alphabet:</p>
-                    <ol>
-                        <li><strong>The determinant cannot be 0.</strong> If it is 0, the matrix mathematically collapses and cannot be inverted.</li>
-                        <li><strong>It must be coprime with 26.</strong> The determinant cannot share any common factors with the number 26 (i.e., it cannot be divisible by 2 or 13).</li>
-                    </ol>
-                </div>
-
-                <!-- VIGENÈRE GUIDE -->
-                <div id="lab-guide-vigenere" class="lab-guide-section">
-                    <h3>Le Chiffre Indéchiffrable</h3>
-                    <p>For over <strong>300 years</strong>, the Vigenère cipher was considered entirely unbreakable, earning the French nickname "Le Chiffre Indéchiffrable" (the indecipherable cipher). It was ultimately defeated in 1863 by Friedrich Kasiski through brilliant pattern analysis.</p>
-
-                    <h4>The Keyword System</h4>
-                    <p>Unlike the Caesar cipher's single shift, Vigenère uses a keyword that repeats over the plaintext. Each letter of the keyword provides a different shift value, creating a polyalphabetic cipher. For example, with keyword "KEY": K shifts by 10, E shifts by 4, Y shifts by 24, then the pattern repeats.</p>
-
-                    <h4>Why It Worked So Well</h4>
-                    <p>Each plaintext letter effectively gets its own Caesar shift, determined by the corresponding keyword letter. This scrambles the letter frequency distribution that makes simple substitution ciphers so easy to break. The longer the keyword, the more effectively it disguises the underlying frequencies.</p>
-
-                    <h4>How Kasiski Broke It</h4>
-                    <p>Kasiski noticed that repeated sequences in the ciphertext (trigrams) tend to occur at distances that are multiples of the key length. By finding these repetitions and computing the GCD of their distances, the key length can be determined. Once the key length is known, each "column" of the ciphertext becomes a simple Caesar cipher, breakable by frequency analysis.</p>
-                </div>
-
-                <!-- AES GUIDE -->
-                <div id="lab-guide-aes" class="lab-guide-section">
-                    <h3>Advanced Encryption Standard</h3>
-                    <p>Adopted by NIST in 2001, the Rijndael cipher (now known as AES) is the definitive global standard for symmetric-key encryption. It replaced the aging DES standard and is used in everything from HTTPS to disk encryption to government classified communications.</p>
-
-                    <h4>Key Strength</h4>
-                    <p>AES-256 uses <strong>256-bit keys</strong>, providing a keyspace of 2²⁵⁶ possible keys. This number is astronomically large, more than the number of atoms in the observable universe. It would take billions of years for all of today's supercomputers combined to brute force a single AES-256 key.</p>
-
-                    <h4>The 14 Rounds</h4>
-                    <p>AES-256 processes data through <strong>14 rounds of transformation</strong>. Each round applies four operations to a 4×4 byte state matrix:</p>
-                    <ol>
-                        <li><strong>SubBytes</strong>, Non-linear byte substitution using an S-Box lookup table</li>
-                        <li><strong>ShiftRows</strong>, Cyclic left-shift of each row by different offsets</li>
-                        <li><strong>MixColumns</strong>, Matrix multiplication in the Galois field GF(2⁸)</li>
-                        <li><strong>AddRoundKey</strong>, XOR the state with the round's sub-key</li>
-                    </ol>
-                    <p>The combination of these operations creates a powerful <strong>avalanche effect</strong>: changing a single input bit affects every bit of the output. AES is considered impenetrable by classical brute force.</p>
-                </div>
-
-                <!-- QUANTUM GUIDE -->
-                <div id="lab-guide-quantum" class="lab-guide-section">
-                    <h3>BB84 Quantum Key Distribution</h3>
-                    <p>Developed in 1984 by Charles Bennett and Gilles Brassard, BB84 was the first quantum cryptography protocol. It doesn't encrypt data directly, instead, it provides a method for two parties to securely generate a shared secret key using the laws of quantum physics.</p>
-
-                    <h4>Quantum Superposition</h4>
-                    <p>In BB84, each bit of the key is encoded as the polarization of a single photon. Photons are sent in randomly chosen <strong>bases</strong>: rectilinear (+) using horizontal/vertical polarization, or diagonal (×) using 45°/135° polarization. A photon exists in a superposition of states until it is measured.</p>
-
-                    <h4>Measurement Disturbs the State</h4>
-                    <p>This is the core quantum principle that makes BB84 secure: <strong>measuring a quantum state alters it</strong>. If an eavesdropper (Eve) tries to intercept photons, she must measure them, but if she guesses the wrong basis, she irreversibly changes the photon's state. This introduces detectable errors.</p>
-
-                    <h4>The Sifting Process</h4>
-                    <p>After transmission, Alice and Bob publicly compare which bases they used (but not the bit values). They keep only the bits where their bases matched, this is the <strong>sifted key</strong>. Roughly 50% of bits survive sifting.</p>
-
-                    <h4>Eavesdrop Detection</h4>
-                    <p>Alice and Bob sacrifice a portion of their sifted key to check for errors. In a clean channel, error rate is ~0%. If Eve intercepted, the error rate spikes to ~25%. If errors exceed a threshold, they discard the key and start over.</p>
-
-                    <h4>One-Time Pad</h4>
-                    <p>The final shared key is used with a <strong>one-time pad</strong> (XOR) cipher, the only encryption method that is mathematically proven to be perfectly secure, provided the key is truly random and used only once.</p>
-                </div>
+                {% include 'chat/guide_tab.html' %}
             </div>
 
             <!-- ===== STEP-BY-STEP TAB ===== -->
@@ -600,8 +552,8 @@
     function caesarShift(text, n) {
         return text.split('').map(c => {
             const code = c.charCodeAt(0);
-            if (code >= 65 && code <= 90) return String.fromCharCode(((code - 65 - n + 260) % 26) + 65);
-            if (code >= 97 && code <= 122) return String.fromCharCode(((code - 97 - n + 260) % 26) + 97);
+            if (code >= 65 && code <= 90) return String.fromCharCode(((code - 65 + n) % 26) + 65);
+            if (code >= 97 && code <= 122) return String.fromCharCode(((code - 97 + n) % 26) + 97);
             return c;
         }).join('');
     }
@@ -1067,16 +1019,24 @@
     window.labSetDecryptMode = labSetDecryptMode;
 
     // ===========================================================
-    //  GUIDE RENDERING
+    //  GUIDE RENDERING (now uses shared include file)
     // ===========================================================
     function labRenderGuide(cipher) {
-        document.querySelectorAll('.lab-guide-section').forEach(s => s.classList.remove('active'));
+        // Hide all history blocks (from shared guide_tab.html)
+        document.querySelectorAll('.history-block').forEach(s => s.style.display = 'none');
+        document.getElementById('sol-none').style.display = 'block';
+        document.getElementById('sol-dynamic').style.display = 'none';
+        
+        // Show guide map for shared file IDs
         const map = {
-            none: 'lab-guide-none', caesar: 'lab-guide-caesar', affine: 'lab-guide-affine',
-            hill: 'lab-guide-hill', vigenere: 'lab-guide-vigenere', aes: 'lab-guide-aes', quantum: 'lab-guide-quantum'
+            none: 'sol-none', caesar: 'hist-caesar', affine: 'hist-affine',
+            hill: 'hist-hill', vigenere: 'hist-vigenere', aes: 'hist-aes', quantum: 'hist-quantum'
         };
-        const el = document.getElementById(map[cipher] || 'lab-guide-none');
-        if (el) el.classList.add('active');
+        const el = document.getElementById(map[cipher] || 'sol-none');
+        if (el) {
+            el.style.display = 'block';
+            document.getElementById('sol-none').style.display = 'none';
+        }
     }
 
     // ===========================================================
@@ -1686,9 +1646,9 @@
                     <div class="manual-title">MANUAL DECRYPTION, CAESAR SHIFT</div>
                 </div>
                 <div class="manual-body">
-                    <div style="color:var(--muted);font-size:10px;">Try each reverse shift until the plaintext makes sense.</div>
+                    <div style="color:var(--muted);font-size:10px;">Try each shift until the plaintext makes sense.</div>
                     <div>
-                        <div style="color:var(--muted);font-size:10px;letter-spacing:1px;margin-bottom:4px;">REVERSE SHIFT: <span id="lab-manual-shift-val" style="color:var(--blue-light);font-weight:800;">1</span></div>
+                        <div style="color:var(--muted);font-size:10px;letter-spacing:1px;margin-bottom:4px;">SHIFT: <span id="lab-manual-shift-val" style="color:var(--blue-light);font-weight:800;">1</span></div>
                         <input type="range" id="lab-manual-caesar-slider" min="1" max="25" value="1" style="margin-bottom:4px;">
                         <div id="lab-manual-caesar-out" class="brute-out" style="font-size:12px;min-height:28px;padding:8px 12px;"></div>
                     </div>
@@ -1707,7 +1667,7 @@
         const slider = document.getElementById('lab-manual-caesar-slider');
         const out = document.getElementById('lab-manual-caesar-out');
         const lbl = document.getElementById('lab-manual-shift-val');
-        function update() { const v = parseInt(slider.value); lbl.textContent = v; out.textContent = caesarShift(ciphertext, v); }
+        function update() { const v = parseInt(slider.value); lbl.textContent = v; out.textContent = caesarShift(ciphertext, (26 - v) % 26 || 26); }
         slider.oninput = update;
         update();
         document.getElementById('lab-manual-caesar-check').onclick = () => {

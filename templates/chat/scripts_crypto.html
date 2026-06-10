@@ -31,8 +31,8 @@
     function caesarShift(text, n) {
         return text.split('').map(c => {
             const code = c.charCodeAt(0);
-            if (code >= 65 && code <= 90) return String.fromCharCode(((code - 65 - n + 260) % 26) + 65);
-            if (code >= 97 && code <= 122) return String.fromCharCode(((code - 97 - n + 260) % 26) + 97);
+            if (code >= 65 && code <= 90) return String.fromCharCode(((code - 65 + n) % 26) + 65);
+            if (code >= 97 && code <= 122) return String.fromCharCode(((code - 97 + n) % 26) + 97);
             return c;
         }).join('');
     }
@@ -119,6 +119,7 @@
 
         document.getElementById('sel-payload').textContent = activePayload;
         refreshInspectorTabs();
+        renderSteps();
     }
 
     function refreshInspectorTabs() {
@@ -158,6 +159,126 @@
             document.getElementById('tool-container-none').style.display = 'block';
             document.getElementById('sol-none').style.display = 'block';
         }
+    }
+
+    // -- Step-by-Step Rendering -----------------------------------
+    function renderSteps() {
+        const stepsContainer = document.getElementById('steps-content');
+        if (!stepsContainer) return;
+
+        const cipher = activeCipherType;
+        const plain = activeOriginal || '';
+        const ct = activePayload || '';
+        const pC = plain.replace(/[^a-zA-Z]/g, '').toUpperCase();
+        const cC = ct.replace(/[^a-zA-Z]/g, '').toUpperCase();
+        const L = 24;
+        const m = s => `<code style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;font-size:0.625rem;">${s}</code>`;
+
+        function buildTable(rows, hdrs) {
+            if (!rows || !rows.length) return '<div style="color:var(--muted);padding:10px;font-size:0.6875rem;">Not enough data to display.</div>';
+            return `<table class="sol-table"><thead><tr>${hdrs.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+        }
+
+        let html = '';
+
+        if (cipher === 'none') {
+            html = '<div style="text-align:center;color:var(--muted);font-style:italic;padding:2rem 0;">No cipher selected, plaintext passes through unchanged.</div>';
+        } else if (cipher === 'caesar') {
+            const s = activeCipherKey || 0;
+            let rows = [];
+            for (let i = 0; i < Math.min(pC.length, L); i++) {
+                const pv = pC[i].charCodeAt(0) - 65;
+                const cv = (pv + s) % 26;
+                rows.push(`<tr><td style="color:#fff;">${pC[i]}</td><td class="op-cell">${pv}</td><td class="op-cell">+ ${s}</td><td class="op-cell">${cv}</td><td class="enc-cell">${String.fromCharCode(cv + 65)}</td></tr>`);
+            }
+            html = `<div class="sol-box" style="border-color:rgba(139,92,246,0.3);">
+                <div class="sol-title" style="color:var(--purple-light);">Caesar Encryption, Shift ${s}</div>
+                <div class="sol-explain">Each character position value has ${s} added, then taken mod 26. ${m('C = (P + ' + s + ') mod 26')}</div>
+                <div class="tscroll">${buildTable(rows, ['Char', 'Position', '+ Shift', 'mod 26', 'Result'])}</div>
+            </div>`;
+        } else if (cipher === 'affine') {
+            const a = Array.isArray(activeCipherKey) ? activeCipherKey[0] : 5;
+            const b = Array.isArray(activeCipherKey) ? activeCipherKey[1] : 8;
+            let rows = [];
+            for (let i = 0; i < Math.min(pC.length, L); i++) {
+                const x = pC[i].charCodeAt(0) - 65;
+                const cv = (a * x + b) % 26;
+                rows.push(`<tr><td style="color:#fff;">${pC[i]}</td><td class="op-cell">${x}</td><td class="op-cell">${a}×${x}+${b} = ${a*x+b}</td><td class="op-cell">${cv}</td><td class="enc-cell">${String.fromCharCode(cv + 65)}</td></tr>`);
+            }
+            html = `<div class="sol-box" style="border-color:rgba(139,92,246,0.3);">
+                <div class="sol-title" style="color:var(--purple-light);">Affine Encryption, A=${a}, B=${b}</div>
+                <div class="sol-explain">Each character: multiply by ${a}, add ${b}, take mod 26. ${m('E(x) = (' + a + '×x + ' + b + ') mod 26')}</div>
+                <div class="tscroll">${buildTable(rows, ['Char', 'x', 'A×x+B', 'mod 26', 'Result'])}</div>
+            </div>`;
+        } else if (cipher === 'vigenere') {
+            const k = String(activeCipherKey || '').toUpperCase().replace(/[^A-Z]/g, '') || 'KEY';
+            let rows = [];
+            for (let i = 0; i < Math.min(pC.length, L); i++) {
+                const kc = k[i % k.length];
+                const kv = kc.charCodeAt(0) - 65;
+                const pv = pC[i].charCodeAt(0) - 65;
+                const cv = (pv + kv) % 26;
+                rows.push(`<tr><td style="color:#fff;">${pC[i]}</td><td class="op-cell">${kc} (${kv})</td><td class="op-cell">${pv}+${kv} = ${pv+kv}</td><td class="enc-cell">${String.fromCharCode(cv + 65)}</td></tr>`);
+            }
+            html = `<div class="sol-box" style="border-color:rgba(139,92,246,0.3);">
+                <div class="sol-title" style="color:var(--purple-light);">Vigenère Encryption, Key "${k}"</div>
+                <div class="sol-explain">Each letter is shifted by its paired keyword letter. ${m('C[i] = (P[i] + K[i mod ' + k.length + ']) mod 26')}</div>
+                <div class="tscroll">${buildTable(rows, ['Char', 'Key Char', 'Shift', 'Result'])}</div>
+            </div>`;
+        } else if (cipher === 'hill') {
+            const mat = activeCipherKey;
+            const n = mat ? mat.length : 2;
+            let rows = [];
+            for (let i = 0; i < pC.length; i += n) {
+                const block = pC.substring(i, i + n).padEnd(n, 'X');
+                const cBlock = cC.substring(i, i + n).padEnd(n, '?');
+                rows.push(`<tr><td style="color:#fff;">[${block.split('').join(', ')}]</td><td class="op-cell">× Key mod 26</td><td class="enc-cell">[${cBlock.split('').join(', ')}]</td></tr>`);
+            }
+            html = `<div class="sol-box" style="border-color:rgba(139,92,246,0.3);">
+                <div class="sol-title" style="color:var(--purple-light);">Hill Cipher, ${n}×${n} Matrix Multiplication</div>
+                <div class="sol-explain">Plaintext is split into blocks of ${n} letters. Each block is multiplied by the key matrix mod 26. ${m('[C] = [P] × K (mod 26)')}</div>
+                ${mat ? '<div style="margin-bottom:8px;"><div class="mat-disp">' + printMat(mat).replace(/ /g, '&nbsp;') + '</div></div>' : ''}
+                <div class="tscroll">${buildTable(rows, [`Plain (×${n})`, 'Operation', `Cipher (×${n})`])}</div>
+            </div>`;
+        } else if (cipher === 'aes') {
+            html = `<div class="sol-box" style="border-color:rgba(16,185,129,0.3);">
+                <div class="sol-title" style="color:var(--green-light);">AES-256 Block Cipher</div>
+                <div class="sol-explain">AES operates on 128-bit blocks through 14 rounds of SubBytes, ShiftRows, MixColumns, and AddRoundKey. Each round's state is a 4×4 byte matrix.</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0;">
+                    <div style="flex:1;min-width:120px;padding:10px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:6px;text-align:center;">
+                        <div style="font-size:0.5625rem;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">ROUND 1</div>
+                        <div style="color:var(--blue-light);font-size:0.6875rem;font-family:var(--mono);">SubBytes</div>
+                    </div>
+                    <div style="flex:1;min-width:120px;padding:10px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:6px;text-align:center;">
+                        <div style="font-size:0.5625rem;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">ROUND 2</div>
+                        <div style="color:var(--purple-light);font-size:0.6875rem;font-family:var(--mono);">ShiftRows</div>
+                    </div>
+                    <div style="flex:1;min-width:120px;padding:10px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:6px;text-align:center;">
+                        <div style="font-size:0.5625rem;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">ROUND 3</div>
+                        <div style="color:var(--green-light);font-size:0.6875rem;font-family:var(--mono);">MixColumns</div>
+                    </div>
+                    <div style="flex:1;min-width:120px;padding:10px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:6px;text-align:center;">
+                        <div style="font-size:0.5625rem;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">ROUND 4</div>
+                        <div style="color:#f59e0b;font-size:0.6875rem;font-family:var(--mono);">AddRoundKey</div>
+                    </div>
+                </div>
+                <div style="color:var(--muted-2);font-size:0.6875rem;line-height:1.7;">
+                    This 4-step process repeats for all 14 rounds. The key schedule expands the 256-bit key into 15 round sub-keys. The final round omits MixColumns. Each round creates an avalanche effect where changing a single input bit diffuses to affect every output bit.
+                </div>
+            </div>`;
+        } else if (cipher === 'quantum') {
+            html = `<div class="sol-box" style="border-color:rgba(139,92,246,0.3);">
+                <div class="sol-title" style="color:var(--purple-light);">BB84 Quantum Key Distribution</div>
+                <div class="sol-explain">BB84 uses random photon polarizations sent across a quantum channel. Alice sends photons, Bob measures them with random bases, then they publicly compare basis choices (but not values).</div>
+                <div style="background:rgba(0,0,0,0.2);padding:12px;border-radius:6px;margin:12px 0;color:var(--muted-2);font-size:0.6875rem;line-height:1.6;">
+                    <strong>Sifting Process:</strong> Only bits where bases matched are kept (~50% survival rate). The remaining bits form the sifted key. This key is then used with a one-time pad for perfect secrecy.
+                </div>
+            </div>`;
+        } else {
+            html = '<div style="text-align:center;color:var(--muted);font-style:italic;padding:2rem 0;">Select a cipher to see step-by-step breakdown.</div>';
+        }
+
+        stepsContainer.innerHTML = html;
     }
 
     // -- Input Hooks for Live Example ------------------------------

@@ -7,9 +7,9 @@
             <div class="manual-terminal anim-in">
                 ${algoHeader('MANUAL DECRYPTION, CAESAR SHIFT', 'var(--purple-light)').replace('algo-terminal', 'manual-terminal').replace('algo-header', 'manual-header').replace('algo-title', 'manual-title')}
                 <div class="manual-body">
-                    <div style="color:var(--muted);font-size:10px;">Try each reverse shift until the plaintext makes sense.</div>
+                    <div style="color:var(--muted);font-size:10px;">Try each shift until the plaintext makes sense.</div>
                     <div>
-                        <div style="color:var(--muted);font-size:10px;letter-spacing:1px;margin-bottom:4px;">REVERSE SHIFT: <span id="manual-shift-val" style="color:var(--blue-light);font-weight:800;">1</span></div>
+                        <div style="color:var(--muted);font-size:10px;letter-spacing:1px;margin-bottom:4px;">SHIFT: <span id="manual-shift-val" style="color:var(--blue-light);font-weight:800;">1</span></div>
                         <input type="range" id="manual-caesar-slider" min="1" max="25" value="1" style="margin-bottom:4px;">
                         <div id="manual-caesar-out" class="brute-out" style="font-size:12px;min-height:28px;padding:8px 12px;"></div>
                     </div>
@@ -28,7 +28,7 @@
         const slider = document.getElementById('manual-caesar-slider');
         const out = document.getElementById('manual-caesar-out');
         const lbl = document.getElementById('manual-shift-val');
-        function update() { const v = parseInt(slider.value); lbl.textContent = v; out.textContent = caesarShift(activePayload, v); }
+        function update() { const v = parseInt(slider.value); lbl.textContent = v; out.textContent = caesarShift(activePayload, (26 - v) % 26 || 26); }
         slider.oninput = update; update();
     }
     function checkCaesarManual() {

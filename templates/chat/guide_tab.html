@@ -4,85 +4,99 @@
                             Plaintext involves no cryptographic operations.</div>
 
                         <div id="hist-caesar" class="history-block" style="display:none;">
-                            <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Julius Caesar's
-                                Cipher</h3>
-                            <p style="margin-top:0;">Historically utilized by Julius Caesar to protect messages of
-                                military significance, this substitution cipher replaces each letter in the plaintext
-                                with a letter a fixed number of positions down the alphabet.</p>
+                            <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Julius Caesar's Cipher</h3>
+                            <p style="margin-top:0;">Historically utilized by Julius Caesar to protect messages of military significance, this substitution cipher replaces each letter in the plaintext with a letter a fixed number of positions down the alphabet. It is one of the oldest and simplest known encryption techniques, dating back to 58 BC during the Gallic Wars.</p>
 
-                            <h4
-                                style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">
-                                How the Shift Works</h4>
-                            <p style="margin-top:0;">Imagine the alphabet written on a wheel. If your shift key is
-                                <strong>3</strong>, you spin the wheel forward by 3 spaces. 'A' becomes 'D', 'B' becomes
-                                'E', and so on. When you reach the end of the alphabet, it simply wraps back around to
-                                the beginning, so 'X' becomes 'A', 'Y' becomes 'B', and 'Z' becomes 'C'.</p>
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">How the Shift Works</h4>
+                            <p style="margin-top:0;">Imagine the alphabet written on a wheel. If your shift key is <strong>3</strong>, you spin the wheel forward by 3 spaces. 'A' becomes 'D', 'B' becomes 'E', and so on. When you reach the end of the alphabet, it simply wraps back around to the beginning, so 'X' becomes 'A', 'Y' becomes 'B', and 'Z' becomes 'C'.</p>
 
-                            <h4
-                                style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">
-                                The Math</h4>
-                            <p style="margin-top:0;">Mathematically, this is expressed using modular arithmetic: <code
-                                    style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;">C = (P + shift) mod 26</code>.
-                                The "mod 26" is the mathematical mechanism that handles the looping of the 26 letters.
-                            </p>
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">The Math</h4>
+                            <p style="margin-top:0;">Mathematically, this is expressed using modular arithmetic: <code style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;">C = (P + shift) mod 26</code>. The "mod 26" is the mathematical mechanism that handles the looping of the 26 letters. To decrypt, we simply reverse the process: <code style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;">P = (C − shift + 26) mod 26</code>.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Weakness</h4>
+                            <p style="margin-top:0;">The Caesar cipher has only <strong>25 possible keys</strong>, making it extremely vulnerable to brute force attacks. An attacker can simply try all 25 shifts and find the correct one in seconds. It is also trivially broken by frequency analysis, since the letter distribution in English is well-known, the most common ciphertext letter likely maps to 'E'.</p>
                         </div>
 
                         <div id="hist-affine" class="history-block" style="display:none;">
                             <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">The Affine Cipher</h3>
-                            <p style="margin-top:0;">The Affine cipher is a type of monoalphabetic substitution cipher, where each letter in an alphabet is mapped to its numeric equivalent, encrypted using a simple mathematical function, and converted back to a letter.</p>
+                            <p style="margin-top:0;">The Affine cipher is a type of monoalphabetic substitution cipher, where each letter in an alphabet is mapped to its numeric equivalent, encrypted using a simple mathematical function, and converted back to a letter. It generalizes the Caesar cipher by adding a multiplication step before the shift.</p>
+
                             <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">The Math</h4>
-                            <p style="margin-top:0;">The encryption function is <code style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;">E(x) = (A * x + B) mod 26</code>. The multiplier 'A' must be coprime with 26 for the cipher to be reversible.</p>
+                            <p style="margin-top:0;">The encryption function is <code style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;">E(x) = (A × x + B) mod 26</code>. The multiplier 'A' must be coprime with 26 for the cipher to be reversible. Valid values for A are: 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Why Coprime?</h4>
+                            <p style="margin-top:0;">If A shares a common factor with 26, multiple plaintext letters would map to the same ciphertext letter, making decryption impossible. The coprime requirement ensures a one-to-one mapping.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Decryption</h4>
+                            <p style="margin-top:0;">The decryption formula is <code style="font-family:var(--mono);background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:3px;">D(y) = A⁻¹ × (y − B) mod 26</code>, where A⁻¹ is the modular multiplicative inverse of A modulo 26. For example, if A = 5, then A⁻¹ = 21, because (5 × 21) mod 26 = 1.</p>
                         </div>
 
                         <div id="hist-hill" class="history-block" style="display:none;">
-                            <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Lester S. Hill's
-                                Matrix Cipher</h3>
-                            <p style="margin-top:0;">Invented in 1929, the Hill cipher revolutionized cryptology by
-                                introducing linear algebra into encryption. Instead of shifting single letters, it
-                                encrypts letters in chunks (blocks) by multiplying them against a grid of numbers known
-                                as the <strong>Key Matrix</strong>.</p>
+                            <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Lester S. Hill's Matrix Cipher</h3>
+                            <p style="margin-top:0;">Invented in 1929, the Hill cipher was the first polygraphic substitution cipher based on linear algebra. Instead of encrypting one letter at a time, it encrypts groups of letters simultaneously using matrix multiplication, a revolutionary concept for its time.</p>
 
-                            <h4
-                                style="color:var(--purple-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">
-                                What is a Determinant?</h4>
-                            <p style="margin-top:0;">The <strong>determinant</strong> is a special number calculated
-                                directly from the Key Matrix. Think of the determinant as the matrix's gatekeeper, it
-                                tells us crucial information about whether the encryption can actually be reversed.</p>
+                            <h4 style="color:var(--purple-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">How It Works</h4>
+                            <p style="margin-top:0;">Letters are converted to numbers (A=0, B=1, …, Z=25) and grouped into blocks matching the matrix size. Each block is multiplied by the <strong>Key Matrix</strong>, and the results are taken modulo 26 to produce ciphertext letters. A 2×2 matrix encrypts pairs, a 3×3 encrypts triplets, and so on.</p>
 
-                            <h4
-                                style="color:var(--purple-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">
-                                Rules for Decryption</h4>
-                            <p style="margin-top:0;">To decrypt a Hill Cipher, the receiver must calculate the
-                                <i>inverse</i> of the Key Matrix. For this mathematical magic to work in our 26-letter
-                                alphabet:
-                            <ol style="margin-top:4px;padding-left:16px;color:var(--muted-2);">
-                                <li style="margin-bottom:4px;"><strong>The determinant cannot be 0.</strong> If it is 0,
-                                    the matrix mathematically collapses.</li>
-                                <li><strong>It must be coprime with 26.</strong> The determinant cannot share any common
-                                    factors with the number 26.</li>
+                            <h4 style="color:var(--purple-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">What is a Determinant?</h4>
+                            <p style="margin-top:0;">The <strong>determinant</strong> is a special number calculated directly from the Key Matrix. Think of the determinant as the matrix's gatekeeper, it tells us crucial information about whether the encryption can actually be reversed (decrypted).</p>
+
+                            <h4 style="color:var(--purple-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Rules for Decryption</h4>
+                            <p style="margin-top:0;">To decrypt a Hill Cipher, the receiver must calculate the <em>inverse</em> of the Key Matrix. For this mathematical magic to work in our 26-letter alphabet:</p>
+                            <ol style="margin-top:0.5rem;padding-left:1rem;color:var(--muted-2);">
+                                <li style="margin-bottom:0.25rem;"><strong>The determinant cannot be 0.</strong> If it is 0, the matrix mathematically collapses and cannot be inverted.</li>
+                                <li><strong>It must be coprime with 26.</strong> The determinant cannot share any common factors with the number 26 (i.e., it cannot be divisible by 2 or 13).</li>
                             </ol>
-                            </p>
                         </div>
 
                         <div id="hist-aes" class="history-block" style="display:none;">
-                            <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Advanced Encryption
-                                Standard</h3>
-                            <p style="margin-top:0;">Adopted by NIST in 2001, the Rijndael cipher (AES) is the
-                                definitive global standard for symmetric key encryption.</p>
-                            <p>With key sizes up to 256 bits, it is considered impenetrable by classical brute force.
-                            </p>
+                            <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Advanced Encryption Standard</h3>
+                            <p style="margin-top:0;">Adopted by NIST in 2001, the Rijndael cipher (now known as AES) is the definitive global standard for symmetric-key encryption. It replaced the aging DES standard and is used in everything from HTTPS to disk encryption to government classified communications.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Key Strength</h4>
+                            <p style="margin-top:0;">AES-256 uses <strong>256-bit keys</strong>, providing a keyspace of 2²⁵⁶ possible keys. This number is astronomically large, more than the number of atoms in the observable universe. It would take billions of years for all of today's supercomputers combined to brute force a single AES-256 key.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">The 14 Rounds</h4>
+                            <p style="margin-top:0;">AES-256 processes data through <strong>14 rounds of transformation</strong>. Each round applies four operations to a 4×4 byte state matrix:</p>
+                            <ol style="margin-top:0.5rem;padding-left:1rem;color:var(--muted-2);">
+                                <li style="margin-bottom:0.25rem;"><strong>SubBytes</strong>, Non-linear byte substitution using an S-Box lookup table</li>
+                                <li style="margin-bottom:0.25rem;"><strong>ShiftRows</strong>, Cyclic left-shift of each row by different offsets</li>
+                                <li style="margin-bottom:0.25rem;"><strong>MixColumns</strong>, Matrix multiplication in the Galois field GF(2⁸)</li>
+                                <li><strong>AddRoundKey</strong>, XOR the state with the round's sub-key</li>
+                            </ol>
+                            <p style="margin-top:0.5rem;">The combination of these operations creates a powerful <strong>avalanche effect</strong>: changing a single input bit affects every bit of the output. AES is considered impenetrable by classical brute force.</p>
                         </div>
                         <div id="hist-vigenere" class="history-block" style="display:none;">
-                            <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Le Chiffre
-                                Indéchiffrable</h3>
-                            <p style="margin-top:0;">For 300 years considered entirely unbreakable, ultimately defeated
-                                in 1863 by Friedrich Kasiski through pattern analysis.</p>
+                            <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">Le Chiffre Indéchiffrable</h3>
+                            <p style="margin-top:0;">For over <strong>300 years</strong>, the Vigenère cipher was considered entirely unbreakable, earning the French nickname "Le Chiffre Indéchiffrable" (the indecipherable cipher). It was ultimately defeated in 1863 by Friedrich Kasiski through brilliant pattern analysis.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">The Keyword System</h4>
+                            <p style="margin-top:0;">Unlike the Caesar cipher's single shift, Vigenère uses a keyword that repeats over the plaintext. Each letter of the keyword provides a different shift value, creating a polyalphabetic cipher. For example, with keyword "KEY": K shifts by 10, E shifts by 4, Y shifts by 24, then the pattern repeats.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Why It Worked So Well</h4>
+                            <p style="margin-top:0;">Each plaintext letter effectively gets its own Caesar shift, determined by the corresponding keyword letter. This scrambles the letter frequency distribution that makes simple substitution ciphers so easy to break. The longer the keyword, the more effectively it disguises the underlying frequencies.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">How Kasiski Broke It</h4>
+                            <p style="margin-top:0;">Kasiski noticed that repeated sequences in the ciphertext (trigrams) tend to occur at distances that are multiples of the key length. By finding these repetitions and computing the GCD of their distances, the key length can be determined. Once the key length is known, each "column" of the ciphertext becomes a simple Caesar cipher, breakable by frequency analysis.</p>
                         </div>
                         <div id="hist-quantum" class="history-block" style="display:none;">
-                            <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">BB84 Quantum
-                                Cryptography</h3>
-                            <p style="margin-top:0;">Developed in 1984, BB84 relies on quantum physics. Measuring a
-                                quantum state alters it, making interception physically detectable.</p>
+                            <h3 style="color:#fff;margin:0 0 8px 0;font-size:16px;font-weight:800;">BB84 Quantum Key Distribution</h3>
+                            <p style="margin-top:0;">Developed in 1984 by Charles Bennett and Gilles Brassard, BB84 was the first quantum cryptography protocol. It doesn't encrypt data directly, instead, it provides a method for two parties to securely generate a shared secret key using the laws of quantum physics.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Quantum Superposition</h4>
+                            <p style="margin-top:0;">In BB84, each bit of the key is encoded as the polarization of a single photon. Photons are sent in randomly chosen <strong>bases</strong>: rectilinear (+) using horizontal/vertical polarization, or diagonal (×) using 45°/135° polarization. A photon exists in a superposition of states until it is measured.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Measurement Disturbs the State</h4>
+                            <p style="margin-top:0;">This is the core quantum principle that makes BB84 secure: <strong>measuring a quantum state alters it</strong>. If an eavesdropper (Eve) tries to intercept photons, she must measure them, but if she guesses the wrong basis, she irreversibly changes the photon's state. This introduces detectable errors.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">The Sifting Process</h4>
+                            <p style="margin-top:0;">After transmission, Alice and Bob publicly compare which bases they used (but not the bit values). They keep only the bits where their bases matched, this is the <strong>sifted key</strong>. Roughly 50% of bits survive sifting.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">Eavesdrop Detection</h4>
+                            <p style="margin-top:0;">Alice and Bob sacrifice a portion of their sifted key to check for errors. In a clean channel, error rate is ~0%. If Eve intercepted, the error rate spikes to ~25%. If errors exceed a threshold, they discard the key and start over.</p>
+
+                            <h4 style="color:var(--blue-light);font-size:12px;margin:12px 0 4px 0;letter-spacing:1px;text-transform:uppercase;">One-Time Pad</h4>
+                            <p style="margin-top:0;">The final shared key is used with a <strong>one-time pad</strong> (XOR) cipher, the only encryption method that is mathematically proven to be perfectly secure, provided the key is truly random and used only once.</p>
                         </div>
 
                         <div id="sol-dynamic" style="display:none;">
